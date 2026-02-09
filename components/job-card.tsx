@@ -15,13 +15,17 @@ import {
   DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { MoreVertical, MapPin, DollarSign, Calendar, Trash2 } from 'lucide-react'
+import { MoreVertical, MapPin, DollarSign, Calendar, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { EditJobDialog } from './edit-job-dialog'
 
 interface JobCardProps {
   job: Job
   onUpdate: (id: string, updates: Partial<Job>) => void
   onDelete: (id: string) => void
+  canMoveLeft?: boolean
+  canMoveRight?: boolean
+  onMoveLeft?: () => void
+  onMoveRight?: () => void
 }
 
 const statusLabels: Record<JobStatus, string> = {
@@ -31,7 +35,7 @@ const statusLabels: Record<JobStatus, string> = {
   rejected: 'Rejected',
 }
 
-export function JobCard({ job, onUpdate, onDelete }: JobCardProps) {
+export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, onMoveLeft, onMoveRight }: JobCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
   const handleStatusChange = (newStatus: JobStatus) => {
@@ -114,6 +118,34 @@ export function JobCard({ job, onUpdate, onDelete }: JobCardProps) {
             </p>
           )}
         </CardContent>
+        
+        {/* Arrow Navigation */}
+        <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-center justify-between px-2 opacity-0 transition-opacity group-hover:opacity-100">
+          {canMoveLeft && onMoveLeft ? (
+            <Button
+              variant="secondary"
+              size="icon"
+              className="h-8 w-8 rounded-full shadow-lg"
+              onClick={onMoveLeft}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          ) : (
+            <div />
+          )}
+          {canMoveRight && onMoveRight ? (
+            <Button
+              variant="secondary"
+              size="icon"
+              className="h-8 w-8 rounded-full shadow-lg"
+              onClick={onMoveRight}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <div />
+          )}
+        </div>
       </Card>
 
       <EditJobDialog

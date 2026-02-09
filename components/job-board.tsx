@@ -17,6 +17,22 @@ const columns: { status: JobStatus; label: string; color: string }[] = [
 ]
 
 export function JobBoard({ jobs, onUpdateJob, onDeleteJob }: JobBoardProps) {
+  const getNextStatus = (currentStatus: JobStatus): JobStatus | null => {
+    const currentIndex = columns.findIndex((col) => col.status === currentStatus)
+    if (currentIndex >= 0 && currentIndex < columns.length - 1) {
+      return columns[currentIndex + 1].status
+    }
+    return null
+  }
+
+  const getPrevStatus = (currentStatus: JobStatus): JobStatus | null => {
+    const currentIndex = columns.findIndex((col) => col.status === currentStatus)
+    if (currentIndex > 0) {
+      return columns[currentIndex - 1].status
+    }
+    return null
+  }
+
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
       {columns.map((column) => (
@@ -32,14 +48,31 @@ export function JobBoard({ jobs, onUpdateJob, onDeleteJob }: JobBoardProps) {
           <div className="flex flex-1 flex-col gap-3">
             {jobs
               .filter((job) => job.status === column.status)
-              .map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  onUpdate={onUpdateJob}
-                  onDelete={onDeleteJob}
-                />
-              ))}
+              .map((job) => {
+                const prevStatus = getPrevStatus(job.status)
+                const nextStatus = getNextStatus(job.status)
+                
+                return (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    onUpdate={onUpdateJob}
+                    onDelete={onDeleteJob}
+                    canMoveLeft={prevStatus !== null}
+                    canMoveRight={nextStatus !== null}
+                    onMoveLeft={
+                      prevStatus
+                        ? () => onUpdateJob(job.id, { status: prevStatus })
+                        : undefined
+                    }
+                    onMoveRight={
+                      nextStatus
+                        ? () => onUpdateJob(job.id, { status: nextStatus })
+                        : undefined
+                    }
+                  />
+                )
+              })}
             {jobs.filter((job) => job.status === column.status).length ===
               0 && (
               <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 text-sm text-muted-foreground">
