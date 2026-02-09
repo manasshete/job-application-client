@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Sparkles, Loader2 } from 'lucide-react'
 
 interface AddJobDialogProps {
   open: boolean
@@ -35,6 +36,8 @@ export function AddJobDialog({
   onOpenChange,
   onAddJob,
 }: AddJobDialogProps) {
+  const [jobUrl, setJobUrl] = useState('')
+  const [isExtracting, setIsExtracting] = useState(false)
   const [formData, setFormData] = useState({
     company: '',
     position: '',
@@ -44,6 +47,39 @@ export function AddJobDialog({
     location: '',
     notes: '',
   })
+
+  const handleExtractJob = async () => {
+    if (!jobUrl) return
+
+    setIsExtracting(true)
+    try {
+      const response = await fetch('/api/extract-job', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: jobUrl }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to extract job details')
+      }
+
+      const data = await response.json()
+      
+      setFormData({
+        ...formData,
+        company: data.company || formData.company,
+        position: data.position || formData.position,
+        location: data.location || formData.location,
+        salary: data.salary || formData.salary,
+        notes: data.description || formData.notes,
+      })
+    } catch (error) {
+      console.error('[v0] Extraction error:', error)
+      alert('Failed to extract job details. Please fill in manually.')
+    } finally {
+      setIsExtracting(false)
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,6 +93,7 @@ export function AddJobDialog({
       location: '',
       notes: '',
     })
+    setJobUrl('')
     onOpenChange(false)
   }
 
@@ -71,6 +108,41 @@ export function AddJobDialog({
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="jobUrl">Job Posting URL (Optional)</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="jobUrl"
+                  value={jobUrl}
+                  onChange={(e) => setJobUrl(e.target.value)}
+                  placeholder="https://example.com/jobs/123"
+                  type="url"
+                  disabled={isExtracting}
+                />
+                <Button
+                  type="button"
+                  onClick={handleExtractJob}
+                  disabled={!jobUrl || isExtracting}
+                  variant="secondary"
+                  className="shrink-0"
+                >
+                  {isExtracting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Extracting
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Extract
+                    </>
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Paste a job posting URL to automatically extract details
+              </p>
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="company">Company *</Label>
               <Input
