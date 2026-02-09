@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Sparkles, Loader2 } from 'lucide-react'
+import { sanitizeInput, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
 
 interface AddJobDialogProps {
   open: boolean
@@ -85,7 +86,25 @@ export function AddJobDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onAddJob(formData)
+    
+    // Validate URL if provided
+    if (formData.jobUrl && !isValidUrl(formData.jobUrl)) {
+      alert('Invalid URL. Please enter a valid HTTP or HTTPS URL.')
+      return
+    }
+    
+    // Sanitize all text inputs
+    const sanitizedData = {
+      ...formData,
+      company: sanitizeInput(formData.company),
+      position: sanitizeInput(formData.position),
+      location: sanitizeInput(formData.location),
+      salary: sanitizeInput(formData.salary),
+      notes: sanitizeInput(formData.notes),
+      jobUrl: formData.jobUrl ? sanitizeInput(formData.jobUrl) : '',
+    }
+    
+    onAddJob(sanitizedData)
     setFormData({
       company: '',
       position: '',
@@ -155,6 +174,7 @@ export function AddJobDialog({
                   setFormData({ ...formData, company: e.target.value })
                 }
                 placeholder="Acme Inc."
+                maxLength={MAX_LENGTHS.COMPANY}
                 required
               />
             </div>
@@ -167,6 +187,7 @@ export function AddJobDialog({
                   setFormData({ ...formData, position: e.target.value })
                 }
                 placeholder="Software Engineer"
+                maxLength={MAX_LENGTHS.POSITION}
                 required
               />
             </div>
@@ -213,6 +234,7 @@ export function AddJobDialog({
                     setFormData({ ...formData, location: e.target.value })
                   }
                   placeholder="San Francisco, CA"
+                  maxLength={MAX_LENGTHS.LOCATION}
                 />
               </div>
               <div className="grid gap-2">
@@ -224,6 +246,7 @@ export function AddJobDialog({
                     setFormData({ ...formData, salary: e.target.value })
                   }
                   placeholder="$120k - $150k"
+                  maxLength={MAX_LENGTHS.SALARY}
                 />
               </div>
             </div>
@@ -236,6 +259,7 @@ export function AddJobDialog({
                   setFormData({ ...formData, notes: e.target.value })
                 }
                 placeholder="Additional notes about the application..."
+                maxLength={MAX_LENGTHS.NOTES}
                 rows={3}
               />
             </div>

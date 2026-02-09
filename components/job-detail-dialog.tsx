@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/select'
 import { ExternalLink, Calendar, MapPin, DollarSign, Briefcase, FileText } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { sanitizeInput, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
 
 interface JobDetailDialogProps {
   job: Job
@@ -76,7 +77,25 @@ export function JobDetailDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onUpdateJob(formData)
+    
+    // Validate URL if provided
+    if (formData.jobUrl && !isValidUrl(formData.jobUrl)) {
+      alert('Invalid URL. Please enter a valid HTTP or HTTPS URL.')
+      return
+    }
+    
+    // Sanitize all text inputs
+    const sanitizedData = {
+      ...formData,
+      company: sanitizeInput(formData.company),
+      position: sanitizeInput(formData.position),
+      location: sanitizeInput(formData.location),
+      salary: sanitizeInput(formData.salary),
+      notes: sanitizeInput(formData.notes),
+      jobUrl: formData.jobUrl ? sanitizeInput(formData.jobUrl) : '',
+    }
+    
+    onUpdateJob(sanitizedData)
     setIsEditing(false)
   }
 
@@ -206,6 +225,7 @@ export function JobDetailDialog({
                     setFormData({ ...formData, company: e.target.value })
                   }
                   placeholder="Acme Inc."
+                  maxLength={MAX_LENGTHS.COMPANY}
                   required
                 />
               </div>
@@ -218,6 +238,7 @@ export function JobDetailDialog({
                     setFormData({ ...formData, position: e.target.value })
                   }
                   placeholder="Software Engineer"
+                  maxLength={MAX_LENGTHS.POSITION}
                   required
                 />
               </div>
@@ -264,6 +285,7 @@ export function JobDetailDialog({
                       setFormData({ ...formData, location: e.target.value })
                     }
                     placeholder="San Francisco, CA"
+                    maxLength={MAX_LENGTHS.LOCATION}
                   />
                 </div>
                 <div className="grid gap-2">
@@ -275,6 +297,7 @@ export function JobDetailDialog({
                       setFormData({ ...formData, salary: e.target.value })
                     }
                     placeholder="$120k - $150k"
+                    maxLength={MAX_LENGTHS.SALARY}
                   />
                 </div>
               </div>
@@ -288,6 +311,7 @@ export function JobDetailDialog({
                     setFormData({ ...formData, jobUrl: e.target.value })
                   }
                   placeholder="https://example.com/jobs/123"
+                  maxLength={MAX_LENGTHS.URL}
                 />
               </div>
               <div className="grid gap-2">
@@ -299,6 +323,7 @@ export function JobDetailDialog({
                     setFormData({ ...formData, notes: e.target.value })
                   }
                   placeholder="Additional notes about the application..."
+                  maxLength={MAX_LENGTHS.NOTES}
                   rows={4}
                 />
               </div>
