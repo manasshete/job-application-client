@@ -26,6 +26,8 @@ import {
 import { ExternalLink, Calendar, MapPin, DollarSign, Briefcase, FileText } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { sanitizeInput, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
+import { InterviewTaskSection } from './interview-task-section'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface JobDetailDialogProps {
   job: Job
@@ -59,6 +61,8 @@ export function JobDetailDialog({
     location: job.location || '',
     notes: job.notes || '',
     jobUrl: job.jobUrl || '',
+    interviews: job.interviews || [],
+    tasks: job.tasks || [],
   })
 
   useEffect(() => {
@@ -71,6 +75,8 @@ export function JobDetailDialog({
       location: job.location || '',
       notes: job.notes || '',
       jobUrl: job.jobUrl || '',
+      interviews: job.interviews || [],
+      tasks: job.tasks || [],
     })
     setIsEditing(false)
   }, [job, open])
@@ -183,6 +189,47 @@ export function JobDetailDialog({
                   </p>
                 </div>
               )}
+
+              <Tabs defaultValue="details" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="details">Details</TabsTrigger>
+                  <TabsTrigger value="interviews">
+                    Interviews {job.interviews && job.interviews.length > 0 && `(${job.interviews.length})`}
+                  </TabsTrigger>
+                  <TabsTrigger value="tasks">
+                    Tasks {job.tasks && job.tasks.length > 0 && `(${job.tasks.length})`}
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="details" className="mt-4">
+                  <p className="text-sm text-muted-foreground">
+                    All job details are displayed above. Click Edit to modify.
+                  </p>
+                </TabsContent>
+                <TabsContent value="interviews" className="mt-4">
+                  <InterviewTaskSection
+                    interviews={formData.interviews}
+                    tasks={[]}
+                    onUpdateInterviews={(interviews) => {
+                      const updated = { ...formData, interviews }
+                      setFormData(updated)
+                      onUpdateJob({ interviews })
+                    }}
+                    onUpdateTasks={() => {}}
+                  />
+                </TabsContent>
+                <TabsContent value="tasks" className="mt-4">
+                  <InterviewTaskSection
+                    interviews={[]}
+                    tasks={formData.tasks}
+                    onUpdateInterviews={() => {}}
+                    onUpdateTasks={(tasks) => {
+                      const updated = { ...formData, tasks }
+                      setFormData(updated)
+                      onUpdateJob({ tasks })
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
 
             <DialogFooter className="gap-2 sm:gap-0">

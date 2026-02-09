@@ -10,6 +10,25 @@ import { Input } from '@/components/ui/input'
 
 export type JobStatus = 'applied' | 'interview' | 'offer' | 'rejected'
 
+export type InterviewStatus = 'scheduled' | 'completed' | 'pending'
+export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'submitted'
+
+export interface Interview {
+  id: string
+  round: string
+  date?: string
+  status: InterviewStatus
+  notes?: string
+}
+
+export interface Task {
+  id: string
+  title: string
+  dueDate?: string
+  status: TaskStatus
+  notes?: string
+}
+
 export interface Job {
   id: string
   company: string
@@ -20,6 +39,8 @@ export interface Job {
   location?: string
   notes?: string
   jobUrl?: string
+  interviews?: Interview[]
+  tasks?: Task[]
 }
 
 export default function Page() {
