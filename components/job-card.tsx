@@ -15,8 +15,9 @@ import {
   DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { MoreVertical, MapPin, DollarSign, Calendar, Trash2, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
+import { MoreVertical, MapPin, DollarSign, Calendar, Trash2, ChevronLeft, ChevronRight, ExternalLink, Users, ClipboardList, CheckCircle2, Clock } from 'lucide-react'
 import { JobDetailDialog } from './job-detail-dialog'
+import { Badge } from '@/components/ui/badge'
 
 interface JobCardProps {
   job: Job
@@ -138,6 +139,36 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
               {job.notes}
             </p>
           )}
+
+          {/* Interview and Task Indicators */}
+          {(job.interviews && job.interviews.length > 0) || (job.tasks && job.tasks.length > 0) ? (
+            <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
+              {job.interviews && job.interviews.length > 0 && (
+                <Badge variant="secondary" className="flex items-center gap-1.5 text-xs">
+                  <Users className="h-3 w-3" />
+                  <span>{job.interviews.length} Interview{job.interviews.length !== 1 ? 's' : ''}</span>
+                  {job.interviews.some(i => i.status === 'completed') && (
+                    <CheckCircle2 className="h-3 w-3 text-green-500" />
+                  )}
+                  {job.interviews.some(i => i.status === 'scheduled') && (
+                    <Clock className="h-3 w-3 text-amber-500" />
+                  )}
+                </Badge>
+              )}
+              {job.tasks && job.tasks.length > 0 && (
+                <Badge variant="secondary" className="flex items-center gap-1.5 text-xs">
+                  <ClipboardList className="h-3 w-3" />
+                  <span>{job.tasks.length} Task{job.tasks.length !== 1 ? 's' : ''}</span>
+                  {job.tasks.some(t => t.status === 'completed' || t.status === 'submitted') && (
+                    <CheckCircle2 className="h-3 w-3 text-green-500" />
+                  )}
+                  {job.tasks.some(t => t.status === 'in-progress') && (
+                    <Clock className="h-3 w-3 text-amber-500" />
+                  )}
+                </Badge>
+              )}
+            </div>
+          ) : null}
         </CardContent>
         
         {/* Arrow Navigation */}
