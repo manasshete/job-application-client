@@ -3,6 +3,9 @@ import { z } from 'zod'
 import { isValidUrl, isPublicUrl, MAX_LENGTHS } from '@/lib/validation'
 import { rateLimit } from '@/lib/rate-limit'
 import { headers } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
+import { getProfile, incrementAIExtractionCount } from '@/lib/data/profiles'
+import { checkLimit } from '@/lib/subscription'
 
 const jobDetailsSchema = z.object({
   company: z.string().nullable(),
@@ -14,10 +17,29 @@ const jobDetailsSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    // Rate limiting by IP
-    const headersList = await headers()
-    const ip = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
-    const rateLimitResult = rateLimit(`extract-job:${ip}`, 10, 60000)
+    // Authentication check
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      return Response.json({ error: 'Authentication required' }, { status: 401 })
+    }
+
+    // Check subscription limits
+    const profile = await getProfile()
+    if (!profile) {
+      return Response.json({ error: 'Profile not found' }, { status: 404 })
+    }
+
+    if (!checkLimit(profile.subscription_tier, profile.ai_extractions_used, 'aiExtractionLimit')) {
+      return Response.json(
+        { error: 'AI extraction limit reached. Please upgrade your plan.' },
+        { status: 403 }
+      )
+    }
+
+    // Rate limiting by user ID (more secure than IP)
+    const rateLimitResult = rateLimit(`extract-job:${user.id}`, 10, 60000)
     
     if (!rateLimitResult.success) {
       return Response.json(
@@ -104,6 +126,9 @@ export async function POST(req: Request) {
         },
       ],
     })
+
+    // Increment AI extraction count
+    await incrementAIExtractionCount()
 
     return Response.json(result.output)
   } catch (error) {
