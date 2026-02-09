@@ -50,12 +50,12 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
   return (
     <>
       <Card 
-        className="group relative cursor-pointer transition-all hover:shadow-md" 
+        className="group relative cursor-pointer overflow-hidden transition-all hover:shadow-md" 
         onClick={handleCardClick}
       >
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <CardTitle className="text-base font-semibold leading-tight text-card-foreground">
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle className="flex-1 text-base font-semibold leading-tight text-card-foreground">
               {job.jobUrl ? (
                 <a
                   href={job.jobUrl}
@@ -64,11 +64,11 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
                   className="inline-flex items-center gap-1.5 text-primary underline-offset-4 hover:underline"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {job.position}
-                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span className="line-clamp-2">{job.position}</span>
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0" />
                 </a>
               ) : (
-                job.position
+                <span className="line-clamp-2">{job.position}</span>
               )}
             </CardTitle>
             <DropdownMenu>
@@ -76,7 +76,7 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
+                  className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <MoreVertical className="h-4 w-4" />
@@ -113,29 +113,31 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <p className="text-sm font-medium text-muted-foreground">
+          <p className="mt-1 line-clamp-1 text-sm font-medium text-muted-foreground">
             {job.company}
           </p>
         </CardHeader>
-        <CardContent className="space-y-2 pb-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <Calendar className="h-3.5 w-3.5" />
-            <span>{new Date(job.dateApplied).toLocaleDateString()}</span>
+        <CardContent className="space-y-2.5 pb-4">
+          <div className="space-y-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{new Date(job.dateApplied).toLocaleDateString()}</span>
+            </div>
+            {job.location && (
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{job.location}</span>
+              </div>
+            )}
+            {job.salary && (
+              <div className="flex items-center gap-1.5">
+                <DollarSign className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{job.salary}</span>
+              </div>
+            )}
           </div>
-          {job.location && (
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5" />
-              <span>{job.location}</span>
-            </div>
-          )}
-          {job.salary && (
-            <div className="flex items-center gap-1.5">
-              <DollarSign className="h-3.5 w-3.5" />
-              <span>{job.salary}</span>
-            </div>
-          )}
           {job.notes && (
-            <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">
+            <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
               {job.notes}
             </p>
           )}
@@ -172,38 +174,32 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
         </CardContent>
         
         {/* Arrow Navigation */}
-        <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-center justify-between px-2 opacity-0 transition-opacity group-hover:opacity-100">
-          {canMoveLeft && onMoveLeft ? (
-            <Button
-              variant="secondary"
-              size="icon"
-              className="h-8 w-8 rounded-full shadow-lg"
-              onClick={(e) => {
-                e.stopPropagation()
-                onMoveLeft()
-              }}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          ) : (
-            <div />
-          )}
-          {canMoveRight && onMoveRight ? (
-            <Button
-              variant="secondary"
-              size="icon"
-              className="h-8 w-8 rounded-full shadow-lg"
-              onClick={(e) => {
-                e.stopPropagation()
-                onMoveRight()
-              }}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          ) : (
-            <div />
-          )}
-        </div>
+        {(canMoveLeft && onMoveLeft) && (
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute left-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full shadow-lg opacity-0 transition-all group-hover:opacity-100 hover:scale-110"
+            onClick={(e) => {
+              e.stopPropagation()
+              onMoveLeft()
+            }}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        )}
+        {(canMoveRight && onMoveRight) && (
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full shadow-lg opacity-0 transition-all group-hover:opacity-100 hover:scale-110"
+            onClick={(e) => {
+              e.stopPropagation()
+              onMoveRight()
+            }}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        )}
       </Card>
 
       <JobDetailDialog
