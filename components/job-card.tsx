@@ -15,7 +15,7 @@ import {
   DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { MoreVertical, MapPin, DollarSign, Calendar, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { MoreVertical, MapPin, DollarSign, Calendar, Trash2, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import { JobDetailDialog } from './job-detail-dialog'
 
 interface JobCardProps {
@@ -55,7 +55,20 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <CardTitle className="text-base font-semibold leading-tight text-card-foreground">
-              {job.position}
+              {job.jobUrl ? (
+                <a
+                  href={job.jobUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-primary underline-offset-4 hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {job.position}
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              ) : (
+                job.position
+              )}
             </CardTitle>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
