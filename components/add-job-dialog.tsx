@@ -46,6 +46,7 @@ export function AddJobDialog({
     salary: '',
     location: '',
     notes: '',
+    jobUrl: '',
   })
 
   const handleExtractJob = async () => {
@@ -72,6 +73,7 @@ export function AddJobDialog({
         location: data.location || formData.location,
         salary: data.salary || formData.salary,
         notes: data.description || formData.notes,
+        jobUrl: jobUrl,
       })
     } catch (error) {
       console.error('[v0] Extraction error:', error)
@@ -92,6 +94,7 @@ export function AddJobDialog({
       salary: '',
       location: '',
       notes: '',
+      jobUrl: '',
     })
     setJobUrl('')
     onOpenChange(false)

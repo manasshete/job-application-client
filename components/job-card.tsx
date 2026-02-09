@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { MoreVertical, MapPin, DollarSign, Calendar, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
-import { EditJobDialog } from './edit-job-dialog'
+import { JobDetailDialog } from './job-detail-dialog'
 
 interface JobCardProps {
   job: Job
@@ -36,15 +36,22 @@ const statusLabels: Record<JobStatus, string> = {
 }
 
 export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, onMoveLeft, onMoveRight }: JobCardProps) {
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
 
   const handleStatusChange = (newStatus: JobStatus) => {
     onUpdate(job.id, { status: newStatus })
   }
 
+  const handleCardClick = () => {
+    setIsDetailDialogOpen(true)
+  }
+
   return (
     <>
-      <Card className="group relative transition-all hover:shadow-md">
+      <Card 
+        className="group relative cursor-pointer transition-all hover:shadow-md" 
+        onClick={handleCardClick}
+      >
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <CardTitle className="text-base font-semibold leading-tight text-card-foreground">
@@ -56,14 +63,15 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
-                  Edit
+                <DropdownMenuItem onClick={() => setIsDetailDialogOpen(true)}>
+                  View Details
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuSub>
@@ -126,7 +134,10 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
               variant="secondary"
               size="icon"
               className="h-8 w-8 rounded-full shadow-lg"
-              onClick={onMoveLeft}
+              onClick={(e) => {
+                e.stopPropagation()
+                onMoveLeft()
+              }}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -138,7 +149,10 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
               variant="secondary"
               size="icon"
               className="h-8 w-8 rounded-full shadow-lg"
-              onClick={onMoveRight}
+              onClick={(e) => {
+                e.stopPropagation()
+                onMoveRight()
+              }}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -148,11 +162,12 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
         </div>
       </Card>
 
-      <EditJobDialog
+      <JobDetailDialog
         job={job}
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
+        open={isDetailDialogOpen}
+        onOpenChange={setIsDetailDialogOpen}
         onUpdateJob={(updates) => onUpdate(job.id, updates)}
+        onDeleteJob={() => onDelete(job.id)}
       />
     </>
   )

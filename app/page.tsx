@@ -18,6 +18,7 @@ export interface Job {
   salary?: string
   location?: string
   notes?: string
+  jobUrl?: string
 }
 
 export default function Page() {
