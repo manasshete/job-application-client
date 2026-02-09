@@ -15,7 +15,7 @@ import {
   DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { MoreVertical, MapPin, DollarSign, Calendar, Trash2, ChevronLeft, ChevronRight, ExternalLink, Users, ClipboardList, CheckCircle2, Clock } from 'lucide-react'
+import { MoreVertical, MapPin, DollarSign, Calendar, Trash2, ChevronLeft, ChevronRight, ExternalLink, Users, ClipboardList, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
 import { JobDetailDialog } from './job-detail-dialog'
 import { Badge } from '@/components/ui/badge'
 
@@ -45,6 +45,15 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
 
   const handleCardClick = () => {
     setIsDetailDialogOpen(true)
+  }
+
+  // Check if deadline is approaching
+  const isDeadlineApproaching = () => {
+    if (!job.deadline) return false
+    const deadlineDate = new Date(job.deadline)
+    const now = new Date()
+    const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
+    return deadlineDate >= now && deadlineDate <= threeDaysFromNow
   }
 
   return (
@@ -140,6 +149,27 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
             <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
               {job.notes}
             </p>
+          )}
+
+          {/* Tags */}
+          {job.tags && job.tags.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {job.tags.map((tag) => (
+                <Badge key={tag} variant="outline" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          {/* Deadline Warning */}
+          {isDeadlineApproaching() && (
+            <div className="mt-2 flex items-center gap-1.5 rounded-md bg-amber-500/10 px-2 py-1.5 text-xs text-amber-600 dark:text-amber-500">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">
+                Deadline: {new Date(job.deadline!).toLocaleDateString()}
+              </span>
+            </div>
           )}
 
           {/* Interview and Task Indicators */}

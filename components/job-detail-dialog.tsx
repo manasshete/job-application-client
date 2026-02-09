@@ -191,13 +191,17 @@ export function JobDetailDialog({
               )}
 
               <Tabs defaultValue="details" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="details">Details</TabsTrigger>
                   <TabsTrigger value="progress">
                     Progress
                     {((job.interviews && job.interviews.length > 0) || (job.tasks && job.tasks.length > 0)) && 
                       ` (${(job.interviews?.length || 0) + (job.tasks?.length || 0)})`
                     }
+                  </TabsTrigger>
+                  <TabsTrigger value="activity">
+                    Activity
+                    {job.activityLog && job.activityLog.length > 0 && ` (${job.activityLog.length})`}
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="details" className="mt-4">
@@ -220,6 +224,35 @@ export function JobDetailDialog({
                       onUpdateJob({ tasks })
                     }}
                   />
+                </TabsContent>
+                <TabsContent value="activity" className="mt-4">
+                  {job.activityLog && job.activityLog.length > 0 ? (
+                    <div className="space-y-3">
+                      {job.activityLog
+                        .slice()
+                        .reverse()
+                        .map((entry) => (
+                          <div
+                            key={entry.id}
+                            className="flex gap-3 rounded-lg border border-border bg-muted/30 p-3"
+                          >
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{entry.action}</p>
+                              {entry.oldValue && entry.newValue && (
+                                <p className="text-xs text-muted-foreground">
+                                  {entry.oldValue} → {entry.newValue}
+                                </p>
+                              )}
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                {new Date(entry.timestamp).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No activity yet</p>
+                  )}
                 </TabsContent>
               </Tabs>
             </div>

@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/select'
 import { Sparkles, Loader2 } from 'lucide-react'
 import { sanitizeInput, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
+import { Badge } from '@/components/ui/badge'
 
 interface AddJobDialogProps {
   open: boolean
@@ -48,7 +49,12 @@ export function AddJobDialog({
     location: '',
     notes: '',
     jobUrl: '',
+    deadline: '',
+    recruiterName: '',
+    recruiterEmail: '',
+    tags: [] as string[],
   })
+  const [tagInput, setTagInput] = useState('')
 
   const handleExtractJob = async () => {
     if (!jobUrl) return
@@ -84,6 +90,18 @@ export function AddJobDialog({
     }
   }
 
+  const addTag = () => {
+    const tag = tagInput.trim()
+    if (tag && !formData.tags.includes(tag)) {
+      setFormData({ ...formData, tags: [...formData.tags, tag] })
+      setTagInput('')
+    }
+  }
+
+  const removeTag = (tag: string) => {
+    setFormData({ ...formData, tags: formData.tags.filter((t) => t !== tag) })
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -114,8 +132,13 @@ export function AddJobDialog({
       location: '',
       notes: '',
       jobUrl: '',
+      deadline: '',
+      recruiterName: '',
+      recruiterEmail: '',
+      tags: [],
     })
     setJobUrl('')
+    setTagInput('')
     onOpenChange(false)
   }
 
@@ -249,6 +272,79 @@ export function AddJobDialog({
                   maxLength={MAX_LENGTHS.SALARY}
                 />
               </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="deadline">Response Deadline (Optional)</Label>
+              <Input
+                id="deadline"
+                type="date"
+                value={formData.deadline}
+                onChange={(e) =>
+                  setFormData({ ...formData, deadline: e.target.value })
+                }
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="recruiterName">Recruiter Name (Optional)</Label>
+                <Input
+                  id="recruiterName"
+                  value={formData.recruiterName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, recruiterName: e.target.value })
+                  }
+                  placeholder="John Doe"
+                  maxLength={200}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="recruiterEmail">Recruiter Email (Optional)</Label>
+                <Input
+                  id="recruiterEmail"
+                  type="email"
+                  value={formData.recruiterEmail}
+                  onChange={(e) =>
+                    setFormData({ ...formData, recruiterEmail: e.target.value })
+                  }
+                  placeholder="recruiter@company.com"
+                  maxLength={200}
+                />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="tags">Tags (Optional)</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="tags"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addTag()
+                    }
+                  }}
+                  placeholder="Remote, Urgent, Referral..."
+                  maxLength={50}
+                />
+                <Button type="button" variant="outline" onClick={addTag}>
+                  Add
+                </Button>
+              </div>
+              {formData.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {formData.tags.map((tag) => (
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="cursor-pointer"
+                      onClick={() => removeTag(tag)}
+                    >
+                      {tag} ×
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="notes">Notes</Label>
