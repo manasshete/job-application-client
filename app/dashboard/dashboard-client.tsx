@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo, useTransition } from 'react'
 import { JobBoard } from '@/components/job-board'
 import { AddJobDialog } from '@/components/add-job-dialog'
 import { Stats } from '@/components/stats'
@@ -9,61 +9,20 @@ import { QuickActionsMenu } from '@/components/quick-actions-menu'
 import { WeeklySummary } from '@/components/weekly-summary'
 import { TimelineView } from '@/components/timeline-view'
 import { JobDetailDialog } from '@/components/job-detail-dialog'
-import { Plus, Search, LayoutGrid, Baseline as Timeline } from 'lucide-react'
+import { Plus, Search, LayoutGrid, Baseline as Timeline, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+import type { Job, JobStatus } from '../page'
 
-export type JobStatus = 'applied' | 'interview' | 'offer' | 'rejected'
-
-export type InterviewStatus = 'scheduled' | 'completed' | 'pending'
-export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'submitted'
-
-export interface Interview {
-  id: string
-  round: string
-  date?: string
-  status: InterviewStatus
-  notes?: string
+interface DashboardClientProps {
+  initialJobs: Job[]
 }
 
-export interface Task {
-  id: string
-  title: string
-  dueDate?: string
-  status: TaskStatus
-  notes?: string
-}
-
-export interface ActivityLogEntry {
-  id: string
-  timestamp: string
-  action: string
-  oldValue?: string
-  newValue?: string
-}
-
-export interface Job {
-  id: string
-  company: string
-  position: string
-  status: JobStatus
-  dateApplied: string
-  salary?: string
-  location?: string
-  notes?: string
-  jobUrl?: string
-  interviews?: Interview[]
-  tasks?: Task[]
-  deadline?: string
-  recruiterName?: string
-  recruiterEmail?: string
-  tags?: string[]
-  activityLog?: ActivityLogEntry[]
-}
-
-export default function Page() {
-  const [jobs, setJobs] = useState<Job[]>([])
+export function DashboardClient({ initialJobs }: DashboardClientProps) {
+  const [jobs, setJobs] = useState<Job[]>(initialJobs)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'board' | 'timeline'>('board')
@@ -71,8 +30,9 @@ export default function Page() {
   const [sortBy, setSortBy] = useState('dateApplied-desc')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
-  // Get all available tags
   const availableTags = useMemo(() => {
     const tags = new Set<string>()
     jobs.forEach((job) => {
@@ -81,10 +41,8 @@ export default function Page() {
     return Array.from(tags)
   }, [jobs])
 
-  // Filter and sort jobs
   const filteredJobs = useMemo(() => {
     let filtered = jobs.filter((job) => {
-      // Search filter
       const query = searchQuery.toLowerCase()
       const matchesSearch =
         !searchQuery.trim() ||
@@ -93,10 +51,7 @@ export default function Page() {
         job.location?.toLowerCase().includes(query) ||
         job.notes?.toLowerCase().includes(query)
 
-      // Status filter
       const matchesStatus = !hiddenStatuses.includes(job.status)
-
-      // Tag filter
       const matchesTags =
         selectedTags.length === 0 ||
         selectedTags.some((tag) => job.tags?.includes(tag))
@@ -104,7 +59,6 @@ export default function Page() {
       return matchesSearch && matchesStatus && matchesTags
     })
 
-    // Sort
     const [sortField, sortOrder] = sortBy.split('-')
     filtered.sort((a, b) => {
       let aVal: any
@@ -127,33 +81,13 @@ export default function Page() {
     return filtered
   }, [jobs, searchQuery, hiddenStatuses, selectedTags, sortBy])
 
-  // Load jobs from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem('job-tracker-jobs')
-    if (stored) {
-      try {
-        setJobs(JSON.parse(stored))
-      } catch (e) {
-        console.error('Failed to parse stored jobs:', e)
-      }
-    }
-  }, [])
-
-  // Save jobs to localStorage whenever they change
-  useEffect(() => {
-    if (jobs.length > 0) {
-      localStorage.setItem('job-tracker-jobs', JSON.stringify(jobs))
-    }
-  }, [jobs])
-
-  const addJob = (job: Omit<Job, 'id' | 'activityLog'>) => {
-    // Duplicate detection
+  const addJob = async (job: Omit<Job, 'id' | 'activityLog'>) => {
     const duplicate = jobs.find(
       (j) =>
         j.company.toLowerCase() === job.company.toLowerCase() &&
         j.position.toLowerCase() === job.position.toLowerCase()
     )
-    
+
     if (duplicate) {
       const confirmAdd = confirm(
         `A similar job application already exists for ${job.company} - ${job.position}. Add anyway?`
@@ -161,47 +95,44 @@ export default function Page() {
       if (!confirmAdd) return
     }
 
-    const newJob: Job = {
-      ...job,
-      id: crypto.randomUUID(),
-      activityLog: [
-        {
-          id: crypto.randomUUID(),
-          timestamp: new Date().toISOString(),
-          action: 'Created',
-          newValue: 'Applied',
-        },
-      ],
-    }
-    setJobs([...jobs, newJob])
-  }
-
-  const updateJob = (id: string, updates: Partial<Job>) => {
-    setJobs(
-      jobs.map((job) => {
-        if (job.id === id) {
-          const activityLog = job.activityLog || []
-          
-          // Log status changes
-          if (updates.status && updates.status !== job.status) {
-            activityLog.push({
-              id: crypto.randomUUID(),
-              timestamp: new Date().toISOString(),
-              action: 'Status Changed',
-              oldValue: job.status,
-              newValue: updates.status,
-            })
-          }
-
-          return { ...job, ...updates, activityLog }
-        }
-        return job
+    startTransition(async () => {
+      const response = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(job),
       })
-    )
+
+      if (response.ok) {
+        const newJob = await response.json()
+        setJobs([...jobs, newJob])
+      }
+    })
   }
 
-  const deleteJob = (id: string) => {
-    setJobs(jobs.filter((job) => job.id !== id))
+  const updateJob = async (id: string, updates: Partial<Job>) => {
+    startTransition(async () => {
+      const response = await fetch(`/api/jobs/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      })
+
+      if (response.ok) {
+        setJobs(jobs.map((job) => (job.id === id ? { ...job, ...updates } : job)))
+      }
+    })
+  }
+
+  const deleteJob = async (id: string) => {
+    startTransition(async () => {
+      const response = await fetch(`/api/jobs/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        setJobs(jobs.filter((job) => job.id !== id))
+      }
+    })
   }
 
   const exportToCSV = () => {
@@ -229,17 +160,25 @@ export default function Page() {
 
   const clearRejected = () => {
     if (confirm('Are you sure you want to delete all rejected applications?')) {
-      setJobs(jobs.filter((job) => job.status !== 'rejected'))
+      const rejected = jobs.filter((job) => job.status === 'rejected')
+      rejected.forEach((job) => deleteJob(job.id))
     }
   }
 
   const archiveOld = () => {
     const threeMonthsAgo = new Date()
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3)
-    
+
     if (confirm('Archive applications older than 3 months?')) {
-      setJobs(jobs.filter((job) => new Date(job.dateApplied) >= threeMonthsAgo))
+      const old = jobs.filter((job) => new Date(job.dateApplied) < threeMonthsAgo)
+      old.forEach((job) => deleteJob(job.id))
     }
+  }
+
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/')
   }
 
   return (
@@ -255,6 +194,10 @@ export default function Page() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button onClick={handleSignOut} variant="ghost" size="sm">
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
             <QuickActionsMenu
               jobs={jobs}
               onExportCSV={exportToCSV}
