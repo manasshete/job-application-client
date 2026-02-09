@@ -191,13 +191,13 @@ export function JobDetailDialog({
               )}
 
               <Tabs defaultValue="details" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="details">Details</TabsTrigger>
-                  <TabsTrigger value="interviews">
-                    Interviews {job.interviews && job.interviews.length > 0 && `(${job.interviews.length})`}
-                  </TabsTrigger>
-                  <TabsTrigger value="tasks">
-                    Tasks {job.tasks && job.tasks.length > 0 && `(${job.tasks.length})`}
+                  <TabsTrigger value="progress">
+                    Progress
+                    {((job.interviews && job.interviews.length > 0) || (job.tasks && job.tasks.length > 0)) && 
+                      ` (${(job.interviews?.length || 0) + (job.tasks?.length || 0)})`
+                    }
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="details" className="mt-4">
@@ -205,23 +205,15 @@ export function JobDetailDialog({
                     All job details are displayed above. Click Edit to modify.
                   </p>
                 </TabsContent>
-                <TabsContent value="interviews" className="mt-4">
+                <TabsContent value="progress" className="mt-4">
                   <InterviewTaskSection
                     interviews={formData.interviews}
-                    tasks={[]}
+                    tasks={formData.tasks}
                     onUpdateInterviews={(interviews) => {
                       const updated = { ...formData, interviews }
                       setFormData(updated)
                       onUpdateJob({ interviews })
                     }}
-                    onUpdateTasks={() => {}}
-                  />
-                </TabsContent>
-                <TabsContent value="tasks" className="mt-4">
-                  <InterviewTaskSection
-                    interviews={[]}
-                    tasks={formData.tasks}
-                    onUpdateInterviews={() => {}}
                     onUpdateTasks={(tasks) => {
                       const updated = { ...formData, tasks }
                       setFormData(updated)
