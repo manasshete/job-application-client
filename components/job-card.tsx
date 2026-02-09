@@ -176,7 +176,7 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
         {/* Arrow Navigation */}
         {(canMoveLeft && onMoveLeft) && (
           <Button
-            variant="secondary"
+            variant="default"
             size="icon"
             className="absolute left-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full shadow-lg opacity-0 transition-all group-hover:opacity-100 hover:scale-110"
             onClick={(e) => {
@@ -189,7 +189,7 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
         )}
         {(canMoveRight && onMoveRight) && (
           <Button
-            variant="secondary"
+            variant="default"
             size="icon"
             className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full shadow-lg opacity-0 transition-all group-hover:opacity-100 hover:scale-110"
             onClick={(e) => {
