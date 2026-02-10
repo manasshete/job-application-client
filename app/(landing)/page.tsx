@@ -63,7 +63,7 @@ export default function LandingPage() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">JobTracker Pro</span>
+            <span className="text-xl font-bold">JobTracker</span>
           </div>
           <nav className="flex items-center gap-4">
             <Link href="/auth/login">
@@ -231,7 +231,7 @@ export default function LandingPage() {
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              <span className="font-semibold">JobTracker Pro</span>
+              <span className="font-semibold">JobTracker</span>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
               <Link href="/terms" className="hover:text-foreground">
@@ -245,7 +245,7 @@ export default function LandingPage() {
               </Link>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 JobTracker Pro. All rights reserved.
+              © 2024 JobTracker. All rights reserved.
             </p>
           </div>
         </div>
