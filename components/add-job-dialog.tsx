@@ -27,6 +27,7 @@ import { Sparkles, Loader2, FileText } from 'lucide-react'
 import { sanitizeInput, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
 import { Badge } from '@/components/ui/badge'
 import { DocumentGeneratorDialog } from './document-generator-dialog'
+import { AIDisclaimer } from './disclaimers'
 
 interface AddJobDialogProps {
   open: boolean
@@ -199,6 +200,7 @@ export function AddJobDialog({
               <p className="text-xs text-muted-foreground">
                 Paste a job posting URL to automatically extract details
               </p>
+              <AIDisclaimer />
             </div>
 
             {/* Document generation prompt - shown after successful extraction */}

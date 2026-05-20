@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, FileText, Download, Upload, Sparkles, Lock } from 'lucide-react'
+import { DocumentDisclaimer } from './disclaimers'
 
 interface DocumentGeneratorDialogProps {
   open: boolean
@@ -202,6 +203,7 @@ export function DocumentGeneratorDialog({
               AI-tailored resumes and cover letters are available on the Premium plan.
             </DialogDescription>
           </DialogHeader>
+          <DocumentDisclaimer />
           <div className="space-y-4 py-2">
             <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
               <p className="text-sm font-medium">Premium — £20/month includes:</p>
@@ -247,6 +249,8 @@ export function DocumentGeneratorDialog({
             </span>
           </DialogDescription>
         </DialogHeader>
+
+        <DocumentDisclaimer />
 
         {error && (
           <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">

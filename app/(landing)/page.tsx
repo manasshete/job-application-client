@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Check, ArrowRight, Sparkles, Shield, Zap, FileText } from 'lucide-react'
+import { PrivacyDisclaimer, AIDisclaimer } from '@/components/disclaimers'
 
 const PRICING_TIERS = [
   {
@@ -235,6 +236,17 @@ export default function LandingPage() {
                 Start Free Today <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Disclaimers Section */}
+      <section className="border-t border-border py-12">
+        <div className="container mx-auto max-w-3xl px-4">
+          <h2 className="mb-8 text-center text-2xl font-bold">Important Disclaimers</h2>
+          <div className="space-y-4">
+            <PrivacyDisclaimer />
+            <AIDisclaimer />
           </div>
         </div>
       </section>

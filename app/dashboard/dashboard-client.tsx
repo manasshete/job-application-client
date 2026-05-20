@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { Job, JobStatus } from '../page'
+import { PrivacyDisclaimer, DataDisclaimer, AIDisclaimer } from '@/components/disclaimers'
 
 interface DashboardClientProps {
   initialJobs: Job[]
@@ -263,6 +264,13 @@ export function DashboardClient({
               )
             }
           />
+        </div>
+
+        {/* Disclaimers */}
+        <div className="my-8 space-y-3">
+          <PrivacyDisclaimer />
+          <DataDisclaimer />
+          <AIDisclaimer />
         </div>
 
         {viewMode === 'board' ? (
