@@ -23,23 +23,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Sparkles, Loader2 } from 'lucide-react'
+import { Sparkles, Loader2, FileText } from 'lucide-react'
 import { sanitizeInput, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
 import { Badge } from '@/components/ui/badge'
+import { DocumentGeneratorDialog } from './document-generator-dialog'
 
 interface AddJobDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onAddJob: (job: Omit<Job, 'id'>) => void
+  isPremium?: boolean
+  documentsUsedThisMonth?: number
 }
 
 export function AddJobDialog({
   open,
   onOpenChange,
   onAddJob,
+  isPremium = false,
+  documentsUsedThisMonth = 0,
 }: AddJobDialogProps) {
   const [jobUrl, setJobUrl] = useState('')
   const [isExtracting, setIsExtracting] = useState(false)
+  const [extractedDescription, setExtractedDescription] = useState('')
+  const [showDocumentPrompt, setShowDocumentPrompt] = useState(false)
+  const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
     company: '',
     position: '',
@@ -82,6 +90,10 @@ export function AddJobDialog({
         notes: data.description || formData.notes,
         jobUrl: jobUrl,
       })
+      if (data.description) {
+        setExtractedDescription(data.description)
+        setShowDocumentPrompt(true)
+      }
     } catch (error) {
       console.error('[v0] Extraction error:', error)
       alert('Failed to extract job details. Please fill in manually.')
@@ -188,6 +200,40 @@ export function AddJobDialog({
                 Paste a job posting URL to automatically extract details
               </p>
             </div>
+
+            {/* Document generation prompt - shown after successful extraction */}
+            {showDocumentPrompt && (
+              <div className="flex items-start justify-between gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3">
+                <div className="flex items-start gap-2">
+                  <FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <div>
+                    <p className="text-sm font-medium">Tailor your documents for this role?</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Generate a tailored resume and cover letter using AI.
+                      {!isPremium && ' Requires Premium plan (£20/month).'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowDocumentPrompt(false)}
+                  >
+                    Skip
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => setIsDocumentDialogOpen(true)}
+                  >
+                    <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                    Generate
+                  </Button>
+                </div>
+              </div>
+            )}
             <div className="grid gap-2">
               <Label htmlFor="company">Company *</Label>
               <Input
@@ -372,6 +418,16 @@ export function AddJobDialog({
           </DialogFooter>
         </form>
       </DialogContent>
+
+      <DocumentGeneratorDialog
+        open={isDocumentDialogOpen}
+        onOpenChange={setIsDocumentDialogOpen}
+        jobTitle={formData.position}
+        company={formData.company}
+        jobDescription={extractedDescription}
+        isPremium={isPremium}
+        documentsUsedThisMonth={documentsUsedThisMonth}
+      />
     </Dialog>
   )
 }

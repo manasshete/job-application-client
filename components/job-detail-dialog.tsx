@@ -23,11 +23,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ExternalLink, Calendar, MapPin, DollarSign, Briefcase, FileText } from 'lucide-react'
+import { ExternalLink, Calendar, MapPin, DollarSign, Briefcase, FileText, Sparkles } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { sanitizeInput, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
 import { InterviewTaskSection } from './interview-task-section'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { DocumentGeneratorDialog } from './document-generator-dialog'
 
 interface JobDetailDialogProps {
   job: Job
@@ -35,6 +36,8 @@ interface JobDetailDialogProps {
   onOpenChange: (open: boolean) => void
   onUpdateJob: (updates: Partial<Job>) => void
   onDeleteJob: () => void
+  isPremium?: boolean
+  documentsUsedThisMonth?: number
 }
 
 const statusConfig: Record<JobStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -49,9 +52,12 @@ export function JobDetailDialog({
   open,
   onOpenChange,
   onUpdateJob,
+  isPremium = false,
+  documentsUsedThisMonth = 0,
   onDeleteJob,
 }: JobDetailDialogProps) {
   const [isEditing, setIsEditing] = useState(false)
+  const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
   const [formData, setFormData] = useState({
     company: job.company,
     position: job.position,
@@ -265,7 +271,15 @@ export function JobDetailDialog({
               >
                 Delete
               </Button>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDocumentDialogOpen(true)}
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Generate Documents
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
@@ -413,6 +427,16 @@ export function JobDetailDialog({
           </form>
         )}
       </DialogContent>
+
+      <DocumentGeneratorDialog
+        open={isDocumentDialogOpen}
+        onOpenChange={setIsDocumentDialogOpen}
+        jobTitle={job.position}
+        company={job.company}
+        jobDescription={job.notes || ''}
+        isPremium={isPremium}
+        documentsUsedThisMonth={documentsUsedThisMonth}
+      />
     </Dialog>
   )
 }

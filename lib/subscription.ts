@@ -5,10 +5,12 @@ export interface SubscriptionLimits {
   maxInterviews: number
   maxTasks: number
   aiExtractionLimit: number
+  documentGenerationLimit: number
   hasEmailNotifications: boolean
   hasAdvancedFilters: boolean
   hasTimelineView: boolean
   hasExport: boolean
+  hasDocumentGeneration: boolean
 }
 
 export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, SubscriptionLimits> = {
@@ -17,30 +19,36 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, SubscriptionLimits> =
     maxInterviews: 20,
     maxTasks: 20,
     aiExtractionLimit: 5,
+    documentGenerationLimit: 0,
     hasEmailNotifications: false,
     hasAdvancedFilters: false,
     hasTimelineView: false,
     hasExport: false,
+    hasDocumentGeneration: false,
   },
   pro: {
-    maxJobs: -1, // unlimited
+    maxJobs: -1,
     maxInterviews: -1,
     maxTasks: -1,
     aiExtractionLimit: 50,
+    documentGenerationLimit: 0,
     hasEmailNotifications: true,
     hasAdvancedFilters: true,
     hasTimelineView: true,
     hasExport: true,
+    hasDocumentGeneration: false,
   },
   premium: {
     maxJobs: -1,
     maxInterviews: -1,
     maxTasks: -1,
-    aiExtractionLimit: -1, // unlimited
+    aiExtractionLimit: -1,
+    documentGenerationLimit: 100,
     hasEmailNotifications: true,
     hasAdvancedFilters: true,
     hasTimelineView: true,
     hasExport: true,
+    hasDocumentGeneration: true,
   },
 }
 
