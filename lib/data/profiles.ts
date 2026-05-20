@@ -9,6 +9,7 @@ export interface Profile {
   subscription_status: string | null
   stripe_customer_id: string | null
   ai_extractions_used: number
+  documents_generated_this_month: number
   created_at: string
   updated_at: string
 }
@@ -62,4 +63,26 @@ export async function incrementAIExtractionCount(): Promise<void> {
   if (!user) return
 
   await supabase.rpc('increment_ai_extractions', { user_id: user.id })
+}
+
+export async function incrementDocumentGenerationCount(): Promise<void> {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+
+  // Get current profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('documents_generated_this_month')
+    .eq('id', user.id)
+    .single()
+
+  // Increment count
+  await supabase
+    .from('profiles')
+    .update({ 
+      documents_generated_this_month: (profile?.documents_generated_this_month || 0) + 1 
+    })
+    .eq('id', user.id)
 }

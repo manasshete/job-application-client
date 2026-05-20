@@ -19,9 +19,15 @@ import type { Job, JobStatus } from '../page'
 
 interface DashboardClientProps {
   initialJobs: Job[]
+  isPremium?: boolean
+  documentsUsedThisMonth?: number
 }
 
-export function DashboardClient({ initialJobs }: DashboardClientProps) {
+export function DashboardClient({ 
+  initialJobs, 
+  isPremium = false,
+  documentsUsedThisMonth = 0,
+}: DashboardClientProps) {
   const [jobs, setJobs] = useState<Job[]>(initialJobs)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -269,6 +275,8 @@ export function DashboardClient({ initialJobs }: DashboardClientProps) {
           open={isAddDialogOpen}
           onOpenChange={setIsAddDialogOpen}
           onAddJob={addJob}
+          isPremium={isPremium}
+          documentsUsedThisMonth={documentsUsedThisMonth}
         />
 
         {selectedJob && (
@@ -284,6 +292,8 @@ export function DashboardClient({ initialJobs }: DashboardClientProps) {
               deleteJob(selectedJob.id)
               setSelectedJob(null)
             }}
+            isPremium={isPremium}
+            documentsUsedThisMonth={documentsUsedThisMonth}
           />
         )}
       </div>

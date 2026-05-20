@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Check, ArrowRight, Sparkles, Shield, Zap } from 'lucide-react'
+import { Check, ArrowRight, Sparkles, Shield, Zap, FileText } from 'lucide-react'
 
 const PRICING_TIERS = [
   {
@@ -41,11 +41,14 @@ const PRICING_TIERS = [
   {
     name: 'Premium',
     price: '£20',
-    description: 'Maximum productivity with unlimited AI',
+    description: 'Maximum productivity with AI-powered documents',
     features: [
       'Everything in Pro',
       'Unlimited AI extractions',
-      'No limits on any features',
+      'AI Resume Tailoring',
+      'AI Cover Letter Generation',
+      '100 documents/month',
+      'PDF downloads',
     ],
     cta: 'Start Premium',
     href: '/auth/sign-up?tier=premium',
@@ -141,6 +144,19 @@ export default function LandingPage() {
               <h3 className="mb-2 text-xl font-semibold">Smart Insights</h3>
               <p className="text-muted-foreground">
                 Track your application velocity, response rates, and get actionable insights to improve your search.
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-primary/50 bg-card p-6 relative">
+              <div className="absolute -top-3 right-4 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                Premium
+              </div>
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                <FileText className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="mb-2 text-xl font-semibold">AI Document Generation</h3>
+              <p className="text-muted-foreground">
+                Generate tailored resumes and cover letters for each job application. Download as PDF instantly.
               </p>
             </div>
           </div>
