@@ -6,21 +6,21 @@ import { ArrowLeft } from 'lucide-react'
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50/60 via-white to-white">
       <div className="container mx-auto max-w-3xl px-4 py-12">
         <Link href="/">
-          <Button variant="ghost" className="mb-8">
+          <Button variant="ghost" className="mb-8 text-blue-600 hover:bg-blue-50 hover:text-blue-700">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Button>
         </Link>
 
-        <h1 className="mb-8 text-4xl font-bold">Privacy Policy</h1>
-        <p className="mb-6 text-muted-foreground">Last updated: January 2024</p>
+        <h1 className="mb-8 text-4xl font-bold text-slate-900">Privacy Policy</h1>
+        <p className="mb-6 text-slate-500">Last updated: January 2024</p>
 
-        <div className="space-y-8 text-foreground">
+        <div className="space-y-8 text-slate-700">
           <section>
-            <h2 className="mb-4 text-2xl font-semibold">1. Information We Collect</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-slate-900">1. Information We Collect</h2>
             <p className="mb-3">JobTracker collects the following information:</p>
             <ul className="list-inside list-disc space-y-2 ml-4">
               <li>Email address and password (for authentication)</li>
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-4 text-2xl font-semibold">2. How We Use Your Data</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-slate-900">2. How We Use Your Data</h2>
             <p className="mb-3">We use your data to:</p>
             <ul className="list-inside list-disc space-y-2 ml-4">
               <li>Provide and maintain the JobTracker service</li>
@@ -45,7 +45,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-4 text-2xl font-semibold">3. Data Security</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-slate-900">3. Data Security</h2>
             <p className="mb-3">
               Your data is encrypted in transit and at rest. We use industry-standard security measures including:
             </p>
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-4 text-2xl font-semibold">4. Data Sharing</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-slate-900">4. Data Sharing</h2>
             <p className="mb-3">
               We do not sell, trade, or rent your personal information to third parties. Your data may be shared with:
             </p>
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-4 text-2xl font-semibold">5. Your Rights</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-slate-900">5. Your Rights</h2>
             <p className="mb-3">You have the right to:</p>
             <ul className="list-inside list-disc space-y-2 ml-4">
               <li>Access your personal data</li>
@@ -82,14 +82,14 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-4 text-2xl font-semibold">6. Cookies</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-slate-900">6. Cookies</h2>
             <p>
               JobTracker uses cookies to maintain your session and preferences. You can control cookie settings in your browser.
             </p>
           </section>
 
           <section>
-            <h2 className="mb-4 text-2xl font-semibold">7. Contact Us</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-slate-900">7. Contact Us</h2>
             <p>
               If you have questions about this privacy policy, please contact us at privacy@jobtracker.com
             </p>
