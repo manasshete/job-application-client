@@ -7,14 +7,18 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
+      console.error('[v0] generate-pdf: Not authenticated')
       return new Response('Unauthorized', { status: 401 })
     }
 
     const { content, filename } = await req.json()
 
     if (!content) {
+      console.error('[v0] generate-pdf: No content provided')
       return new Response('Content is required', { status: 400 })
     }
+
+    console.log('[v0] generate-pdf: Starting PDF generation, filename:', filename)
 
     const pdfDoc = await PDFDocument.create()
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
@@ -98,6 +102,7 @@ export async function POST(req: Request) {
     }
 
     const pdfBytes = await pdfDoc.save()
+    console.log('[v0] generate-pdf: PDF generated successfully, size:', pdfBytes.length)
 
     return new Response(pdfBytes, {
       headers: {
@@ -106,7 +111,7 @@ export async function POST(req: Request) {
       },
     })
   } catch (err) {
-    console.error('[v0] generate-pdf error:', err)
+    console.error('[v0] generate-pdf error:', err instanceof Error ? err.message : String(err))
     return new Response('Failed to generate PDF', { status: 500 })
   }
 }

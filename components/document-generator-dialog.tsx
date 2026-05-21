@@ -267,18 +267,32 @@ export function DocumentGeneratorDialog({
 
   const downloadAsPDF = async (content: string, filename: string) => {
     try {
+      console.log('[v0] downloadAsPDF: Starting, filename:', filename, 'content length:', content.length)
       const res = await fetch('/api/generate-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, filename }),
       })
       
+      console.log('[v0] downloadAsPDF: Response status:', res.status, 'ok:', res.ok, 'type:', res.headers.get('content-type'))
+      
       if (!res.ok) {
-        throw new Error('PDF generation failed')
+        const errorText = await res.text()
+        console.error('[v0] downloadAsPDF: Failed response, text:', errorText)
+        throw new Error(`PDF generation failed: ${res.status}`)
       }
       
       const arrayBuffer = await res.arrayBuffer()
+      console.log('[v0] downloadAsPDF: Received arrayBuffer, size:', arrayBuffer.byteLength)
+      
+      if (arrayBuffer.byteLength === 0) {
+        console.error('[v0] downloadAsPDF: Empty arrayBuffer!')
+        throw new Error('PDF is empty')
+      }
+      
       const blob = new Blob([arrayBuffer], { type: 'application/pdf' })
+      console.log('[v0] downloadAsPDF: Created blob, size:', blob.size, 'type:', blob.type)
+      
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -287,7 +301,9 @@ export function DocumentGeneratorDialog({
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-    } catch {
+      console.log('[v0] downloadAsPDF: Download completed successfully')
+    } catch (err) {
+      console.error('[v0] downloadAsPDF: Error, falling back to TXT:', err instanceof Error ? err.message : String(err))
       downloadAsTxt(content, filename.replace('.pdf', '.txt'))
     }
   }
