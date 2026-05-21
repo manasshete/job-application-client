@@ -1,5 +1,3 @@
-'use server'
-
 import { generateText } from 'ai'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
