@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { getProfile } from '@/lib/data/profiles'
 
 export async function POST(request: Request) {
   try {
@@ -8,6 +9,36 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check job creation limits
+    const profile = await getProfile()
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    }
+
+    // Count user's existing jobs
+    const { count } = await supabase
+      .from('jobs')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+
+    // Free tier: 10 jobs, Pro: unlimited, Premium: unlimited
+    const jobLimits: Record<string, number> = {
+      free: 10,
+      pro: Infinity,
+      premium: Infinity,
+    }
+
+    const limit = jobLimits[profile.subscription_tier] || 10
+
+    if ((count || 0) >= limit) {
+      return NextResponse.json(
+        {
+          error: `Job limit reached for ${profile.subscription_tier} plan (${limit}). Upgrade to add more jobs.`,
+        },
+        { status: 403 }
+      )
     }
 
     const job = await request.json()
