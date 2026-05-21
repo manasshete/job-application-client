@@ -272,12 +272,20 @@ export function DocumentGeneratorDialog({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, filename }),
       })
-      const blob = await res.blob()
+      
+      if (!res.ok) {
+        throw new Error('PDF generation failed')
+      }
+      
+      const arrayBuffer = await res.arrayBuffer()
+      const blob = new Blob([arrayBuffer], { type: 'application/pdf' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = filename
+      a.download = filename.endsWith('.pdf') ? filename : `${filename}.pdf`
+      document.body.appendChild(a)
       a.click()
+      document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch {
       downloadAsTxt(content, filename.replace('.pdf', '.txt'))

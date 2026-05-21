@@ -15,17 +15,20 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { Badge } from '@/components/ui/badge'
 import type { Job, JobStatus } from '../page'
 
 
 interface DashboardClientProps {
   initialJobs: Job[]
+  subscriptionTier?: string
   isPremium?: boolean
   documentsUsedThisMonth?: number
 }
 
 export function DashboardClient({ 
   initialJobs, 
+  subscriptionTier = 'free',
   isPremium = false,
   documentsUsedThisMonth = 0,
 }: DashboardClientProps) {
@@ -193,9 +196,23 @@ export function DashboardClient({
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Job Application Tracker
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                Job Application Tracker
+              </h1>
+              <Badge 
+                variant={subscriptionTier === 'premium' ? 'default' : subscriptionTier === 'pro' ? 'secondary' : 'outline'}
+                className={
+                  subscriptionTier === 'premium' 
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0' 
+                    : subscriptionTier === 'pro' 
+                    ? 'bg-blue-600 text-white border-0' 
+                    : ''
+                }
+              >
+                {subscriptionTier.charAt(0).toUpperCase() + subscriptionTier.slice(1)}
+              </Badge>
+            </div>
             <p className="mt-1 text-sm text-muted-foreground">
               Manage and track your job applications in one place
             </p>
