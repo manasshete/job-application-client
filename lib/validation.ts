@@ -1,8 +1,21 @@
-import DOMPurify from 'isomorphic-dompurify'
+// Simple HTML escape function - works in all environments without jsdom
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '/': '&#x2F;',
+  }
+  return text.replace(/[&<>"'/]/g, (char) => map[char] || char)
+}
 
-// Sanitize user input to prevent XSS
+// Sanitize user input to prevent XSS - strips all HTML tags
 export function sanitizeInput(input: string): string {
-  return DOMPurify.sanitize(input, { ALLOWED_TAGS: [] })
+  // Remove all HTML tags and escape special characters
+  const stripped = input.replace(/<[^>]*>/g, '')
+  return escapeHtml(stripped)
 }
 
 // Validate URL is safe (no javascript:, data:, file: protocols)

@@ -16,27 +16,16 @@ const jobDetailsSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    console.log('[v0] extract-job: Starting request')
-    
     // Authentication check
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    if (authError) {
-      console.log('[v0] extract-job: Auth error:', authError.message)
-      return Response.json({ error: 'Authentication error' }, { status: 401 })
-    }
-    
-    if (!user) {
-      console.log('[v0] extract-job: No user found')
+    if (authError || !user) {
       return Response.json({ error: 'Authentication required' }, { status: 401 })
     }
-    
-    console.log('[v0] extract-job: User authenticated:', user.id)
 
     // Check subscription limits
     const profile = await getProfile()
-    console.log('[v0] extract-job: Profile loaded:', profile?.subscription_tier, 'extractions:', profile?.ai_extractions_used)
     
     if (!profile) {
       return Response.json({ error: 'Profile not found' }, { status: 404 })
@@ -120,8 +109,6 @@ export async function POST(req: Request) {
     }
 
     // Use AI to extract job details
-    console.log('[v0] extract-job: Starting AI extraction, HTML length:', html.length)
-    
     try {
       const { output } = await generateText({
         model: 'openai/gpt-4o-mini',
@@ -136,21 +123,17 @@ export async function POST(req: Request) {
         ],
       })
 
-      console.log('[v0] extract-job: AI extraction successful')
-
       // Increment AI extraction count
       await incrementAIExtractionCount()
 
       return Response.json(output)
-    } catch (aiError) {
-      console.error('[v0] extract-job: AI error:', aiError instanceof Error ? aiError.message : String(aiError))
+    } catch {
       return Response.json(
         { error: 'AI extraction failed. Please try again or fill in manually.' },
         { status: 500 }
       )
     }
-  } catch (error) {
-    console.error('[v0] extract-job: General error:', error instanceof Error ? error.message : String(error))
+  } catch {
     return Response.json(
       { error: 'Failed to extract job details' },
       { status: 500 }
