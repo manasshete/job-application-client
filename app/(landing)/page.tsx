@@ -392,6 +392,19 @@ export default function LandingPage() {
             </div>
             <p className="text-sm text-slate-500">© 2024 JobTracker. All rights reserved.</p>
           </div>
+
+          {/* Plain text disclaimers */}
+          <div className="mt-8 border-t border-slate-100 pt-6 space-y-2 text-center">
+            <p className="text-xs text-slate-500">
+              Use of this service does not guarantee employment, job interviews, or job offers. JobTracker is a personal organisation tool only.
+            </p>
+            <p className="text-xs text-slate-500">
+              AI-generated content including extracted job details, tailored resumes, and cover letters may be inaccurate or incomplete. Always review and verify before submitting any application materials.
+            </p>
+            <p className="text-xs text-slate-500">
+              Your data is encrypted and stored securely. We do not sell or share your personal information with third parties. We are not liable for any outcomes resulting from the use of this service.
+            </p>
+          </div>
         </div>
       </footer>
     </div>

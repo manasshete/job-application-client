@@ -16,7 +16,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { Job, JobStatus } from '../page'
-import { PrivacyDisclaimer, DataDisclaimer, AIDisclaimer } from '@/components/disclaimers'
+
 
 interface DashboardClientProps {
   initialJobs: Job[]
@@ -266,13 +266,6 @@ export function DashboardClient({
           />
         </div>
 
-        {/* Disclaimers */}
-        <div className="my-8 space-y-3">
-          <PrivacyDisclaimer />
-          <DataDisclaimer />
-          <AIDisclaimer />
-        </div>
-
         {viewMode === 'board' ? (
           <JobBoard jobs={filteredJobs} onUpdateJob={updateJob} onDeleteJob={deleteJob} />
         ) : (
@@ -304,6 +297,14 @@ export function DashboardClient({
             documentsUsedThisMonth={documentsUsedThisMonth}
           />
         )}
+        {/* Footer disclaimer */}
+        <div className="mt-12 border-t border-border pb-8 pt-6">
+          <p className="text-center text-xs leading-relaxed text-muted-foreground">
+            JobTracker is a personal organisation tool only. Use of this service does not guarantee employment or job offers.
+            AI-generated content including extracted job details, tailored resumes, and cover letters may contain inaccuracies — always review before submitting.
+            Your data is stored securely and is never shared with third parties. We are not responsible for outcomes resulting from applications submitted using this tool.
+          </p>
+        </div>
       </div>
     </div>
   )
