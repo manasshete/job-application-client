@@ -1,8 +1,7 @@
-import { generateText, Output } from 'ai'
+import { generateObject } from 'ai'
 import { z } from 'zod'
 import { isValidUrl, isPublicUrl, MAX_LENGTHS } from '@/lib/validation'
 import { rateLimit } from '@/lib/rate-limit'
-import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { getProfile, incrementAIExtractionCount } from '@/lib/data/profiles'
 import { checkLimit } from '@/lib/subscription'
@@ -109,28 +108,20 @@ export async function POST(req: Request) {
     }
 
     // Use AI to extract job details
-    const result = await generateText({
+    console.log('[v0] Starting AI extraction for URL:', url)
+    
+    const result = await generateObject({
       model: 'openai/gpt-4o-mini',
-      output: Output.object({
-        schema: jobDetailsSchema,
-      }),
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a job posting analyzer. Extract the following information from the HTML content: company name, job position/title, location, salary range (if mentioned), and a brief description. Return null for any field that cannot be found.',
-        },
-        {
-          role: 'user',
-          content: `Extract job details from this HTML:\n\n${html.slice(0, 15000)}`,
-        },
-      ],
+      schema: jobDetailsSchema,
+      prompt: `Extract job details from this HTML content. Return the company name, job position/title, location, salary range (if mentioned), and a brief description. Return null for any field that cannot be found.\n\nHTML:\n${html.slice(0, 15000)}`,
     })
+
+    console.log('[v0] AI extraction result:', result.object)
 
     // Increment AI extraction count
     await incrementAIExtractionCount()
 
-    return Response.json(result.output)
+    return Response.json(result.object)
   } catch (error) {
     console.error('[v0] Job extraction error:', error)
     return Response.json(
