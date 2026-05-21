@@ -7,18 +7,26 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-      console.error('[v0] generate-pdf: Not authenticated')
       return new Response('Unauthorized', { status: 401 })
     }
 
     const { content, filename } = await req.json()
 
     if (!content) {
-      console.error('[v0] generate-pdf: No content provided')
       return new Response('Content is required', { status: 400 })
     }
 
-    console.log('[v0] generate-pdf: Starting PDF generation, filename:', filename)
+    // Sanitize content for WinAnsi encoding (standard PDF fonts)
+    // Replace/remove characters that WinAnsi cannot encode
+    const sanitizedContent = content
+      .replace(/\t/g, '    ')           // Replace tabs with 4 spaces
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') // Remove control chars except \n \r
+      .replace(/[\u2018\u2019]/g, "'")  // Smart single quotes to regular
+      .replace(/[\u201C\u201D]/g, '"')  // Smart double quotes to regular
+      .replace(/\u2026/g, '...')        // Ellipsis to three dots
+      .replace(/[\u2013\u2014]/g, '-')  // En/em dashes to hyphen
+      .replace(/\u00A0/g, ' ')          // Non-breaking space to regular space
+      .replace(/[^\x00-\x7F\xA0-\xFF]/g, '') // Remove other non-WinAnsi chars
 
     const pdfDoc = await PDFDocument.create()
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
@@ -34,7 +42,7 @@ export async function POST(req: Request) {
     let page = pdfDoc.addPage([pageWidth, pageHeight])
     let y = pageHeight - margin
 
-    const lines = content.split('\n')
+    const lines = sanitizedContent.split('\n')
 
     for (const rawLine of lines) {
       const line = rawLine.trimEnd()
@@ -102,7 +110,6 @@ export async function POST(req: Request) {
     }
 
     const pdfBytes = await pdfDoc.save()
-    console.log('[v0] generate-pdf: PDF generated successfully, size:', pdfBytes.length)
 
     return new Response(pdfBytes, {
       headers: {
