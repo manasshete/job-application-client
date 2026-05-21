@@ -12,6 +12,10 @@ export async function POST(request: Request) {
 
     const job = await request.json()
 
+    // Convert empty strings to null for date fields
+    const dateApplied = job.dateApplied || new Date().toISOString().split('T')[0]
+    const deadline = job.deadline || null
+
     const { data, error } = await supabase
       .from('jobs')
       .insert({
@@ -19,14 +23,14 @@ export async function POST(request: Request) {
         company: job.company,
         position: job.position,
         status: job.status,
-        date_applied: job.dateApplied,
-        salary: job.salary,
-        location: job.location,
-        notes: job.notes,
-        job_url: job.jobUrl,
-        deadline: job.deadline,
-        recruiter_name: job.recruiterName,
-        recruiter_email: job.recruiterEmail,
+        date_applied: dateApplied,
+        salary: job.salary || null,
+        location: job.location || null,
+        notes: job.notes || null,
+        job_url: job.jobUrl || null,
+        deadline: deadline,
+        recruiter_name: job.recruiterName || null,
+        recruiter_email: job.recruiterEmail || null,
         tags: job.tags || [],
       })
       .select()
@@ -40,6 +44,7 @@ export async function POST(request: Request) {
     // Create initial activity log
     await supabase.from('activity_logs').insert({
       job_id: data.id,
+      user_id: user.id,
       action: 'Created',
       new_value: 'Applied',
     })

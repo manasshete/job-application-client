@@ -108,15 +108,11 @@ export async function POST(req: Request) {
     }
 
     // Use AI to extract job details
-    console.log('[v0] Starting AI extraction for URL:', url)
-    
     const result = await generateObject({
       model: 'openai/gpt-4o-mini',
       schema: jobDetailsSchema,
       prompt: `Extract job details from this HTML content. Return the company name, job position/title, location, salary range (if mentioned), and a brief description. Return null for any field that cannot be found.\n\nHTML:\n${html.slice(0, 15000)}`,
     })
-
-    console.log('[v0] AI extraction result:', result.object)
 
     // Increment AI extraction count
     await incrementAIExtractionCount()
