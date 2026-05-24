@@ -26,6 +26,10 @@ const PRICING_TIERS = [
     features: [
       'Unlimited applications',
       '50 AI extractions/month',
+      'AI Resume Tailoring',
+      'AI Cover Letter Generation',
+      '200 documents/month',
+      'PDF downloads',
       'Timeline view',
       'Export to CSV',
       'Advanced filters & tags',
@@ -44,10 +48,8 @@ const PRICING_TIERS = [
     features: [
       'Everything in Pro',
       'Unlimited AI extractions',
-      'AI Resume Tailoring',
-      'AI Cover Letter Generation',
-      '100 documents/month',
-      'PDF downloads',
+      '500 documents/month',
+      'Priority support',
     ],
     cta: 'Start Premium',
     href: '/auth/sign-up?tier=premium',

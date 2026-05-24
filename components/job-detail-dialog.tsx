@@ -37,6 +37,7 @@ interface JobDetailDialogProps {
   onUpdateJob: (updates: Partial<Job>) => void
   onDeleteJob: () => void
   isPremium?: boolean
+  subscriptionTier?: string
   documentsUsedThisMonth?: number
 }
 
@@ -53,6 +54,7 @@ export function JobDetailDialog({
   onOpenChange,
   onUpdateJob,
   isPremium = false,
+  subscriptionTier = 'free',
   documentsUsedThisMonth = 0,
   onDeleteJob,
 }: JobDetailDialogProps) {
@@ -435,6 +437,7 @@ export function JobDetailDialog({
         company={job.company}
         jobDescription={job.notes || ''}
         isPremium={isPremium}
+        subscriptionTier={subscriptionTier}
         documentsUsedThisMonth={documentsUsedThisMonth}
       />
     </Dialog>

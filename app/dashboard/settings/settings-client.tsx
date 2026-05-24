@@ -106,12 +106,12 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   </p>
                 </div>
                 <Badge variant={profile.subscription_tier === 'free' ? 'secondary' : 'default'}>
-                  {profile.subscription_tier === 'free' ? 'Free' : profile.subscription_tier === 'pro' ? '$12/month' : '$29/month'}
+                  {profile.subscription_tier === 'free' ? 'Free' : profile.subscription_tier === 'pro' ? '£10/month' : '£20/month'}
                 </Badge>
               </div>
 
               <div className="space-y-3 border-t border-border pt-4">
-                <h4 className="text-sm font-medium">Plan Features</h4>
+                <h4 className="text-sm font-medium">Plan Features & Usage</h4>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -122,16 +122,28 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
                     <span>
-                      AI Extractions: {limits.aiExtractionLimit === -1 ? 'Unlimited' : `${profile.ai_extractions_used}/${limits.aiExtractionLimit} used`}
+                      AI Extractions: {limits.aiExtractionLimit === -1 ? `Unlimited (${profile.ai_extractions_used} used)` : `${profile.ai_extractions_used}/${limits.aiExtractionLimit} used this month`}
                     </span>
                   </div>
+                  {limits.hasDocumentGeneration && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <span>
+                        Documents: {profile.documents_generated_this_month}/{limits.documentGenerationLimit} used this month
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <span>Timeline View: {limits.hasTimelineView ? 'Enabled' : 'Disabled'}</span>
+                    <span>AI Resume & Cover Letter: {limits.hasDocumentGeneration ? 'Enabled' : 'Pro / Premium only'}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <span>Export to CSV: {limits.hasExport ? 'Enabled' : 'Disabled'}</span>
+                    <span>Timeline View: {limits.hasTimelineView ? 'Enabled' : 'Pro / Premium only'}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <span>Export to CSV: {limits.hasExport ? 'Enabled' : 'Pro / Premium only'}</span>
                   </div>
                 </div>
               </div>

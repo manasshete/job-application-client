@@ -311,6 +311,7 @@ export function DashboardClient({
               setSelectedJob(null)
             }}
             isPremium={isPremium}
+            subscriptionTier={subscriptionTier}
             documentsUsedThisMonth={documentsUsedThisMonth}
           />
         )}

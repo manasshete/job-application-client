@@ -34,7 +34,14 @@ interface DocumentGeneratorDialogProps {
   company: string
   jobDescription: string
   isPremium: boolean
+  subscriptionTier?: string
   documentsUsedThisMonth: number
+}
+
+const DOC_LIMITS: Record<string, number> = {
+  free: 0,
+  pro: 200,
+  premium: 500,
 }
 
 type Step = 'prompt' | 'resume' | 'cover-letter' | 'results'
@@ -46,6 +53,7 @@ export function DocumentGeneratorDialog({
   company,
   jobDescription,
   isPremium,
+  subscriptionTier = 'free',
   documentsUsedThisMonth,
 }: DocumentGeneratorDialogProps) {
   const [step, setStep] = useState<Step>('prompt')
@@ -79,7 +87,8 @@ export function DocumentGeneratorDialog({
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState('')
 
-  const remainingDocs = 100 - documentsUsedThisMonth
+  const docLimit = DOC_LIMITS[subscriptionTier] ?? 0
+  const remainingDocs = docLimit - documentsUsedThisMonth
 
   // Load saved documents when dialog opens
   useEffect(() => {
@@ -337,13 +346,21 @@ export function DocumentGeneratorDialog({
           <DocumentDisclaimer />
           <div className="space-y-4 py-2">
             <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
-              <p className="text-sm font-medium">Premium — £20/month includes:</p>
+              <p className="text-sm font-medium">Pro — £10/month includes:</p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• AI-tailored resumes for each job</li>
-                <li>• AI-generated or refined cover letters</li>
+                <li>• AI-generated cover letters</li>
                 <li>• Download as PDF</li>
-                <li>• Up to 100 documents/month</li>
+                <li>• Up to 200 documents/month</li>
+                <li>• 50 AI extractions/month</li>
+              </ul>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
+              <p className="text-sm font-medium">Premium — £20/month includes:</p>
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• Everything in Pro</li>
+                <li>• Up to 500 documents/month</li>
+                <li>• Unlimited AI extractions</li>
               </ul>
             </div>
           </div>
