@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Loader2, FileText, Download, Upload, Sparkles, Lock, Star, Trash2 } from 'lucide-react'
+import { Loader2, FileText, Download, Upload, Sparkles, Lock, Star, Trash2, AlertCircle } from 'lucide-react'
 import { DocumentDisclaimer } from './disclaimers'
 
 interface SavedDocument {
@@ -88,7 +88,8 @@ export function DocumentGeneratorDialog({
   const [error, setError] = useState('')
 
   const docLimit = DOC_LIMITS[subscriptionTier] ?? 0
-  const remainingDocs = docLimit - documentsUsedThisMonth
+  const remainingDocs = Math.max(0, docLimit - documentsUsedThisMonth)
+  const isOverLimit = documentsUsedThisMonth >= docLimit && docLimit > 0
 
   // Load saved documents when dialog opens
   useEffect(() => {
@@ -386,8 +387,14 @@ export function DocumentGeneratorDialog({
               <Sparkles className="h-5 w-5 text-primary" />
               AI Document Generator
             </DialogTitle>
-            <Badge variant="outline" className="text-xs">
-              {remainingDocs} documents remaining this month
+            <Badge 
+              variant={isOverLimit ? "destructive" : "outline"} 
+              className="text-xs"
+            >
+              {isOverLimit 
+                ? `Limit reached (${documentsUsedThisMonth}/${docLimit})`
+                : `${remainingDocs}/${docLimit} remaining`
+              }
             </Badge>
           </div>
           <DialogDescription>
@@ -397,6 +404,13 @@ export function DocumentGeneratorDialog({
             </span>
           </DialogDescription>
         </DialogHeader>
+
+        {isOverLimit && (
+          <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30">
+            <p className="font-medium mb-1">Document limit reached</p>
+            <p>You've used all {docLimit} documents for this month. Upgrade to {subscriptionTier === 'pro' ? 'Premium' : 'a higher plan'} for more documents.</p>
+          </div>
+        )}
 
         <DocumentDisclaimer />
 
@@ -692,13 +706,18 @@ export function DocumentGeneratorDialog({
                 Back
               </Button>
               <Button
-                disabled={!coverLetterInput.trim() || isGenerating}
+                disabled={!coverLetterInput.trim() || isGenerating || isOverLimit}
                 onClick={handleGenerate}
               >
                 {isGenerating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Generating...
+                  </>
+                ) : isOverLimit ? (
+                  <>
+                    <AlertCircle className="mr-2 h-4 w-4" />
+                    Limit Reached
                   </>
                 ) : (
                   <>
