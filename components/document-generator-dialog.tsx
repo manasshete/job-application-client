@@ -90,13 +90,14 @@ export function DocumentGeneratorDialog({
   const docLimit = DOC_LIMITS[subscriptionTier] ?? 0
   const remainingDocs = Math.max(0, docLimit - documentsUsedThisMonth)
   const isOverLimit = documentsUsedThisMonth >= docLimit && docLimit > 0
+  const hasDocGeneration = isPremium || subscriptionTier === 'pro'
 
   // Load saved documents when dialog opens
   useEffect(() => {
-    if (open && isPremium) {
+    if (open && hasDocGeneration) {
       loadSavedDocuments()
     }
-  }, [open, isPremium])
+  }, [open, hasDocGeneration])
 
   const loadSavedDocuments = async () => {
     setIsLoadingDocs(true)
@@ -331,7 +332,7 @@ export function DocumentGeneratorDialog({
     onOpenChange(val)
   }
 
-  if (!isPremium) {
+  if (!hasDocGeneration) {
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-md">
@@ -341,7 +342,7 @@ export function DocumentGeneratorDialog({
               Premium Feature
             </DialogTitle>
             <DialogDescription>
-              AI-tailored resumes and cover letters are available on the Premium plan.
+              AI-tailored resumes and cover letters are available on Pro and Premium plans.
             </DialogDescription>
           </DialogHeader>
           <DocumentDisclaimer />
@@ -370,7 +371,7 @@ export function DocumentGeneratorDialog({
               Maybe Later
             </Button>
             <Button className="flex-1" onClick={() => handleOpenChange(false)}>
-              Upgrade to Premium
+              Upgrade to Pro
             </Button>
           </div>
         </DialogContent>
