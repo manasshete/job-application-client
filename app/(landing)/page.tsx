@@ -113,7 +113,7 @@ export default function LandingPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
               <Briefcase className="h-4 w-4 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">JobTracker</span>
+            <span className="text-xl font-bold text-slate-900">HireFlow</span>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/auth/login">
@@ -147,7 +147,7 @@ export default function LandingPage() {
               again.
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-slate-600 md:text-xl">
-              Applied to 50+ jobs and forgot which resume went where? JobTracker organises your entire job search, tailors your documents with AI, and helps you land your next role faster.
+              Applied to 50+ jobs and forgot which resume went where? HireFlow organises your entire job search, tailors your documents with AI, and helps you land your next role faster.
             </p>
 
             {/* Feature pills */}
@@ -386,19 +386,19 @@ export default function LandingPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
                 <Briefcase className="h-4 w-4 text-white" />
               </div>
-              <span className="font-bold text-slate-900">JobTracker</span>
+              <span className="font-bold text-slate-900">HireFlow</span>
             </div>
             <div className="flex gap-8 text-sm">
               <Link href="/terms" className="text-slate-600 hover:text-slate-900">Terms of Service</Link>
               <Link href="/privacy" className="text-slate-600 hover:text-slate-900">Privacy Policy</Link>
             </div>
-            <p className="text-sm text-slate-500">© 2024 JobTracker. All rights reserved.</p>
+            <p className="text-sm text-slate-500">© 2026 HireFlow. All rights reserved.</p>
           </div>
 
           {/* Plain text disclaimers */}
           <div className="mt-8 border-t border-slate-100 pt-6 space-y-2 text-center">
             <p className="text-xs text-slate-500">
-              Use of this service does not guarantee employment, job interviews, or job offers. JobTracker is a personal organisation tool only.
+              Use of this service does not guarantee employment, job interviews, or job offers. HireFlow is a personal organisation tool only.
             </p>
             <p className="text-xs text-slate-500">
               AI-generated content including extracted job details, tailored resumes, and cover letters may be inaccurate or incomplete. Always review and verify before submitting any application materials.

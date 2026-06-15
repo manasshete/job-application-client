@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export default function AdminTestPage() {
-  const [email, setEmail] = useState('admin@jobtracker.test')
+  const [email, setEmail] = useState('admin@hireflow.test')
   const [password, setPassword] = useState('TestAdmin123!')
   const [tier, setTier] = useState<'free' | 'pro' | 'premium'>('premium')
   const [loading, setLoading] = useState(false)

@@ -78,7 +78,7 @@ export default function PrivacyPage() {
               <li>Opt-out of data collection (if applicable)</li>
               <li>Export your data</li>
             </ul>
-            <p className="mt-3">To exercise these rights, contact us at privacy@jobtracker.com</p>
+            <p className="mt-3">To exercise these rights, contact us at privacy@hireflow.com</p>
           </section>
 
           <section>
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="mb-4 text-2xl font-semibold text-slate-900">7. Contact Us</h2>
             <p>
-              If you have questions about this privacy policy, please contact us at privacy@jobtracker.com
+              If you have questions about this privacy policy, please contact us at privacy@hireflow.com
             </p>
           </section>
         </div>
