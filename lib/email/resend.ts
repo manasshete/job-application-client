@@ -1,10 +1,23 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let resendInstance: Resend | null = null
+
+function getResend(): Resend {
+  if (!resendInstance) {
+    const apiKey = process.env.RESEND_API_KEY
+    if (!apiKey) {
+      throw new Error(
+        'Resend is not configured. Please set the RESEND_API_KEY environment variable.'
+      )
+    }
+    resendInstance = new Resend(apiKey)
+  }
+  return resendInstance
+}
 
 export async function sendConfirmationEmail(email: string, confirmationUrl: string) {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'HireFlow <noreply@hireflow.dev>',
       to: email,
       subject: 'Confirm your HireFlow account',
@@ -49,7 +62,7 @@ export async function sendConfirmationEmail(email: string, confirmationUrl: stri
 
 export async function sendInterviewReminder(email: string, jobTitle: string, company: string, interviewDate: string) {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'HireFlow <noreply@hireflow.dev>',
       to: email,
       subject: `Reminder: Interview with ${company}`,
@@ -97,7 +110,7 @@ export async function sendInterviewReminder(email: string, jobTitle: string, com
 
 export async function sendStatusUpdateEmail(email: string, jobTitle: string, company: string, newStatus: string) {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'HireFlow <noreply@hireflow.dev>',
       to: email,
       subject: `Job Application Status: ${newStatus}`,
@@ -145,7 +158,7 @@ export async function sendStatusUpdateEmail(email: string, jobTitle: string, com
 
 export async function sendWeeklyDigest(email: string, stats: { totalApplications: number; interviews: number; accepted: number }) {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'HireFlow <noreply@hireflow.dev>',
       to: email,
       subject: 'Your HireFlow Weekly Summary',

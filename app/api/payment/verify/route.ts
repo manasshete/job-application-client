@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { verifyPayment } from '@/lib/razorpay'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient()

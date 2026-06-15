@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createOrder } from '@/lib/razorpay'
 
+export const dynamic = 'force-dynamic'
+
 const SUBSCRIPTION_PRICES: Record<string, number> = {
   pro: 99900, // £10 in paise (100 paise = £1)
   premium: 199900, // £20 in paise
@@ -27,7 +29,7 @@ export async function POST(req: Request) {
     const order = await createOrder({
       amount,
       currency: 'GBP',
-      receipt: `jobtracker_${user.id}_${Date.now()}`,
+      receipt: `hireflow_${user.id}_${Date.now()}`,
       notes: {
         userId: user.id,
         userEmail: user.email || '',

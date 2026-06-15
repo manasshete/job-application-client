@@ -1,9 +1,23 @@
 import Razorpay from 'razorpay'
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-})
+let razorpayInstance: Razorpay | null = null
+
+function getRazorpay(): Razorpay {
+  if (!razorpayInstance) {
+    const key_id = process.env.RAZORPAY_KEY_ID
+    const key_secret = process.env.RAZORPAY_KEY_SECRET
+
+    if (!key_id || !key_secret) {
+      throw new Error(
+        'Razorpay is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.'
+      )
+    }
+
+    razorpayInstance = new Razorpay({ key_id, key_secret })
+  }
+
+  return razorpayInstance
+}
 
 export interface RazorpayOrder {
   amount: number
@@ -14,7 +28,7 @@ export interface RazorpayOrder {
 
 export async function createOrder(orderData: RazorpayOrder) {
   try {
-    const order = await razorpay.orders.create(orderData)
+    const order = await getRazorpay().orders.create(orderData)
     return order
   } catch (error) {
     console.error('[v0] Error creating Razorpay order:', error)
@@ -28,8 +42,13 @@ export async function verifyPayment(
   signature: string
 ) {
   try {
+    const key_secret = process.env.RAZORPAY_KEY_SECRET
+    if (!key_secret) {
+      throw new Error('Razorpay is not configured.')
+    }
+
     const crypto = require('crypto')
-    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
+    const hmac = crypto.createHmac('sha256', key_secret)
     hmac.update(orderId + '|' + paymentId)
     const generated_signature = hmac.digest('hex')
 
@@ -47,5 +66,5 @@ export async function verifyPayment(
 }
 
 export function getRazorpayInstance() {
-  return razorpay
+  return getRazorpay()
 }
