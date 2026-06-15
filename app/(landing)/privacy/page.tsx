@@ -21,7 +21,7 @@ export default function PrivacyPage() {
         <div className="space-y-8 text-slate-700">
           <section>
             <h2 className="mb-4 text-2xl font-semibold text-slate-900">1. Information We Collect</h2>
-            <p className="mb-3">JobTracker collects the following information:</p>
+            <p className="mb-3">HireFlow collects the following information:</p>
             <ul className="list-inside list-disc space-y-2 ml-4">
               <li>Email address and password (for authentication)</li>
               <li>Job application details you enter (company, position, salary, etc.)</li>
@@ -35,7 +35,7 @@ export default function PrivacyPage() {
             <h2 className="mb-4 text-2xl font-semibold text-slate-900">2. How We Use Your Data</h2>
             <p className="mb-3">We use your data to:</p>
             <ul className="list-inside list-disc space-y-2 ml-4">
-              <li>Provide and maintain the JobTracker service</li>
+              <li>Provide and maintain the HireFlow service</li>
               <li>Process your job applications and tracking preferences</li>
               <li>Generate AI-tailored resumes and cover letters</li>
               <li>Extract job posting information from URLs</li>
@@ -84,7 +84,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="mb-4 text-2xl font-semibold text-slate-900">6. Cookies</h2>
             <p>
-              JobTracker uses cookies to maintain your session and preferences. You can control cookie settings in your browser.
+              HireFlow uses cookies to maintain your session and preferences. You can control cookie settings in your browser.
             </p>
           </section>
 

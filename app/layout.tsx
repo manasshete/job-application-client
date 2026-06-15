@@ -8,7 +8,7 @@ const _geist = Geist({ subsets: ['latin'] })
 const _geistMono = Geist_Mono({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Job Tracker - Manage Your Job Applications',
+  title: 'HireFlow - Manage Your Job Applications',
   description: 'Track your job applications, interviews, and offers in one place',
   generator: 'v0.app',
 }

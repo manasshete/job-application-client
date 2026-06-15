@@ -35,7 +35,7 @@ export default async function Page({
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600">
             <Briefcase className="h-3.5 w-3.5 text-white" />
           </div>
-          <span className="text-sm font-semibold text-slate-700">JobTracker</span>
+          <span className="text-sm font-semibold text-slate-700">HireFlow</span>
         </div>
       </div>
     </div>

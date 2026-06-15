@@ -59,7 +59,7 @@ export default function Page() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600">
               <Briefcase className="h-5 w-5 text-white" />
             </div>
-            <span className="text-2xl font-bold text-slate-900">JobTracker</span>
+            <span className="text-2xl font-bold text-slate-900">HireFlow</span>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">

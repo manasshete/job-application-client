@@ -198,7 +198,7 @@ export function DashboardClient({
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                Job Application Tracker
+                HireFlow
               </h1>
               <Badge 
                 variant={subscriptionTier === 'premium' ? 'default' : subscriptionTier === 'pro' ? 'secondary' : 'outline'}
@@ -318,7 +318,7 @@ export function DashboardClient({
         {/* Footer disclaimer */}
         <div className="mt-12 border-t border-border pb-8 pt-6">
           <p className="text-center text-xs leading-relaxed text-muted-foreground">
-            JobTracker is a personal organisation tool only. Use of this service does not guarantee employment or job offers.
+            HireFlow is a personal organisation tool only. Use of this service does not guarantee employment or job offers.
             AI-generated content including extracted job details, tailored resumes, and cover letters may contain inaccuracies — always review before submitting.
             Your data is stored securely and is never shared with third parties. We are not responsible for outcomes resulting from applications submitted using this tool.
           </p>
