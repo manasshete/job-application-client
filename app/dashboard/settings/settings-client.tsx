@@ -2,11 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import type { Profile } from '@/lib/data/profiles'
 import type { JobStats } from './page'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -31,6 +30,8 @@ import {
   XCircle,
   PartyPopper,
   AlertTriangle,
+  ArrowUpCircle,
+  RefreshCw,
 } from 'lucide-react'
 
 interface SettingsClientProps {
@@ -42,43 +43,24 @@ const STATUS_META: Record<
   string,
   { label: string; icon: typeof Briefcase; className: string }
 > = {
-  applied: { label: 'Applied', icon: Briefcase, className: 'text-blue-500' },
-  interview: { label: 'Interviewing', icon: CalendarClock, className: 'text-amber-500' },
-  offer: { label: 'Offers', icon: Trophy, className: 'text-violet-500' },
-  accepted: { label: 'Accepted', icon: PartyPopper, className: 'text-green-500' },
-  rejected: { label: 'Rejected', icon: XCircle, className: 'text-muted-foreground' },
+  applied:   { label: 'Applied',      icon: Briefcase,      className: 'text-blue-500' },
+  interview: { label: 'Interviewing', icon: CalendarClock,   className: 'text-amber-500' },
+  offer:     { label: 'Offers',       icon: Trophy,          className: 'text-violet-500' },
+  accepted:  { label: 'Accepted',     icon: PartyPopper,     className: 'text-green-500' },
+  rejected:  { label: 'Rejected',     icon: XCircle,         className: 'text-muted-foreground' },
 }
 
 export function SettingsClient({ profile, stats }: SettingsClientProps) {
   const router = useRouter()
-  const [fullName, setFullName] = useState(profile.full_name || '')
-  const [isSaving, setIsSaving] = useState(false)
-  const [subStatus, setSubStatus] = useState(profile.subscription_status || 'active')
+  const [subStatus, setSubStatus]       = useState(profile.subscription_status || 'active')
   const [isUpdatingSub, setIsUpdatingSub] = useState(false)
-  const [subError, setSubError] = useState<string | null>(null)
-
-  const handleSave = async () => {
-    setIsSaving(true)
-    try {
-      const response = await fetch('/api/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ full_name: fullName }),
-      })
-
-      if (!response.ok) throw new Error('Failed to update profile')
-
-      router.refresh()
-    } catch (error) {
-      console.error('[v0] Error updating profile:', error)
-    } finally {
-      setIsSaving(false)
-    }
-  }
+  const [subError, setSubError]         = useState<string | null>(null)
+  const [subSuccess, setSubSuccess]     = useState<string | null>(null)
 
   const handleSubscriptionAction = async (action: 'cancel' | 'reactivate') => {
     setIsUpdatingSub(true)
     setSubError(null)
+    setSubSuccess(null)
     try {
       const response = await fetch('/api/subscription', {
         method: 'POST',
@@ -93,42 +75,41 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
       }
 
       setSubStatus(data.subscription_status)
+      setSubSuccess(
+        action === 'cancel'
+          ? 'Your subscription has been cancelled. You will keep access until the end of your billing period.'
+          : 'Your subscription has been reactivated successfully!'
+      )
       router.refresh()
     } catch (error) {
-      console.error('[v0] Error updating subscription:', error)
       setSubError(error instanceof Error ? error.message : 'Something went wrong')
     } finally {
       setIsUpdatingSub(false)
     }
   }
 
-  const limits = SUBSCRIPTION_LIMITS[profile.subscription_tier]
-  const isPaid = profile.subscription_tier !== 'free'
+  const limits     = SUBSCRIPTION_LIMITS[profile.subscription_tier]
+  const isPaid     = profile.subscription_tier !== 'free'
   const isCancelled = subStatus === 'cancelled'
-  const tierLabel =
-    profile.subscription_tier.charAt(0).toUpperCase() + profile.subscription_tier.slice(1)
-  const priceLabel =
-    profile.subscription_tier === 'free'
-      ? 'Free'
-      : profile.subscription_tier === 'pro'
-        ? '£10/month'
-        : '£15/month'
+  const tierLabel  = profile.subscription_tier.charAt(0).toUpperCase() + profile.subscription_tier.slice(1)
+  const priceLabel = profile.subscription_tier === 'free' ? 'Free' : profile.subscription_tier === 'pro' ? '£10/month' : '£15/month'
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Settings</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Account</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage your account, subscription, and view your application stats
+            Manage your subscription and view your application stats
           </p>
         </div>
 
         <div className="space-y-6">
-          {/* Job Statistics */}
+
+          {/* ── Job Statistics ── */}
           <Card>
             <CardHeader>
-              <CardTitle>Your Application Statistics</CardTitle>
+              <CardTitle>Application Statistics</CardTitle>
               <CardDescription>A snapshot of your job search activity</CardDescription>
             </CardHeader>
             <CardContent>
@@ -142,8 +123,7 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
 
               {stats.total === 0 ? (
                 <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                  You haven&apos;t added any jobs yet. Head to your dashboard to start tracking
-                  applications.
+                  You haven&apos;t added any jobs yet. Head to your dashboard to start tracking applications.
                 </p>
               ) : (
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
@@ -167,133 +147,112 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
             </CardContent>
           </Card>
 
-          {/* Account Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Information</CardTitle>
-              <CardDescription>Update your account details</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={profile.email || ''}
-                  disabled
-                  className="bg-muted"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="John Doe"
-                />
-              </div>
-              <Button onClick={handleSave} disabled={isSaving}>
-                {isSaving ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Subscription */}
+          {/* ── Subscription ── */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 Subscription
-                {profile.subscription_tier === 'premium' && (
-                  <Crown className="h-5 w-5 text-amber-500" />
-                )}
-                {profile.subscription_tier === 'pro' && <Zap className="h-5 w-5 text-primary" />}
+                {profile.subscription_tier === 'premium' && <Crown className="h-5 w-5 text-amber-500" />}
+                {profile.subscription_tier === 'pro'     && <Zap   className="h-5 w-5 text-primary"   />}
               </CardTitle>
-              <CardDescription>Manage your current plan</CardDescription>
+              <CardDescription>Your current plan and feature usage</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+            <CardContent className="space-y-5">
+
+              {/* Plan header row */}
+              <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-4">
                 <div>
-                  <p className="font-medium">Current Plan</p>
-                  <p className="text-sm text-muted-foreground">{tierLabel} Tier</p>
+                  <p className="font-semibold text-foreground">{tierLabel} Plan</p>
+                  <p className="text-sm text-muted-foreground">{profile.email}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   {isCancelled && <Badge variant="destructive">Cancelled</Badge>}
                   {isPaid && !isCancelled && (
-                    <Badge className="bg-green-600 hover:bg-green-600">Active</Badge>
+                    <Badge className="bg-green-600 hover:bg-green-600 text-white">Active</Badge>
                   )}
-                  <Badge variant={profile.subscription_tier === 'free' ? 'secondary' : 'default'}>
-                    {priceLabel}
-                  </Badge>
+                  <Badge variant={isPaid ? 'default' : 'secondary'}>{priceLabel}</Badge>
                 </div>
               </div>
 
+              {/* Cancellation warning */}
               {isCancelled && (
-                <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-foreground">
+                <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm">
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
                   <span>
-                    Your subscription is cancelled. You still have access to {tierLabel} features
-                    for now. Reactivate any time to keep them.
+                    Your subscription is cancelled. You still have access to {tierLabel} features until the end of your billing period.
                   </span>
                 </div>
               )}
 
-              <div className="space-y-3 border-t border-border pt-4">
-                <h4 className="text-sm font-medium">Plan Features &amp; Usage</h4>
+              {/* Feature usage */}
+              <div className="space-y-2 border-t border-border pt-4">
+                <p className="text-sm font-medium text-foreground">Plan Features &amp; Usage</p>
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
                     <span>Jobs: {limits.maxJobs === -1 ? 'Unlimited' : `Up to ${limits.maxJobs}`}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
                     <span>
                       AI Extractions:{' '}
                       {limits.aiExtractionLimit === -1
-                        ? `Unlimited (${profile.ai_extractions_used} used)`
-                        : `${profile.ai_extractions_used}/${limits.aiExtractionLimit} used this month`}
+                        ? `Unlimited (${profile.ai_extractions_used ?? 0} used)`
+                        : `${profile.ai_extractions_used ?? 0} / ${limits.aiExtractionLimit} used this month`}
                     </span>
                   </div>
                   {limits.hasDocumentGeneration && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
                       <span>
-                        Documents: {profile.documents_generated_this_month}/
-                        {limits.documentGenerationLimit} used this month
+                        Documents: {profile.documents_generated_this_month ?? 0} / {limits.documentGenerationLimit} used this month
                       </span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Subscription actions */}
-              <div className="border-t border-border pt-4">
+              {/* Actions */}
+              <div className="border-t border-border pt-4 space-y-3">
+
+                {/* Feedback messages */}
                 {subError && (
-                  <p className="mb-3 text-sm text-destructive" role="alert">
-                    {subError}
-                  </p>
+                  <p className="text-sm text-destructive" role="alert">{subError}</p>
+                )}
+                {subSuccess && (
+                  <p className="text-sm text-green-600" role="status">{subSuccess}</p>
                 )}
 
+                {/* Free tier — prompt to upgrade */}
                 {!isPaid && (
-                  <Button className="w-full" disabled>
-                    Upgrade to Pro (Billing Integration Required)
-                  </Button>
+                  <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Upgrade to unlock unlimited jobs, AI resume tailoring, cover letter generation, and more.
+                    </p>
+                    <Button asChild className="w-full">
+                      <Link href="/#pricing">
+                        <ArrowUpCircle className="mr-2 h-4 w-4" />
+                        View Plans &amp; Upgrade
+                      </Link>
+                    </Button>
+                  </div>
                 )}
 
+                {/* Paid + active — show cancel */}
                 {isPaid && !isCancelled && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="outline" disabled={isUpdatingSub}>
-                        Cancel Subscription
+                      <Button variant="outline" disabled={isUpdatingSub} className="w-full">
+                        {isUpdatingSub ? 'Cancelling...' : 'Cancel Subscription'}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Cancel your {tierLabel} subscription?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          You&apos;ll keep access to {tierLabel} features until the end of your
-                          current billing period, after which your account reverts to the Free plan.
-                          Your job data is always kept safe. You can reactivate any time.
+                          You&apos;ll keep access to {tierLabel} features until the end of your current billing period.
+                          After that your account reverts to the Free plan. All your job data stays safe.
+                          You can reactivate any time.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -309,17 +268,22 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
                   </AlertDialog>
                 )}
 
+                {/* Paid + cancelled — show reactivate */}
                 {isPaid && isCancelled && (
                   <Button
                     onClick={() => handleSubscriptionAction('reactivate')}
                     disabled={isUpdatingSub}
+                    className="w-full"
                   >
+                    <RefreshCw className="mr-2 h-4 w-4" />
                     {isUpdatingSub ? 'Reactivating...' : 'Reactivate Subscription'}
                   </Button>
                 )}
+
               </div>
             </CardContent>
           </Card>
+
         </div>
       </div>
     </div>

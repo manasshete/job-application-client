@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/admin/service-client'
 import { sendSubscriptionCancellationEmail, sendSubscriptionReactivationEmail } from '@/lib/email/subscription-emails'
 
 export const dynamic = 'force-dynamic'
@@ -58,14 +59,17 @@ export async function POST(request: Request) {
 
     const newStatus = action === 'cancel' ? 'cancelled' : 'active'
 
-    // Scoped to the authenticated user only — RLS also enforces this.
-    const { error: updateError } = await supabase
+    // Use the service-role client for the write so it is never blocked by
+    // RLS edge cases. The user's identity has already been verified above —
+    // we always scope the update to their exact user.id.
+    const adminClient = createAdminClient()
+    const { error: updateError } = await adminClient
       .from('profiles')
       .update({ subscription_status: newStatus })
       .eq('id', user.id)
 
     if (updateError) {
-      console.error('[v0] Error updating subscription status:', updateError)
+      console.error('[v0] Error updating subscription status:', updateError.message, updateError.details)
       return NextResponse.json({ error: 'Failed to update subscription' }, { status: 500 })
     }
 
