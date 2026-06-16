@@ -1,0 +1,98 @@
+import { NextResponse } from 'next/server'
+import { verifyAdmin, logAdminAction } from '@/lib/admin/auth'
+import { createAdminClient } from '@/lib/admin/service-client'
+import type { SubscriptionTier } from '@/lib/subscription'
+
+export const dynamic = 'force-dynamic'
+
+const VALID_TIERS: SubscriptionTier[] = ['free', 'pro', 'premium']
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+export async function POST(req: Request) {
+  const check = await verifyAdmin()
+  if (!check.ok) {
+    return NextResponse.json({ error: check.error }, { status: check.status })
+  }
+
+  let body: { userId?: unknown; tier?: unknown }
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+
+  const userId = typeof body.userId === 'string' ? body.userId : ''
+  const tier = typeof body.tier === 'string' ? body.tier : ''
+
+  // Strict input validation
+  if (!UUID_REGEX.test(userId)) {
+    return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 })
+  }
+  if (!VALID_TIERS.includes(tier as SubscriptionTier)) {
+    return NextResponse.json(
+      { error: 'Invalid tier. Must be free, pro, or premium.' },
+      { status: 400 }
+    )
+  }
+
+  try {
+    const admin = createAdminClient()
+
+    // Read current tier for the audit trail
+    const { data: current, error: readError } = await admin
+      .from('profiles')
+      .select('email, subscription_tier')
+      .eq('id', userId)
+      .single()
+
+    if (readError || !current) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    const previousTier = current.subscription_tier
+
+    // Update the tier and mark subscription active for paid tiers
+    const { data: updated, error: updateError } = await admin
+      .from('profiles')
+      .update({
+        subscription_tier: tier,
+        subscription_status: tier === 'free' ? 'inactive' : 'active',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId)
+      .select(
+        'id, email, subscription_tier, subscription_status, is_admin, ai_extractions_used, documents_generated_this_month, created_at, full_name'
+      )
+      .single()
+
+    if (updateError) throw updateError
+
+    // Audit log (best-effort)
+    await logAdminAction({
+      adminId: check.user.id,
+      action: tier === 'free' || isDowngrade(previousTier, tier)
+        ? 'subscription_downgrade'
+        : 'subscription_upgrade',
+      targetUserId: userId,
+      details: {
+        from: previousTier,
+        to: tier,
+        targetEmail: current.email,
+      },
+    })
+
+    return NextResponse.json({ user: updated })
+  } catch (error) {
+    console.error('[v0] Admin subscription change error:', error)
+    return NextResponse.json(
+      { error: 'Failed to update subscription' },
+      { status: 500 }
+    )
+  }
+}
+
+function isDowngrade(from: string | null, to: string): boolean {
+  const rank: Record<string, number> = { free: 0, pro: 1, premium: 2 }
+  return (rank[to] ?? 0) < (rank[from ?? 'free'] ?? 0)
+}
