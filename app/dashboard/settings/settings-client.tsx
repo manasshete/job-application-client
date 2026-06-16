@@ -1,12 +1,12 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import type { Profile } from '@/lib/data/profiles'
 import type { JobStats } from './page'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { PlanManager } from '@/components/plan-manager'
 import { SUBSCRIPTION_LIMITS } from '@/lib/subscription'
 import {
   Crown,
@@ -17,7 +17,6 @@ import {
   Trophy,
   XCircle,
   PartyPopper,
-  ArrowUpCircle,
   ArrowLeft,
 } from 'lucide-react'
 
@@ -156,22 +155,20 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
                 </div>
               </div>
 
-              {/* Free tier — prompt to upgrade / top up */}
-              {!isPaid && (
-                <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Top up to unlock unlimited jobs, AI resume tailoring, cover letter generation, and more.
-                    Pay as you go — only top up when you need more.
-                  </p>
-                  <Button asChild className="w-full">
-                    <Link href="/#pricing">
-                      <ArrowUpCircle className="mr-2 h-4 w-4" />
-                      View Plans &amp; Top Up
-                    </Link>
-                  </Button>
-                </div>
-              )}
+            </CardContent>
+          </Card>
 
+          {/* ── Manage Plan ── */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Manage Plan</CardTitle>
+              <CardDescription>
+                Upgrade or switch your plan anytime. Pay as you go — top up to a higher tier when you
+                need more, or switch down whenever you like.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PlanManager currentTier={profile.subscription_tier} />
             </CardContent>
           </Card>
 
