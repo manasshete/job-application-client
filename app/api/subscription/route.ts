@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sendSubscriptionCancellationEmail, sendSubscriptionReactivationEmail } from '@/lib/email/subscription-emails'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
     // Read the user's current tier so we can guard the transition.
     const { data: profile, error: readError } = await supabase
       .from('profiles')
-      .select('subscription_tier, subscription_status')
+      .select('subscription_tier, subscription_status, full_name')
       .eq('id', user.id)
       .single()
 
@@ -66,6 +67,18 @@ export async function POST(request: Request) {
     if (updateError) {
       console.error('[v0] Error updating subscription status:', updateError)
       return NextResponse.json({ error: 'Failed to update subscription' }, { status: 500 })
+    }
+
+    // Send confirmation email (best-effort — don't fail the request if email fails)
+    try {
+      if (action === 'cancel') {
+        await sendSubscriptionCancellationEmail(user.email || '', profile.full_name || '', profile.subscription_tier)
+      } else {
+        await sendSubscriptionReactivationEmail(user.email || '', profile.full_name || '', profile.subscription_tier)
+      }
+    } catch (emailError) {
+      console.error('[v0] Failed to send subscription status email:', emailError)
+      // Don't fail the request if email fails — the subscription status was already updated
     }
 
     return NextResponse.json({ success: true, subscription_status: newStatus })
