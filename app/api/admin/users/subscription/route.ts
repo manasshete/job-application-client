@@ -59,7 +59,6 @@ export async function POST(req: Request) {
       .update({
         subscription_tier: tier,
         subscription_status: tier === 'free' ? 'inactive' : 'active',
-        updated_at: new Date().toISOString(),
       })
       .eq('id', userId)
       .select(
@@ -67,7 +66,15 @@ export async function POST(req: Request) {
       )
       .single()
 
-    if (updateError) throw updateError
+    if (updateError) {
+      console.error('[v0] Admin subscription update error:', {
+        message: updateError.message,
+        details: updateError.details,
+        hint: updateError.hint,
+        code: updateError.code,
+      })
+      throw updateError
+    }
 
     // Audit log (best-effort)
     await logAdminAction({
