@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Profile } from '@/lib/data/profiles'
@@ -8,17 +7,6 @@ import type { JobStats } from './page'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import { SUBSCRIPTION_LIMITS } from '@/lib/subscription'
 import {
   Crown,
@@ -29,9 +17,7 @@ import {
   Trophy,
   XCircle,
   PartyPopper,
-  AlertTriangle,
   ArrowUpCircle,
-  RefreshCw,
   ArrowLeft,
 } from 'lucide-react'
 
@@ -53,45 +39,9 @@ const STATUS_META: Record<
 
 export function SettingsClient({ profile, stats }: SettingsClientProps) {
   const router = useRouter()
-  const [subStatus, setSubStatus]       = useState(profile.subscription_status || 'active')
-  const [isUpdatingSub, setIsUpdatingSub] = useState(false)
-  const [subError, setSubError]         = useState<string | null>(null)
-  const [subSuccess, setSubSuccess]     = useState<string | null>(null)
-
-  const handleSubscriptionAction = async (action: 'cancel' | 'reactivate') => {
-    setIsUpdatingSub(true)
-    setSubError(null)
-    setSubSuccess(null)
-    try {
-      const response = await fetch('/api/subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update subscription')
-      }
-
-      setSubStatus(data.subscription_status)
-      setSubSuccess(
-        action === 'cancel'
-          ? 'Your subscription has been cancelled. You will keep access until the end of your billing period.'
-          : 'Your subscription has been reactivated successfully!'
-      )
-      router.refresh()
-    } catch (error) {
-      setSubError(error instanceof Error ? error.message : 'Something went wrong')
-    } finally {
-      setIsUpdatingSub(false)
-    }
-  }
 
   const limits     = SUBSCRIPTION_LIMITS[profile.subscription_tier]
   const isPaid     = profile.subscription_tier !== 'free'
-  const isCancelled = subStatus === 'cancelled'
   const tierLabel  = profile.subscription_tier.charAt(0).toUpperCase() + profile.subscription_tier.slice(1)
   const priceLabel = profile.subscription_tier === 'free' ? 'Free' : profile.subscription_tier === 'pro' ? '£10/month' : '£15/month'
 
@@ -105,7 +55,7 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
           </Button>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Account</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage your subscription and view your application stats
+            Manage your plan and view your application stats
           </p>
         </div>
 
@@ -152,11 +102,11 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
             </CardContent>
           </Card>
 
-          {/* ── Subscription ── */}
+          {/* ── Plan ── */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Subscription
+                Plan
                 {profile.subscription_tier === 'premium' && <Crown className="h-5 w-5 text-amber-500" />}
                 {profile.subscription_tier === 'pro'     && <Zap   className="h-5 w-5 text-primary"   />}
               </CardTitle>
@@ -171,23 +121,12 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
                   <p className="text-sm text-muted-foreground">{profile.email}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {isCancelled && <Badge variant="destructive">Cancelled</Badge>}
-                  {isPaid && !isCancelled && (
+                  {isPaid && (
                     <Badge className="bg-green-600 hover:bg-green-600 text-white">Active</Badge>
                   )}
                   <Badge variant={isPaid ? 'default' : 'secondary'}>{priceLabel}</Badge>
                 </div>
               </div>
-
-              {/* Cancellation warning */}
-              {isCancelled && (
-                <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-                  <span>
-                    Your subscription is cancelled. You still have access to {tierLabel} features until the end of your billing period.
-                  </span>
-                </div>
-              )}
 
               {/* Feature usage */}
               <div className="space-y-2 border-t border-border pt-4">
@@ -217,75 +156,22 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="border-t border-border pt-4 space-y-3">
-
-                {/* Feedback messages */}
-                {subError && (
-                  <p className="text-sm text-destructive" role="alert">{subError}</p>
-                )}
-                {subSuccess && (
-                  <p className="text-sm text-green-600" role="status">{subSuccess}</p>
-                )}
-
-                {/* Free tier — prompt to upgrade */}
-                {!isPaid && (
-                  <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
-                    <p className="text-sm text-muted-foreground">
-                      Upgrade to unlock unlimited jobs, AI resume tailoring, cover letter generation, and more.
-                    </p>
-                    <Button asChild className="w-full">
-                      <Link href="/#pricing">
-                        <ArrowUpCircle className="mr-2 h-4 w-4" />
-                        View Plans &amp; Upgrade
-                      </Link>
-                    </Button>
-                  </div>
-                )}
-
-                {/* Paid + active — show cancel */}
-                {isPaid && !isCancelled && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" disabled={isUpdatingSub} className="w-full">
-                        {isUpdatingSub ? 'Cancelling...' : 'Cancel Subscription'}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Cancel your {tierLabel} subscription?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          You&apos;ll keep access to {tierLabel} features until the end of your current billing period.
-                          After that your account reverts to the Free plan. All your job data stays safe.
-                          You can reactivate any time.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleSubscriptionAction('cancel')}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          Yes, Cancel
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
-
-                {/* Paid + cancelled — show reactivate */}
-                {isPaid && isCancelled && (
-                  <Button
-                    onClick={() => handleSubscriptionAction('reactivate')}
-                    disabled={isUpdatingSub}
-                    className="w-full"
-                  >
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    {isUpdatingSub ? 'Reactivating...' : 'Reactivate Subscription'}
+              {/* Free tier — prompt to upgrade / top up */}
+              {!isPaid && (
+                <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Top up to unlock unlimited jobs, AI resume tailoring, cover letter generation, and more.
+                    Pay as you go — only top up when you need more.
+                  </p>
+                  <Button asChild className="w-full">
+                    <Link href="/#pricing">
+                      <ArrowUpCircle className="mr-2 h-4 w-4" />
+                      View Plans &amp; Top Up
+                    </Link>
                   </Button>
-                )}
+                </div>
+              )}
 
-              </div>
             </CardContent>
           </Card>
 
