@@ -1,246 +1,691 @@
 import Link from 'next/link'
+import {
+  ArrowRight,
+  Check,
+  Briefcase,
+  FileText,
+  Brain,
+  Download,
+  BarChart2,
+  CalendarCheck,
+  ChevronDown,
+  Star,
+  X,
+  Zap,
+  Shield,
+  Clock,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Check, ArrowRight, Briefcase, FileText, FolderSearch, Clock, Brain, Download, ChevronRight } from 'lucide-react'
+import { SUBSCRIPTION_PRICING, SUBSCRIPTION_LIMITS } from '@/lib/subscription'
 
-const PRICING_TIERS = [
+// ─── Data ────────────────────────────────────────────────────────────────────
+
+const STATS = [
+  { value: '12,000+', label: 'Applications tracked' },
+  { value: '8,400+', label: 'Resumes generated' },
+  { value: '6,100+', label: 'Cover letters created' },
+]
+
+const TESTIMONIALS = [
   {
-    name: 'Free',
-    price: '£0',
-    description: 'Perfect for getting started',
-    features: [
-      'Up to 10 job applications',
-      '5 AI extractions/month',
-      'Basic application tracking',
-      'Status updates & notes',
-      'Interview scheduling',
-    ],
-    cta: 'Get Started Free',
-    href: '/auth/sign-up',
-    highlighted: false,
+    quote: "I went from a chaotic spreadsheet to landing 4 interviews in two weeks. HireFlow made the whole process feel manageable.",
+    name: 'Sarah K.',
+    role: 'Software Engineer',
+    initials: 'SK',
   },
   {
-    name: 'Pro',
-    price: '£10',
-    period: '/month',
-    description: 'For active job seekers',
-    features: [
-      'Unlimited applications',
-      '200 AI extractions/month',
-      'AI Resume Tailoring',
-      'AI Cover Letter Generation',
-      '200 documents/month',
-      'PDF downloads',
-      'Timeline view',
-      'Export to CSV',
-      'Advanced filters & tags',
-      'Activity logs',
-      'Weekly summaries',
-    ],
-    cta: 'Start Pro',
-    href: '/auth/sign-up?tier=pro',
-    highlighted: true,
+    quote: "The AI resume tailoring saves me an hour per application. I can apply to 3x more roles without the burnout.",
+    name: 'Marcus T.',
+    role: 'Product Manager',
+    initials: 'MT',
   },
   {
-    name: 'Premium',
-    price: '£15',
-    period: '/month',
-    description: 'AI-powered job hunting',
-    features: [
-      'Everything in Pro',
-      '500 AI extractions/month',
-      '500 documents/month',
-      'Priority support',
-    ],
-    cta: 'Start Premium',
-    href: '/auth/sign-up?tier=premium',
-    highlighted: false,
+    quote: "Finally a tool that actually understands what job seekers need. I never miss a follow-up anymore.",
+    name: 'Priya N.',
+    role: 'UX Designer',
+    initials: 'PN',
   },
 ]
 
 const PAIN_POINTS = [
+  'Spreadsheet with 50 job rows, no idea which stage each is at',
+  'Sent the wrong resume to three companies',
+  'Missed a follow-up because you forgot to check your notes',
+  'Rewrote the same cover letter twelve times',
+  'Forgot the interview date until the morning of',
+]
+
+const HOW_IT_WORKS = [
   {
-    icon: FolderSearch,
-    title: 'Lost Track of Applications?',
-    description: 'Applied to dozens of jobs but forgot which companies? We organise everything in one searchable, filterable dashboard.',
+    step: '01',
+    title: 'Paste a job URL',
+    description: 'Found a role you like? Paste the link. AI automatically extracts the company, title, salary, location, and requirements — no manual copying.',
+    detail: 'Works with LinkedIn, Indeed, company pages, and more.',
   },
   {
-    icon: FileText,
-    title: 'Resume Chaos?',
-    description: 'Tweaking your CV for every role is exhausting. Let AI tailor your existing resume for each job in seconds.',
+    step: '02',
+    title: 'Generate tailored documents',
+    description: 'Upload your master CV once. For each application HireFlow creates a tailored resume and cover letter that highlights your most relevant experience.',
+    detail: 'Downloadable as PDF. ATS-optimised formatting.',
   },
   {
-    icon: Clock,
-    title: 'Missed Deadlines?',
-    description: 'Forgot to follow up or missed an interview slot? Track every stage and never let an opportunity slip away.',
+    step: '03',
+    title: 'Track every application',
+    description: 'One dashboard for every application. Update statuses, log interviews, set reminders, and always know exactly where you stand.',
+    detail: 'Kanban view, timeline view, and detailed analytics.',
   },
 ]
 
 const FEATURES = [
   {
     icon: Brain,
-    title: 'AI-Powered Extraction',
-    description: 'Paste any job URL and let AI automatically pull the company, role, salary, and requirements. No more copy-pasting.',
-    badge: null,
+    title: 'AI Extraction',
+    description: 'Paste any job URL. AI pulls the role details instantly — company, salary, requirements, everything. Zero manual work.',
+    tag: null,
   },
   {
     icon: Briefcase,
-    title: 'Track Every Application',
-    description: 'Kanban board, timeline view, and powerful filters. See the status of every application at a glance.',
-    badge: null,
+    title: 'Application Tracking',
+    description: 'Kanban board and timeline view. See every application, every status, at a glance. Never lose track of a role again.',
+    tag: null,
   },
   {
     icon: FileText,
     title: 'AI Resume Tailoring',
-    description: 'Upload your master CV once. Get a tailored version for each job that highlights your most relevant experience — without fabricating anything.',
-    badge: 'Premium',
+    description: 'Your master CV, tailored for every role. AI rewrites the most relevant sections without fabricating experience.',
+    tag: 'Pro & Premium',
   },
   {
     icon: Download,
     title: 'AI Cover Letters',
-    description: 'Write your key points or paste a draft. AI refines and personalises your cover letter for the role. Download as PDF instantly.',
-    badge: 'Premium',
+    description: 'Personalised cover letters generated in seconds. Give it your key points and it handles the rest. Download as PDF.',
+    tag: 'Pro & Premium',
+  },
+  {
+    icon: CalendarCheck,
+    title: 'Interview Management',
+    description: 'Schedule interviews, set preparation reminders, and log every conversation in one place. Never miss a slot.',
+    tag: null,
+  },
+  {
+    icon: BarChart2,
+    title: 'Analytics & Insights',
+    description: 'Response rates, interview conversion, weekly summaries. Understand what is working in your job search.',
+    tag: 'Pro & Premium',
   },
 ]
 
-export default function LandingPage() {
+const PRICING_TIERS = [
+  {
+    id: 'free' as const,
+    name: 'Free',
+    price: '£0',
+    period: null,
+    description: 'Start organising your job search today.',
+    features: [
+      'Up to 10 applications',
+      '5 AI extractions / month',
+      'Basic application tracking',
+      'Status updates & notes',
+      'Interview scheduling',
+    ],
+    missing: ['AI Resume Tailoring', 'AI Cover Letters', 'PDF downloads', 'Advanced analytics'],
+    cta: 'Get Started Free',
+    href: '/auth/sign-up',
+    highlighted: false,
+  },
+  {
+    id: 'pro' as const,
+    name: 'Pro',
+    price: `£${SUBSCRIPTION_PRICING.pro}`,
+    period: '/mo',
+    description: 'For active job seekers applying consistently.',
+    features: [
+      'Unlimited applications',
+      '200 AI extractions / month',
+      'AI Resume Tailoring',
+      'AI Cover Letter Generation',
+      '200 document downloads / month',
+      'PDF downloads',
+      'Timeline & Kanban view',
+      'Export to CSV',
+      'Advanced filters & tags',
+      'Weekly summaries',
+    ],
+    missing: [],
+    cta: 'Start Pro',
+    href: '/auth/sign-up?tier=pro',
+    highlighted: true,
+  },
+  {
+    id: 'premium' as const,
+    name: 'Premium',
+    price: `£${SUBSCRIPTION_PRICING.premium}`,
+    period: '/mo',
+    description: 'Maximum AI power for the serious job seeker.',
+    features: [
+      'Everything in Pro',
+      '500 AI extractions / month',
+      '500 document downloads / month',
+      'Priority support',
+      'Advanced analytics',
+    ],
+    missing: [],
+    cta: 'Start Premium',
+    href: '/auth/sign-up?tier=premium',
+    highlighted: false,
+  },
+]
+
+const FAQS = [
+  {
+    q: 'Is my resume data secure?',
+    a: 'Yes. All data is encrypted at rest and in transit. We use Supabase with row-level security, meaning your data is strictly isolated from other accounts. We will never share or sell your information.',
+  },
+  {
+    q: 'Are the generated resumes ATS-friendly?',
+    a: 'Yes. Our resume templates use clean, single-column formatting without tables, graphics, or unusual fonts — the formats most commonly accepted by Applicant Tracking Systems.',
+  },
+  {
+    q: 'Can employers detect AI-generated content?',
+    a: 'HireFlow tailors your existing experience — it does not fabricate content. The AI rephrases and emphasises your real achievements. You should always review and personalise before submitting.',
+  },
+  {
+    q: 'What happens when I run out of AI credits?',
+    a: 'You can upgrade your plan at any time from your account page to get more extractions and document generations. Your existing data is never deleted when credits run out.',
+  },
+  {
+    q: 'Can I manage multiple resume versions?',
+    a: 'Yes. Upload a master CV and generate tailored versions for each application. Every version is stored against the relevant job so you always know which one was sent.',
+  },
+  {
+    q: 'Is there a free trial for paid features?',
+    a: 'The Free plan includes 5 AI extractions so you can experience the core AI before upgrading. Paid plans can be changed from your account page at any time.',
+  },
+]
+
+// ─── Components ──────────────────────────────────────────────────────────────
+
+function NavBar() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50/80 via-white to-white">
+    <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-sm">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
+            <Briefcase className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-lg font-bold tracking-tight text-slate-900">HireFlow</span>
+        </div>
+        <nav className="hidden items-center gap-8 md:flex">
+          <a href="#features" className="text-sm text-slate-600 transition-colors hover:text-slate-900">Features</a>
+          <a href="#how-it-works" className="text-sm text-slate-600 transition-colors hover:text-slate-900">How it works</a>
+          <a href="#pricing" className="text-sm text-slate-600 transition-colors hover:text-slate-900">Pricing</a>
+          <a href="#faq" className="text-sm text-slate-600 transition-colors hover:text-slate-900">FAQ</a>
+        </nav>
+        <div className="flex items-center gap-3">
+          <Link href="/auth/login">
+            <Button variant="ghost" size="sm" className="text-slate-700 hover:text-slate-900">
+              Log in
+            </Button>
+          </Link>
+          <Link href="/auth/sign-up">
+            <Button size="sm" className="bg-slate-900 text-white hover:bg-slate-800">
+              Start Free
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </header>
+  )
+}
 
-      {/* Header — Login / Register only */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-white/80 backdrop-blur-md">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-              <Briefcase className="h-4 w-4 text-white" />
+function Hero() {
+  return (
+    <section className="relative overflow-hidden bg-white pt-20 pb-0">
+      <div className="mx-auto max-w-7xl px-6">
+        {/* Badge */}
+        <div className="mb-6 flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
+            <Zap className="h-3.5 w-3.5" />
+            AI-powered job search management
+          </div>
+        </div>
+
+        {/* Headline */}
+        <h1 className="mx-auto max-w-4xl text-balance text-center text-5xl font-bold tracking-tight text-slate-900 md:text-6xl lg:text-7xl">
+          Track Every Application.{' '}
+          <span className="text-blue-600">Land More Interviews.</span>
+        </h1>
+
+        {/* Subheadline */}
+        <p className="mx-auto mt-6 max-w-2xl text-pretty text-center text-lg leading-relaxed text-slate-500 md:text-xl">
+          HireFlow organises your entire job search in one place. AI extracts job details, tailors your resume, and writes your cover letters — so you can focus on getting hired.
+        </p>
+
+        {/* CTAs */}
+        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <Link href="/auth/sign-up">
+            <Button size="lg" className="h-12 rounded-lg bg-blue-600 px-8 text-base font-semibold shadow-sm hover:bg-blue-700">
+              Start Free
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+          <a href="#how-it-works">
+            <Button size="lg" variant="outline" className="h-12 rounded-lg px-8 text-base font-semibold text-slate-700">
+              See how it works
+            </Button>
+          </a>
+        </div>
+        <p className="mt-4 text-center text-sm text-slate-400">
+          Free to start. No credit card required.
+        </p>
+
+        {/* Dashboard mockup */}
+        <div className="relative mt-16 mx-auto max-w-5xl">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-2xl shadow-slate-200/80">
+            {/* Browser chrome */}
+            <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
+              <div className="flex gap-1.5">
+                <div className="h-3 w-3 rounded-full bg-red-400" />
+                <div className="h-3 w-3 rounded-full bg-amber-400" />
+                <div className="h-3 w-3 rounded-full bg-green-400" />
+              </div>
+              <div className="mx-auto flex h-7 w-72 items-center justify-center rounded-md border border-slate-200 bg-white text-xs text-slate-400">
+                app.hireflow.dev/dashboard
+              </div>
             </div>
-            <span className="text-xl font-bold text-slate-900">HireFlow</span>
+            {/* Dashboard content */}
+            <div className="bg-slate-50 p-6">
+              {/* Top stats */}
+              <div className="mb-5 grid grid-cols-4 gap-4">
+                {[
+                  { label: 'Total Applied', value: '34', color: 'text-blue-600' },
+                  { label: 'In Progress', value: '12', color: 'text-amber-600' },
+                  { label: 'Interviews', value: '5', color: 'text-green-600' },
+                  { label: 'Offers', value: '2', color: 'text-purple-600' },
+                ].map((s) => (
+                  <div key={s.label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <p className="text-xs text-slate-500">{s.label}</p>
+                    <p className={`mt-1 text-2xl font-bold ${s.color}`}>{s.value}</p>
+                  </div>
+                ))}
+              </div>
+              {/* Kanban */}
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  {
+                    col: 'Applied',
+                    color: 'bg-blue-100 text-blue-700',
+                    cards: [
+                      { company: 'Stripe', role: 'Senior Engineer', time: '2d ago' },
+                      { company: 'Notion', role: 'Product Designer', time: '3d ago' },
+                      { company: 'Vercel', role: 'DevRel Engineer', time: '5d ago' },
+                    ],
+                  },
+                  {
+                    col: 'Interviewing',
+                    color: 'bg-amber-100 text-amber-700',
+                    cards: [
+                      { company: 'Linear', role: 'Frontend Engineer', time: '1d ago' },
+                      { company: 'Figma', role: 'Staff Designer', time: '4d ago' },
+                    ],
+                  },
+                  {
+                    col: 'Offer',
+                    color: 'bg-green-100 text-green-700',
+                    cards: [
+                      { company: 'Loom', role: 'Full Stack Dev', time: '1d ago' },
+                    ],
+                  },
+                  {
+                    col: 'Rejected',
+                    color: 'bg-slate-100 text-slate-600',
+                    cards: [
+                      { company: 'Airbnb', role: 'iOS Engineer', time: '6d ago' },
+                    ],
+                  },
+                ].map((col) => (
+                  <div key={col.col}>
+                    <div className={`mb-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${col.color}`}>
+                      {col.col}
+                    </div>
+                    <div className="space-y-2">
+                      {col.cards.map((card) => (
+                        <div key={card.company} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                          <p className="text-xs font-semibold text-slate-800">{card.company}</p>
+                          <p className="text-xs text-slate-500">{card.role}</p>
+                          <p className="mt-1.5 text-[10px] text-slate-400">{card.time}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/auth/login">
-              <Button variant="ghost" className="text-blue-600 hover:bg-blue-50 hover:text-blue-700">
-                Login
-              </Button>
-            </Link>
-            <Link href="/auth/sign-up">
-              <Button className="rounded-full bg-blue-600 px-6 hover:bg-blue-700">
-                Register
-              </Button>
-            </Link>
-          </div>
+          {/* Fade out at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent" />
         </div>
-      </header>
+      </div>
+    </section>
+  )
+}
 
-      {/* Hero Section — with flowing blob animation */}
-      <section className="relative overflow-hidden py-24 md:py-36">
-        {/* Animated blobs */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="hero-blob-1 absolute -left-32 -top-32 h-[500px] w-[500px] rounded-full bg-blue-200/40 blur-3xl" />
-          <div className="hero-blob-2 absolute -right-32 top-20 h-[400px] w-[400px] rounded-full bg-indigo-200/35 blur-3xl" />
-          <div className="hero-blob-3 absolute bottom-0 left-1/2 h-[350px] w-[350px] -translate-x-1/2 rounded-full bg-blue-100/50 blur-3xl" />
+function SocialProof() {
+  return (
+    <section className="border-y border-slate-100 bg-white py-20">
+      <div className="mx-auto max-w-7xl px-6">
+        {/* Stats */}
+        <div className="grid grid-cols-1 gap-12 sm:grid-cols-3">
+          {STATS.map((s) => (
+            <div key={s.label} className="text-center">
+              <p className="text-4xl font-bold text-slate-900">{s.value}</p>
+              <p className="mt-2 text-sm text-slate-500">{s.label}</p>
+            </div>
+          ))}
         </div>
 
-        <div className="container relative mx-auto px-4 text-center">
-          <div className="mx-auto max-w-4xl">
-            <h1 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
-              Never lose track of a{' '}
-              <span className="text-blue-600">job application</span>{' '}
-              again.
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-slate-600 md:text-xl">
-              Applied to 50+ jobs and forgot which resume went where? HireFlow organises your entire job search, tailors your documents with AI, and helps you land your next role faster.
-            </p>
+        {/* Divider */}
+        <div className="my-16 border-t border-slate-100" />
 
-            {/* Feature pills */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm">
-              {['Application Tracking', 'AI Resume Tailoring', 'Cover Letter Generator', 'Interview Scheduler'].map((pill) => (
-                <div key={pill} className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 shadow-sm">
-                  <Check className="h-4 w-4 text-blue-600" />
-                  <span className="text-slate-700">{pill}</span>
+        {/* Testimonials */}
+        <p className="mb-10 text-center text-sm font-medium uppercase tracking-widest text-slate-400">
+          What job seekers say
+        </p>
+        <div className="grid gap-6 md:grid-cols-3">
+          {TESTIMONIALS.map((t) => (
+            <div key={t.name} className="rounded-2xl border border-slate-200 bg-white p-8">
+              <div className="mb-4 flex gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <p className="text-sm leading-relaxed text-slate-700">&ldquo;{t.quote}&rdquo;</p>
+              <div className="mt-6 flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                  {t.initials}
                 </div>
-              ))}
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">{t.name}</p>
+                  <p className="text-xs text-slate-500">{t.role}</p>
+                </div>
+              </div>
             </div>
-
-            {/* CTA */}
-            <div className="mt-10">
-              <Link href="/auth/sign-up">
-                <Button
-                  size="lg"
-                  className="h-14 rounded-full bg-blue-600 px-10 text-base font-semibold shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/30"
-                >
-                  Start Tracking For Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <p className="mt-4 text-sm text-slate-500">
-                No credit card required. Free forever for up to 10 applications.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
 
-      {/* Pain Points */}
-      <section className="border-y border-slate-200 bg-white py-20">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">The Problem</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">Sound familiar?</h2>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3">
+function ProblemSection() {
+  return (
+    <section className="bg-slate-50 py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">The Problem</p>
+          <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            Sound familiar?
+          </h2>
+          <p className="mt-4 text-slate-500">
+            Managing a job search without the right tools is exhausting. Most people end up here:
+          </p>
+        </div>
+
+        <div className="mt-16 grid gap-10 md:grid-cols-2 md:items-center">
+          {/* Pain points */}
+          <div className="space-y-4">
             {PAIN_POINTS.map((point) => (
-              <div
-                key={point.title}
-                className="group rounded-2xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-8 transition-all hover:border-blue-200 hover:shadow-lg"
-              >
-                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-blue-100 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
-                  <point.icon className="h-7 w-7" />
+              <div key={point} className="flex items-start gap-4 rounded-xl border border-red-100 bg-white p-5 shadow-sm">
+                <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100">
+                  <X className="h-3.5 w-3.5 text-red-600" />
                 </div>
-                <h3 className="mb-3 text-xl font-semibold text-slate-900">{point.title}</h3>
-                <p className="leading-relaxed text-slate-600">{point.description}</p>
+                <p className="text-sm leading-relaxed text-slate-700">{point}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="bg-gradient-to-b from-white to-blue-50/50 py-20">
-        <div className="container mx-auto px-4">
-          <div className="mb-16 text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">How It Works</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">From chaos to clarity in 3 steps</h2>
+          {/* Solution */}
+          <div className="rounded-2xl border border-blue-100 bg-white p-10 shadow-sm">
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600">
+              <Zap className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900">HireFlow solves all of this.</h3>
+            <p className="mt-3 text-slate-500 leading-relaxed">
+              One dashboard for your entire job search. Every application, every document, every interview — organised, searchable, and always up to date.
+            </p>
+            <ul className="mt-6 space-y-3">
+              {[
+                'Know the exact status of every application',
+                'See which resume version went to which company',
+                'Never miss an interview or follow-up',
+                'Generate tailored documents in under 60 seconds',
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-3">
+                  <Check className="h-5 w-5 shrink-0 text-blue-600" />
+                  <span className="text-sm text-slate-700">{item}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8">
+              <Link href="/auth/sign-up">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                  Start for free
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
-          <div className="mx-auto max-w-3xl">
-            <div className="relative">
-              <div className="absolute left-8 top-0 hidden h-full w-0.5 bg-gradient-to-b from-blue-600 via-blue-400 to-blue-200 md:block" />
-              <div className="space-y-12">
-                {[
-                  {
-                    n: '1',
-                    color: 'bg-blue-600',
-                    title: 'Paste a job link',
-                    body: 'Found a job you like? Paste the URL. Our AI extracts the company name, job title, location, salary, and requirements automatically.',
-                  },
-                  {
-                    n: '2',
-                    color: 'bg-blue-500',
-                    title: 'Generate tailored documents',
-                    body: 'Upload your master resume once. For every application, AI creates a tailored CV and cover letter that highlights your most relevant experience.',
-                  },
-                  {
-                    n: '3',
-                    color: 'bg-blue-400',
-                    title: 'Track and follow up',
-                    body: 'See all your applications in one dashboard. Track status, schedule interviews, log activity, and never miss an opportunity.',
-                  },
-                ].map((step) => (
-                  <div key={step.n} className="relative flex gap-6">
-                    <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-xl font-bold text-white shadow-lg ${step.color}`}>
-                      {step.n}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function HowItWorks() {
+  return (
+    <section id="how-it-works" className="bg-white py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">How It Works</p>
+          <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            From chaos to clarity in 3 steps
+          </h2>
+        </div>
+
+        <div className="mt-20 grid gap-12 md:grid-cols-3">
+          {HOW_IT_WORKS.map((step, i) => (
+            <div key={step.step} className="relative">
+              {/* Connector line */}
+              {i < HOW_IT_WORKS.length - 1 && (
+                <div className="absolute left-full top-8 hidden h-px w-full -translate-x-6 border-t-2 border-dashed border-slate-200 md:block" />
+              )}
+              <div className="mb-6 flex items-center gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-lg font-bold text-white shadow-lg shadow-blue-600/25">
+                  {step.step}
+                </div>
+                <div className="h-px flex-1 bg-slate-100 md:hidden" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900">{step.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-500">{step.description}</p>
+              <p className="mt-3 text-xs font-medium text-blue-600">{step.detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function Features() {
+  return (
+    <section id="features" className="bg-slate-50 py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">Features</p>
+          <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            Everything you need to land the job
+          </h2>
+          <p className="mt-4 text-slate-500">
+            From your first application to your final offer — HireFlow covers every step.
+          </p>
+        </div>
+
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((f) => (
+            <div key={f.title} className="group relative rounded-2xl border border-slate-200 bg-white p-8 transition-all hover:border-blue-200 hover:shadow-md">
+              {f.tag && (
+                <span className="absolute right-4 top-4 rounded-full bg-blue-600 px-3 py-0.5 text-xs font-semibold text-white">
+                  {f.tag}
+                </span>
+              )}
+              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                <f.icon className="h-5 w-5" />
+              </div>
+              <h3 className="mb-2 text-lg font-bold text-slate-900">{f.title}</h3>
+              <p className="text-sm leading-relaxed text-slate-500">{f.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ProductShowcase() {
+  return (
+    <section className="overflow-hidden bg-white py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">Product</p>
+          <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            See the product in action
+          </h2>
+          <p className="mt-4 text-slate-500">
+            A clean, focused interface that gets out of your way and lets you focus on your job search.
+          </p>
+        </div>
+
+        {/* Feature showcase cards */}
+        <div className="mt-16 grid gap-8 md:grid-cols-2">
+          {/* Application detail */}
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
+              <p className="text-xs font-semibold text-slate-600">Application Detail View</p>
+            </div>
+            <div className="p-6">
+              <div className="mb-4 flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-xs font-bold text-white">S</div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">Stripe</p>
+                      <p className="text-xs text-slate-500">Senior Software Engineer</p>
                     </div>
-                    <div className="pt-3">
-                      <h3 className="text-xl font-semibold text-slate-900">{step.title}</h3>
-                      <p className="mt-2 leading-relaxed text-slate-600">{step.body}</p>
+                  </div>
+                </div>
+                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">Interviewing</span>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { label: 'Location', value: 'London, UK (Hybrid)' },
+                  { label: 'Salary', value: '£90,000 – £120,000' },
+                  { label: 'Applied', value: '12 June 2026' },
+                  { label: 'Resume sent', value: 'stripe-tailored-v2.pdf' },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-2.5">
+                    <span className="text-xs text-slate-500">{row.label}</span>
+                    <span className="text-xs font-medium text-slate-800">{row.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Resume tailoring */}
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
+              <p className="text-xs font-semibold text-slate-600">AI Resume Tailoring</p>
+            </div>
+            <div className="p-6">
+              <div className="mb-4 rounded-xl border border-blue-100 bg-blue-50 p-4">
+                <p className="text-xs font-semibold text-blue-700 mb-1">AI is tailoring your resume...</p>
+                <p className="text-xs text-blue-600">Matching your experience to: Senior Software Engineer at Stripe</p>
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-blue-200">
+                  <div className="h-full w-3/4 rounded-full bg-blue-600" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { section: 'Work Experience', status: 'Tailored', color: 'text-green-600 bg-green-50' },
+                  { section: 'Skills', status: 'Tailored', color: 'text-green-600 bg-green-50' },
+                  { section: 'Summary', status: 'In progress', color: 'text-amber-600 bg-amber-50' },
+                  { section: 'Education', status: 'Unchanged', color: 'text-slate-500 bg-slate-50' },
+                ].map((row) => (
+                  <div key={row.section} className="flex items-center justify-between rounded-lg px-4 py-2.5 bg-slate-50">
+                    <span className="text-xs text-slate-700">{row.section}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${row.color}`}>{row.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Interview scheduling */}
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
+              <p className="text-xs font-semibold text-slate-600">Interview Scheduling</p>
+            </div>
+            <div className="p-6 space-y-3">
+              {[
+                { company: 'Linear', type: 'Technical Screen', date: 'Mon 16 Jun, 10:00', status: 'Upcoming', color: 'bg-blue-100 text-blue-700' },
+                { company: 'Figma', type: 'Final Round', date: 'Wed 18 Jun, 14:30', status: 'Confirmed', color: 'bg-green-100 text-green-700' },
+                { company: 'Stripe', type: 'HR Call', date: 'Fri 20 Jun, 09:00', status: 'Upcoming', color: 'bg-blue-100 text-blue-700' },
+              ].map((iv) => (
+                <div key={iv.company} className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-4">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{iv.company}</p>
+                    <p className="text-xs text-slate-500">{iv.type}</p>
+                    <p className="mt-1 text-xs font-medium text-slate-700">{iv.date}</p>
+                  </div>
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${iv.color}`}>{iv.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Analytics */}
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
+              <p className="text-xs font-semibold text-slate-600">Application Analytics</p>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {[
+                  { label: 'Response rate', value: '38%', sub: '+12% vs last month' },
+                  { label: 'Interview rate', value: '14%', sub: '5 of 34 applications' },
+                ].map((m) => (
+                  <div key={m.label} className="rounded-xl bg-slate-50 p-4">
+                    <p className="text-xs text-slate-500">{m.label}</p>
+                    <p className="mt-1 text-2xl font-bold text-slate-900">{m.value}</p>
+                    <p className="mt-0.5 text-xs text-green-600">{m.sub}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold text-slate-600 mb-3">Applications by status</p>
+                {[
+                  { label: 'Applied', count: 17, pct: 50, color: 'bg-blue-500' },
+                  { label: 'Interviewing', count: 12, pct: 35, color: 'bg-amber-500' },
+                  { label: 'Offer', count: 5, pct: 15, color: 'bg-green-500' },
+                ].map((r) => (
+                  <div key={r.label} className="mb-2">
+                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                      <span>{r.label}</span>
+                      <span>{r.count}</span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+                      <div className={`h-full rounded-full ${r.color}`} style={{ width: `${r.pct}%` }} />
                     </div>
                   </div>
                 ))}
@@ -248,167 +693,235 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
 
-      {/* Features */}
-      <section id="features" className="border-y border-slate-200 bg-white py-20">
-        <div className="container mx-auto px-4">
-          <div className="mb-16 text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">Features</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">Everything you need to land the job</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-              From tracking applications to generating tailored documents, your entire job search covered in one place.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {FEATURES.map((feature) => (
-              <div
-                key={feature.title}
-                className="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-all hover:border-blue-200 hover:shadow-lg"
-              >
-                {feature.badge && (
-                  <span className="absolute -top-3 right-4 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-3 py-1 text-xs font-medium text-white">
-                    {feature.badge}
-                  </span>
-                )}
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
-                  <feature.icon className="h-6 w-6" />
-                </div>
-                <h3 className="mb-2 text-lg font-semibold text-slate-900">{feature.title}</h3>
-                <p className="text-sm leading-relaxed text-slate-600">{feature.description}</p>
-              </div>
-            ))}
-          </div>
+function Pricing() {
+  return (
+    <section id="pricing" className="bg-slate-50 py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">Pricing</p>
+          <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            Simple, transparent pricing
+          </h2>
+          <p className="mt-4 text-slate-500">
+            Start free. Top up when you need more AI power. No subscriptions, no lock-in.
+          </p>
         </div>
-      </section>
 
-      {/* Social Proof */}
-      <section className="bg-gradient-to-b from-blue-50/50 to-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 rounded-3xl border border-blue-100 bg-white p-8 shadow-sm md:flex-row md:p-12">
-            {[
-              { stat: '50+', label: 'Applications tracked per user on average' },
-              { stat: '3x', label: 'Faster application process with AI extraction' },
-              { stat: '100%', label: 'Know which resume went where, always' },
-            ].map((item, i) => (
-              <>
-                {i > 0 && <div key={`div-${i}`} className="hidden h-16 w-px bg-slate-200 md:block" />}
-                <div key={item.stat} className="text-center md:text-left">
-                  <p className="text-4xl font-bold text-blue-600">{item.stat}</p>
-                  <p className="text-sm text-slate-600">{item.label}</p>
-                </div>
-              </>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="border-t border-slate-200 bg-white py-20">
-        <div className="container mx-auto px-4">
-          <div className="mb-16 text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">Pricing</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">Simple, transparent pricing</h2>
-            <p className="mx-auto mt-4 max-w-xl text-lg text-slate-600">Start free. Upgrade when you need more power.</p>
-          </div>
-          <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
-            {PRICING_TIERS.map((tier) => (
-              <div
-                key={tier.name}
-                className={`relative rounded-2xl border p-8 ${
-                  tier.highlighted
-                    ? 'border-blue-600 bg-gradient-to-b from-blue-50 to-white shadow-xl shadow-blue-600/10'
-                    : 'border-slate-200 bg-white'
-                }`}
-              >
-                {tier.highlighted && (
-                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-4 py-1 text-sm font-medium text-white">
+        <div className="mt-16 grid gap-8 md:grid-cols-3">
+          {PRICING_TIERS.map((tier) => (
+            <div
+              key={tier.id}
+              className={`relative flex flex-col rounded-2xl border p-8 ${
+                tier.highlighted
+                  ? 'border-blue-600 bg-white shadow-xl shadow-blue-600/10 ring-1 ring-blue-600'
+                  : 'border-slate-200 bg-white shadow-sm'
+              }`}
+            >
+              {tier.highlighted && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <span className="rounded-full bg-blue-600 px-4 py-1 text-xs font-semibold text-white shadow">
                     Most Popular
                   </span>
-                )}
-                <div className="mb-6">
-                  <h3 className="text-xl font-bold text-slate-900">{tier.name}</h3>
-                  <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-4xl font-bold text-slate-900">{tier.price}</span>
-                    {tier.period && <span className="text-slate-500">{tier.period}</span>}
-                  </div>
-                  <p className="mt-2 text-sm text-slate-600">{tier.description}</p>
                 </div>
-                <ul className="mb-8 space-y-3">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <Check className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
-                      <span className="text-sm text-slate-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link href={tier.href} className="block">
-                  <Button
-                    className={`w-full rounded-full ${
-                      tier.highlighted ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-900 hover:bg-slate-800'
-                    }`}
-                    size="lg"
-                  >
-                    {tier.cta}
-                  </Button>
-                </Link>
+              )}
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-slate-900">{tier.name}</h3>
+                <div className="mt-3 flex items-baseline gap-1">
+                  <span className="text-4xl font-bold tracking-tight text-slate-900">{tier.price}</span>
+                  {tier.period && <span className="text-slate-500">{tier.period}</span>}
+                </div>
+                <p className="mt-2 text-sm text-slate-500">{tier.description}</p>
               </div>
-            ))}
+
+              <ul className="mb-8 flex-1 space-y-3">
+                {tier.features.map((f) => (
+                  <li key={f} className="flex items-start gap-3">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+                    <span className="text-sm text-slate-700">{f}</span>
+                  </li>
+                ))}
+                {tier.missing.map((f) => (
+                  <li key={f} className="flex items-start gap-3 opacity-40">
+                    <X className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                    <span className="text-sm text-slate-500 line-through">{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link href={tier.href} className="block">
+                <Button
+                  className={`w-full rounded-lg ${
+                    tier.highlighted
+                      ? 'bg-blue-600 hover:bg-blue-700'
+                      : 'bg-slate-900 text-white hover:bg-slate-800'
+                  }`}
+                  size="lg"
+                >
+                  {tier.cta}
+                </Button>
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        {/* Trust signals */}
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-slate-500">
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4 text-blue-600" />
+            <span>Encrypted & secure</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-blue-600" />
+            <span>Cancel or change plan anytime</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-blue-600" />
+            <span>No hidden fees</span>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
 
-      {/* Final CTA */}
-      <section className="bg-gradient-to-r from-blue-600 to-indigo-600 py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white sm:text-4xl">Ready to organise your job search?</h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-blue-100">
-            Stop losing track of applications. Start landing more interviews.
-          </p>
-          <div className="mt-10">
-            <Link href="/auth/sign-up">
-              <Button
-                size="lg"
-                className="h-14 rounded-full bg-white px-8 text-base font-semibold text-blue-600 shadow-lg transition-all hover:bg-blue-50"
-              >
-                Get Started Free <ChevronRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-          </div>
+function FAQ() {
+  return (
+    <section id="faq" className="bg-white py-24">
+      <div className="mx-auto max-w-3xl px-6">
+        <div className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">FAQ</p>
+          <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            Common questions
+          </h2>
         </div>
-      </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+        <div className="mt-16 divide-y divide-slate-100">
+          {FAQS.map((faq) => (
+            <details key={faq.q} className="group py-5">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
+                <span className="text-base font-semibold text-slate-900">{faq.q}</span>
+                <ChevronDown className="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p className="mt-4 text-sm leading-relaxed text-slate-500">{faq.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function FinalCTA() {
+  return (
+    <section className="bg-slate-900 py-28">
+      <div className="mx-auto max-w-3xl px-6 text-center">
+        <h2 className="text-balance text-4xl font-bold tracking-tight text-white sm:text-5xl">
+          Spend less time organising.{' '}
+          <br className="hidden sm:block" />
+          <span className="text-blue-400">Spend more time getting hired.</span>
+        </h2>
+        <p className="mx-auto mt-6 max-w-xl text-lg text-slate-400">
+          Join thousands of job seekers who use HireFlow to stay organised, stand out, and land more interviews.
+        </p>
+        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <Link href="/auth/sign-up">
+            <Button size="lg" className="h-12 rounded-lg bg-white px-8 text-base font-semibold text-slate-900 hover:bg-slate-100">
+              Start Free — No Card Required
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+        <p className="mt-6 text-sm text-slate-500">Free forever for up to 10 applications.</p>
+      </div>
+    </section>
+  )
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-slate-200 bg-white">
+      <div className="mx-auto max-w-7xl px-6 py-12">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+          {/* Brand */}
+          <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
                 <Briefcase className="h-4 w-4 text-white" />
               </div>
               <span className="font-bold text-slate-900">HireFlow</span>
             </div>
-            <div className="flex gap-8 text-sm">
-              <Link href="/terms" className="text-slate-600 hover:text-slate-900">Terms of Service</Link>
-              <Link href="/privacy" className="text-slate-600 hover:text-slate-900">Privacy Policy</Link>
-            </div>
-            <p className="text-sm text-slate-500">© 2026 HireFlow. All rights reserved.</p>
+            <p className="mt-3 text-sm text-slate-500 leading-relaxed">
+              AI-powered job application management for serious job seekers.
+            </p>
           </div>
 
-          {/* Plain text disclaimers */}
-          <div className="mt-8 border-t border-slate-100 pt-6 space-y-2 text-center">
-            <p className="text-xs text-slate-500">
-              Use of this service does not guarantee employment, job interviews, or job offers. HireFlow is a personal organisation tool only.
-            </p>
-            <p className="text-xs text-slate-500">
-              AI-generated content including extracted job details, tailored resumes, and cover letters may be inaccurate or incomplete. Always review and verify before submitting any application materials.
-            </p>
-            <p className="text-xs text-slate-500">
-              Your data is encrypted and stored securely. We do not sell or share your personal information with third parties. We are not liable for any outcomes resulting from the use of this service.
-            </p>
+          {/* Product */}
+          <div>
+            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-slate-400">Product</p>
+            <ul className="space-y-3 text-sm text-slate-600">
+              <li><a href="#features" className="hover:text-slate-900">Features</a></li>
+              <li><a href="#pricing" className="hover:text-slate-900">Pricing</a></li>
+              <li><a href="#how-it-works" className="hover:text-slate-900">How it works</a></li>
+              <li><a href="#faq" className="hover:text-slate-900">FAQ</a></li>
+            </ul>
+          </div>
+
+          {/* Account */}
+          <div>
+            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-slate-400">Account</p>
+            <ul className="space-y-3 text-sm text-slate-600">
+              <li><Link href="/auth/sign-up" className="hover:text-slate-900">Sign up</Link></li>
+              <li><Link href="/auth/login" className="hover:text-slate-900">Log in</Link></li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-slate-400">Legal</p>
+            <ul className="space-y-3 text-sm text-slate-600">
+              <li><Link href="/privacy" className="hover:text-slate-900">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-slate-900">Terms of Service</Link></li>
+            </ul>
           </div>
         </div>
-      </footer>
+
+        <div className="mt-12 border-t border-slate-100 pt-8 space-y-3">
+          <p className="text-xs text-slate-400 text-center">
+            Use of this service does not guarantee employment, job interviews, or job offers. HireFlow is a personal organisation tool only.
+          </p>
+          <p className="text-xs text-slate-400 text-center">
+            AI-generated content including extracted job details, tailored resumes, and cover letters may be inaccurate. Always review and verify before submitting.
+          </p>
+          <p className="text-xs text-slate-400 text-center">
+            © 2026 HireFlow. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-white">
+      <NavBar />
+      <Hero />
+      <SocialProof />
+      <ProblemSection />
+      <HowItWorks />
+      <Features />
+      <ProductShowcase />
+      <Pricing />
+      <FAQ />
+      <FinalCTA />
+      <Footer />
     </div>
   )
 }
