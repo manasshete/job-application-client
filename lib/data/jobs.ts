@@ -3,7 +3,15 @@ import type { Job, Interview, Task, ActivityLogEntry } from '@/app/page'
 
 export async function getJobs(): Promise<Job[]> {
   const supabase = await createClient()
-  
+
+  // Explicitly scope to the authenticated user. This is defense-in-depth on top
+  // of RLS so the personal dashboard only ever shows the current user's jobs,
+  // even for admin accounts that may have broader RLS visibility.
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return []
+  }
+
   const { data: jobs, error } = await supabase
     .from('jobs')
     .select(`
@@ -12,6 +20,7 @@ export async function getJobs(): Promise<Job[]> {
       tasks (*),
       activity_logs (*)
     `)
+    .eq('user_id', user.id)
     .order('date_applied', { ascending: false })
 
   if (error) {
