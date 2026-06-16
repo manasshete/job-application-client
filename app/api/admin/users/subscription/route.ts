@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { verifyAdmin, logAdminAction } from '@/lib/admin/auth'
 import { createAdminClient } from '@/lib/admin/service-client'
+import { sendSubscriptionChangeEmail } from '@/lib/email/subscription-emails'
 import type { SubscriptionTier } from '@/lib/subscription'
 
 export const dynamic = 'force-dynamic'
@@ -81,6 +82,19 @@ export async function POST(req: Request) {
         targetEmail: current.email,
       },
     })
+
+    // Send subscription change email (best-effort)
+    try {
+      await sendSubscriptionChangeEmail(
+        current.email,
+        updated.full_name || '',
+        previousTier || 'free',
+        tier
+      )
+    } catch (emailError) {
+      console.error('[v0] Failed to send subscription change email:', emailError)
+      // Don't fail the tier change if the email fails; just log it
+    }
 
     return NextResponse.json({ user: updated })
   } catch (error) {
