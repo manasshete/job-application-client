@@ -5,8 +5,8 @@ import { createOrder } from '@/lib/razorpay'
 export const dynamic = 'force-dynamic'
 
 const SUBSCRIPTION_PRICES: Record<string, number> = {
-  pro: 99900, // £10 in paise (100 paise = £1)
-  premium: 199900, // £20 in paise
+  pro: 1000, // £10 in pence (100 pence = £1)
+  premium: 1500, // £15 in pence
 }
 
 export async function POST(req: Request) {

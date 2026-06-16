@@ -354,15 +354,15 @@ export function DocumentGeneratorDialog({
                 <li>• AI-generated cover letters</li>
                 <li>• Download as PDF</li>
                 <li>• Up to 200 documents/month</li>
-                <li>• 50 AI extractions/month</li>
+                <li>• 200 AI extractions/month</li>
               </ul>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
-              <p className="text-sm font-medium">Premium — £20/month includes:</p>
+              <p className="text-sm font-medium">Premium — £15/month includes:</p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• Everything in Pro</li>
                 <li>• Up to 500 documents/month</li>
-                <li>• Unlimited AI extractions</li>
+                <li>• 500 AI extractions/month</li>
               </ul>
             </div>
           </div>

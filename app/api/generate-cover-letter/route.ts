@@ -1,6 +1,7 @@
 import { generateText } from 'ai'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
+import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
 
 export async function POST(req: Request) {
   try {
@@ -11,23 +12,26 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Authentication required' }, { status: 401 })
     }
 
-    // Check premium subscription
+    // Check subscription tier (Pro or Premium have document generation)
     const { data: profile } = await supabase
       .from('profiles')
       .select('subscription_tier, documents_generated_this_month')
       .eq('id', user.id)
       .single()
 
-    if (!profile || profile.subscription_tier !== 'premium') {
+    const tier = (profile?.subscription_tier ?? 'free') as SubscriptionTier
+    const limits = SUBSCRIPTION_LIMITS[tier]
+
+    if (!profile || !limits?.hasDocumentGeneration) {
       return Response.json(
-        { error: 'Document generation requires a Premium plan (£20/month).' },
+        { error: 'Document generation requires a Pro (£10/month) or Premium (£15/month) plan.' },
         { status: 403 }
       )
     }
 
-    if (profile.documents_generated_this_month >= 100) {
+    if (profile.documents_generated_this_month >= limits.documentGenerationLimit) {
       return Response.json(
-        { error: 'Monthly document generation limit (100) reached. Resets next month.' },
+        { error: `Monthly document generation limit (${limits.documentGenerationLimit}) reached. Resets next month.` },
         { status: 403 }
       )
     }

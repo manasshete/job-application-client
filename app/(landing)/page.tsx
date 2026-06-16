@@ -25,7 +25,7 @@ const PRICING_TIERS = [
     description: 'For active job seekers',
     features: [
       'Unlimited applications',
-      '50 AI extractions/month',
+      '200 AI extractions/month',
       'AI Resume Tailoring',
       'AI Cover Letter Generation',
       '200 documents/month',
@@ -42,12 +42,12 @@ const PRICING_TIERS = [
   },
   {
     name: 'Premium',
-    price: '£20',
+    price: '£15',
     period: '/month',
     description: 'AI-powered job hunting',
     features: [
       'Everything in Pro',
-      'Unlimited AI extractions',
+      '500 AI extractions/month',
       '500 documents/month',
       'Priority support',
     ],

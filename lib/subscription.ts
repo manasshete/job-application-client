@@ -30,7 +30,7 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, SubscriptionLimits> =
     maxJobs: -1,
     maxInterviews: -1,
     maxTasks: -1,
-    aiExtractionLimit: 50,
+    aiExtractionLimit: 200,
     documentGenerationLimit: 200,
     hasEmailNotifications: true,
     hasAdvancedFilters: true,
@@ -42,7 +42,7 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, SubscriptionLimits> =
     maxJobs: -1,
     maxInterviews: -1,
     maxTasks: -1,
-    aiExtractionLimit: -1,
+    aiExtractionLimit: 500,
     documentGenerationLimit: 500,
     hasEmailNotifications: true,
     hasAdvancedFilters: true,
@@ -50,6 +50,13 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, SubscriptionLimits> =
     hasExport: true,
     hasDocumentGeneration: true,
   },
+}
+
+// Subscription pricing in GBP
+export const SUBSCRIPTION_PRICING: Record<SubscriptionTier, number> = {
+  free: 0,
+  pro: 10,
+  premium: 15,
 }
 
 export function checkLimit(tier: SubscriptionTier, current: number, limit: keyof SubscriptionLimits): boolean {

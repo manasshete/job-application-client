@@ -106,7 +106,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                   </p>
                 </div>
                 <Badge variant={profile.subscription_tier === 'free' ? 'secondary' : 'default'}>
-                  {profile.subscription_tier === 'free' ? 'Free' : profile.subscription_tier === 'pro' ? '£10/month' : '£20/month'}
+                  {profile.subscription_tier === 'free' ? 'Free' : profile.subscription_tier === 'pro' ? '£10/month' : '£15/month'}
                 </Badge>
               </div>
 
