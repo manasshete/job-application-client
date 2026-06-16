@@ -9,7 +9,7 @@ import { QuickActionsMenu } from '@/components/quick-actions-menu'
 import { WeeklySummary } from '@/components/weekly-summary'
 import { TimelineView } from '@/components/timeline-view'
 import { JobDetailDialog } from '@/components/job-detail-dialog'
-import { Plus, Search, LayoutGrid, Baseline as Timeline, LogOut } from 'lucide-react'
+import { Plus, Search, LayoutGrid, Baseline as Timeline, LogOut, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -218,6 +218,10 @@ export function DashboardClient({
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button onClick={() => router.push('/dashboard/settings')} variant="outline" size="sm">
+              <Settings className="mr-2 h-4 w-4" />
+              Account
+            </Button>
             <Button onClick={handleSignOut} variant="ghost" size="sm">
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
