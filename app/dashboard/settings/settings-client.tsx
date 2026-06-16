@@ -32,6 +32,7 @@ import {
   AlertTriangle,
   ArrowUpCircle,
   RefreshCw,
+  ArrowLeft,
 } from 'lucide-react'
 
 interface SettingsClientProps {
@@ -98,6 +99,10 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
+          <Button onClick={() => router.back()} variant="ghost" size="sm" className="mb-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Account</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Manage your subscription and view your application stats
