@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { getProfile } from '@/lib/data/profiles'
+import { sanitizeInput, validateLength, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
 
 export async function POST(request: Request) {
   try {
@@ -41,28 +42,63 @@ export async function POST(request: Request) {
       )
     }
 
-    const job = await request.json()
+    let job: Record<string, unknown>
+    try {
+      job = await request.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
+
+    // Required fields
+    if (typeof job.company !== 'string' || !job.company.trim()) {
+      return NextResponse.json({ error: 'Company is required' }, { status: 400 })
+    }
+    if (typeof job.position !== 'string' || !job.position.trim()) {
+      return NextResponse.json({ error: 'Position is required' }, { status: 400 })
+    }
+
+    // Length validation on free-text fields
+    const lengthChecks: [unknown, number, string][] = [
+      [job.company, MAX_LENGTHS.COMPANY, 'Company'],
+      [job.position, MAX_LENGTHS.POSITION, 'Position'],
+      [job.location, MAX_LENGTHS.LOCATION, 'Location'],
+      [job.salary, MAX_LENGTHS.SALARY, 'Salary'],
+      [job.notes, MAX_LENGTHS.NOTES, 'Notes'],
+      [job.jobUrl, MAX_LENGTHS.URL, 'Job URL'],
+    ]
+    for (const [val, max, label] of lengthChecks) {
+      if (typeof val === 'string' && !validateLength(val, max)) {
+        return NextResponse.json({ error: `${label} is too long.` }, { status: 400 })
+      }
+    }
+
+    // Validate optional URL
+    if (typeof job.jobUrl === 'string' && job.jobUrl.trim() && !isValidUrl(job.jobUrl)) {
+      return NextResponse.json({ error: 'Invalid job URL.' }, { status: 400 })
+    }
+
+    const clean = (v: unknown) => (typeof v === 'string' && v.trim() ? sanitizeInput(v) : null)
 
     // Convert empty strings to null for date fields
-    const dateApplied = job.dateApplied || new Date().toISOString().split('T')[0]
-    const deadline = job.deadline || null
+    const dateApplied = (typeof job.dateApplied === 'string' && job.dateApplied) || new Date().toISOString().split('T')[0]
+    const deadline = (typeof job.deadline === 'string' && job.deadline) || null
 
     const { data, error } = await supabase
       .from('jobs')
       .insert({
         user_id: user.id,
-        company: job.company,
-        position: job.position,
-        status: job.status,
+        company: sanitizeInput(job.company as string),
+        position: sanitizeInput(job.position as string),
+        status: typeof job.status === 'string' ? sanitizeInput(job.status) : 'Applied',
         date_applied: dateApplied,
-        salary: job.salary || null,
-        location: job.location || null,
-        notes: job.notes || null,
-        job_url: job.jobUrl || null,
+        salary: clean(job.salary),
+        location: clean(job.location),
+        notes: clean(job.notes),
+        job_url: typeof job.jobUrl === 'string' && job.jobUrl.trim() ? job.jobUrl : null,
         deadline: deadline,
-        recruiter_name: job.recruiterName || null,
-        recruiter_email: job.recruiterEmail || null,
-        tags: job.tags || [],
+        recruiter_name: clean(job.recruiterName),
+        recruiter_email: clean(job.recruiterEmail),
+        tags: Array.isArray(job.tags) ? job.tags.slice(0, 20).map((t) => sanitizeInput(String(t))) : [],
       })
       .select()
       .single()

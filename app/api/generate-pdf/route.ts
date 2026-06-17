@@ -12,9 +12,25 @@ export async function POST(req: Request) {
 
     const { content, filename } = await req.json()
 
-    if (!content) {
+    if (!content || typeof content !== 'string') {
       return new Response('Content is required', { status: 400 })
     }
+
+    // Cap content size to prevent resource-exhaustion / abuse.
+    if (content.length > 200000) {
+      return new Response('Content too large', { status: 400 })
+    }
+
+    // Sanitize the filename to prevent HTTP response header (Content-Disposition)
+    // injection. Strip anything that isn't a safe filename character.
+    const safeFilename =
+      (typeof filename === 'string' ? filename : '')
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .replace(/_{2,}/g, '_')
+        .slice(0, 100) || 'document.pdf'
+    const finalFilename = safeFilename.toLowerCase().endsWith('.pdf')
+      ? safeFilename
+      : `${safeFilename}.pdf`
 
     // Sanitize content for WinAnsi encoding (standard PDF fonts)
     // Replace/remove characters that WinAnsi cannot encode
@@ -114,7 +130,7 @@ export async function POST(req: Request) {
     return new Response(pdfBytes, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${filename || 'document.pdf'}"`,
+        'Content-Disposition': `attachment; filename="${finalFilename}"`,
       },
     })
   } catch (err) {

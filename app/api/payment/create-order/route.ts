@@ -4,23 +4,32 @@ import { createOrder } from '@/lib/razorpay'
 
 export const dynamic = 'force-dynamic'
 
-const SUBSCRIPTION_PRICES: Record<string, number> = {
-  pro: 1000, // £10 in pence (100 pence = £1)
-  premium: 1500, // £15 in pence
+// Server-authoritative pricing. Never trust amounts from the client.
+export const SUBSCRIPTION_PRICES: Record<string, number> = {
+  pro: 1000, // £10.00 in pence
+  premium: 1500, // £15.00 in pence
 }
 
 export async function POST(req: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { tier } = await req.json()
+    let body: unknown
+    try {
+      body = await req.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
 
-    if (!tier || !['pro', 'premium'].includes(tier)) {
+    const tier = (body as { tier?: unknown })?.tier
+    if (typeof tier !== 'string' || !['pro', 'premium'].includes(tier)) {
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
     }
 
@@ -30,6 +39,8 @@ export async function POST(req: Request) {
       amount,
       currency: 'GBP',
       receipt: `hireflow_${user.id}_${Date.now()}`,
+      // notes are returned to us (signed) by Razorpay on verification, so we
+      // use them as the source of truth for which tier was actually paid for.
       notes: {
         userId: user.id,
         userEmail: user.email || '',
@@ -45,9 +56,6 @@ export async function POST(req: Request) {
     })
   } catch (error) {
     console.error('[v0] Error creating Razorpay order:', error)
-    return NextResponse.json(
-      { error: 'Failed to create order' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
   }
 }

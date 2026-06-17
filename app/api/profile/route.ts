@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { updateProfile, getProfile } from '@/lib/data/profiles'
+import { sanitizeInput, validateLength } from '@/lib/validation'
 
 export async function GET() {
   try {
@@ -18,14 +19,24 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   try {
-    const body = await request.json()
-    const { full_name } = body
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
 
-    if (!full_name || typeof full_name !== 'string') {
+    const fullName = (body as { full_name?: unknown })?.full_name
+
+    if (typeof fullName !== 'string' || !fullName.trim()) {
       return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
     }
 
-    const { error } = await updateProfile({ full_name })
+    if (!validateLength(fullName, 200)) {
+      return NextResponse.json({ error: 'Name is too long.' }, { status: 400 })
+    }
+
+    const { error } = await updateProfile({ full_name: sanitizeInput(fullName) })
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 })

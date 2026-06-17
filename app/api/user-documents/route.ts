@@ -1,5 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { sanitizeInput, validateLength } from '@/lib/validation'
+
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const VALID_DOC_TYPES = ['resume', 'cover_letter', 'cv', 'other']
+const MAX_DOC_CONTENT = 100000 // 100k chars
+const MAX_DOC_NAME = 200
 
 export async function GET() {
   try {
@@ -37,11 +44,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { documentType, name, content, isDefault } = await request.json()
+    let body: Record<string, unknown>
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
 
-    if (!documentType || !name || !content) {
+    const { documentType, name, content, isDefault } = body as {
+      documentType?: unknown
+      name?: unknown
+      content?: unknown
+      isDefault?: unknown
+    }
+
+    if (typeof documentType !== 'string' || typeof name !== 'string' || typeof content !== 'string') {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
+    if (!VALID_DOC_TYPES.includes(documentType)) {
+      return NextResponse.json({ error: 'Invalid document type' }, { status: 400 })
+    }
+    if (!name.trim() || !validateLength(name, MAX_DOC_NAME)) {
+      return NextResponse.json({ error: 'Invalid document name' }, { status: 400 })
+    }
+    if (!content.trim() || !validateLength(content, MAX_DOC_CONTENT)) {
+      return NextResponse.json({ error: 'Document content is missing or too large' }, { status: 400 })
+    }
+
+    const cleanName = sanitizeInput(name)
 
     // If this is set as default, unset other defaults of same type
     if (isDefault) {
@@ -57,9 +87,9 @@ export async function POST(request: Request) {
       .insert({
         user_id: user.id,
         document_type: documentType,
-        name,
+        name: cleanName,
         content,
-        is_default: isDefault || false,
+        is_default: isDefault === true,
       })
       .select()
       .single()
@@ -88,8 +118,8 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
 
-    if (!id) {
-      return NextResponse.json({ error: 'Document ID required' }, { status: 400 })
+    if (!id || !UUID_REGEX.test(id)) {
+      return NextResponse.json({ error: 'Valid document ID required' }, { status: 400 })
     }
 
     const { error } = await supabase

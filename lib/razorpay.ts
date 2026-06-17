@@ -65,6 +65,23 @@ export async function verifyPayment(
   }
 }
 
+/**
+ * Fetches an order from Razorpay so the server can read the trusted, server-set
+ * `notes` (tier, userId) and the authoritative `amount`. Used during payment
+ * verification so we never trust tier/amount values sent by the client.
+ */
+export async function fetchOrder(orderId: string) {
+  return getRazorpay().orders.fetch(orderId)
+}
+
+/**
+ * Fetches a payment from Razorpay to confirm it was actually captured and that
+ * it belongs to the given order. Prevents accepting unpaid/failed payments.
+ */
+export async function fetchPayment(paymentId: string) {
+  return getRazorpay().payments.fetch(paymentId)
+}
+
 export function getRazorpayInstance() {
   return getRazorpay()
 }

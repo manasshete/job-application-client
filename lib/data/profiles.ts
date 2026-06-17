@@ -67,22 +67,11 @@ export async function incrementAIExtractionCount(): Promise<void> {
 
 export async function incrementDocumentGenerationCount(): Promise<void> {
   const supabase = await createClient()
-  
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
 
-  // Get current profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('documents_generated_this_month')
-    .eq('id', user.id)
-    .single()
-
-  // Increment count
-  await supabase
-    .from('profiles')
-    .update({ 
-      documents_generated_this_month: (profile?.documents_generated_this_month || 0) + 1 
-    })
-    .eq('id', user.id)
+  // Use the SECURITY DEFINER RPC: direct profile column writes are revoked
+  // for the user-scoped client to prevent users tampering with usage counters.
+  await supabase.rpc('increment_documents_generated', { p_user_id: user.id })
 }

@@ -86,11 +86,9 @@ Return the full tailored resume as plain text.`,
       ],
     })
 
-    // Increment document count
-    await supabase
-      .from('profiles')
-      .update({ documents_generated_this_month: (profile.documents_generated_this_month || 0) + 1 })
-      .eq('id', user.id)
+    // Increment document count via SECURITY DEFINER RPC (direct column writes
+    // are revoked for the user-scoped client to prevent tampering).
+    await supabase.rpc('increment_documents_generated', { p_user_id: user.id })
 
     return Response.json({ tailoredResume: text })
   } catch (err) {
