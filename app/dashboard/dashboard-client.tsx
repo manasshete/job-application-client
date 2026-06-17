@@ -298,6 +298,7 @@ export function DashboardClient({
           onOpenChange={setIsAddDialogOpen}
           onAddJob={addJob}
           isPremium={isPremium}
+          subscriptionTier={subscriptionTier}
           documentsUsedThisMonth={documentsUsedThisMonth}
         />
 

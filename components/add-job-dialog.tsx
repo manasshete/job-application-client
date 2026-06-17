@@ -34,6 +34,7 @@ interface AddJobDialogProps {
   onOpenChange: (open: boolean) => void
   onAddJob: (job: Omit<Job, 'id'>) => void
   isPremium?: boolean
+  subscriptionTier?: string
   documentsUsedThisMonth?: number
 }
 
@@ -42,6 +43,7 @@ export function AddJobDialog({
   onOpenChange,
   onAddJob,
   isPremium = false,
+  subscriptionTier = 'free',
   documentsUsedThisMonth = 0,
 }: AddJobDialogProps) {
   const [jobUrl, setJobUrl] = useState('')
@@ -428,6 +430,7 @@ export function AddJobDialog({
         company={formData.company}
         jobDescription={extractedDescription}
         isPremium={isPremium}
+        subscriptionTier={subscriptionTier}
         documentsUsedThisMonth={documentsUsedThisMonth}
       />
     </Dialog>
