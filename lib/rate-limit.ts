@@ -1,6 +1,12 @@
-// Simple in-memory rate limiter
-// For production, use a distributed solution like Upstash Redis
-
+// Simple in-memory rate limiter.
+//
+// LIMITATION: state lives in the memory of a single serverless instance, so
+// limits are per-instance and reset on cold start. This is a best-effort
+// throttle to curb casual abuse — it is NOT a hard guarantee across a scaled,
+// multi-instance deployment. The authoritative protection against cost abuse
+// is the per-user subscription limit (checkLimit) enforced on a value stored
+// in the database. For strict distributed rate limiting, back this with
+// Upstash Redis.
 interface RateLimitEntry {
   count: number
   resetTime: number

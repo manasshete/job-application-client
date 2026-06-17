@@ -81,7 +81,7 @@ export async function POST(request: Request) {
       .update({
         subscription_tier: newTier,
         subscription_status: 'active',
-        subscription_updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)
 

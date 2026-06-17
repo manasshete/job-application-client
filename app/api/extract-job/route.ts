@@ -90,7 +90,18 @@ export async function POST(req: Request) {
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
       },
       signal: controller.signal,
+      // Do not follow redirects: a public URL could otherwise 302-redirect to
+      // an internal address (e.g. cloud metadata) and bypass the SSRF check.
+      redirect: 'manual',
     }).finally(() => clearTimeout(timeoutId))
+
+    // A redirect (3xx) is treated as a failure rather than silently followed.
+    if (response.status >= 300 && response.status < 400) {
+      return Response.json(
+        { error: 'Job posting URL redirects are not supported.' },
+        { status: 400 }
+      )
+    }
 
     if (!response.ok) {
       return Response.json(

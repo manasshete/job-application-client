@@ -49,8 +49,11 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect dashboard and settings routes
-  const protectedRoutes = ['/dashboard', '/settings']
+  // Protect dashboard, settings and admin routes. Admin authorization itself
+  // (the is_admin check) is enforced server-side in the /admin page and in
+  // every /api/admin route; this only ensures unauthenticated users are sent
+  // to login first.
+  const protectedRoutes = ['/dashboard', '/settings', '/admin']
   const isProtectedRoute = protectedRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
   )
