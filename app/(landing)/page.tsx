@@ -9,7 +9,6 @@ import {
   BarChart2,
   CalendarCheck,
   ChevronDown,
-  Star,
   X,
   Zap,
   Shield,
@@ -20,30 +19,26 @@ import { SUBSCRIPTION_PRICING, SUBSCRIPTION_LIMITS } from '@/lib/subscription'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const STATS = [
-  { value: '12,000+', label: 'Applications tracked' },
-  { value: '8,400+', label: 'Resumes generated' },
-  { value: '6,100+', label: 'Cover letters created' },
-]
-
-const TESTIMONIALS = [
+const WHY_HIREFLOW = [
   {
-    quote: "I went from a chaotic spreadsheet to landing 4 interviews in two weeks. HireFlow made the whole process feel manageable.",
-    name: 'Sarah K.',
-    role: 'Software Engineer',
-    initials: 'SK',
+    icon: Clock,
+    title: 'Save hours every week',
+    description: 'Stop copying job details into spreadsheets. Paste a URL and AI fills every field in seconds — company, salary, requirements, deadline.',
   },
   {
-    quote: "The AI resume tailoring saves me an hour per application. I can apply to 3x more roles without the burnout.",
-    name: 'Marcus T.',
-    role: 'Product Manager',
-    initials: 'MT',
+    icon: Shield,
+    title: 'Never lose track again',
+    description: 'One dashboard for every application, every status, every document. Always know exactly where you stand with each company.',
   },
   {
-    quote: "Finally a tool that actually understands what job seekers need. I never miss a follow-up anymore.",
-    name: 'Priya N.',
-    role: 'UX Designer',
-    initials: 'PN',
+    icon: Brain,
+    title: 'AI that works for you',
+    description: 'Your master CV tailored for each role in under a minute. Cover letters written to match the job description — without fabricating experience.',
+  },
+  {
+    icon: Zap,
+    title: 'Built for speed',
+    description: 'From spotting a role to submitting a tailored application in under five minutes. Apply to more roles, faster, without the burnout.',
   },
 ]
 
@@ -371,45 +366,28 @@ function Hero() {
   )
 }
 
-function SocialProof() {
+function WhyHireFlow() {
   return (
     <section className="border-y border-slate-100 bg-white py-20">
       <div className="mx-auto max-w-7xl px-6">
-        {/* Stats */}
-        <div className="grid grid-cols-1 gap-12 sm:grid-cols-3">
-          {STATS.map((s) => (
-            <div key={s.label} className="text-center">
-              <p className="text-4xl font-bold text-slate-900">{s.value}</p>
-              <p className="mt-2 text-sm text-slate-500">{s.label}</p>
-            </div>
-          ))}
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">Why HireFlow</p>
+          <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            A smarter way to manage your job search
+          </h2>
+          <p className="mt-4 text-slate-500">
+            Purpose-built for job seekers who are serious about landing their next role.
+          </p>
         </div>
 
-        {/* Divider */}
-        <div className="my-16 border-t border-slate-100" />
-
-        {/* Testimonials */}
-        <p className="mb-10 text-center text-sm font-medium uppercase tracking-widest text-slate-400">
-          What job seekers say
-        </p>
-        <div className="grid gap-6 md:grid-cols-3">
-          {TESTIMONIALS.map((t) => (
-            <div key={t.name} className="rounded-2xl border border-slate-200 bg-white p-8">
-              <div className="mb-4 flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
-                ))}
+        <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {WHY_HIREFLOW.map((item) => (
+            <div key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-7">
+              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600">
+                <item.icon className="h-5 w-5 text-white" />
               </div>
-              <p className="text-sm leading-relaxed text-slate-700">&ldquo;{t.quote}&rdquo;</p>
-              <div className="mt-6 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
-                  {t.initials}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{t.name}</p>
-                  <p className="text-xs text-slate-500">{t.role}</p>
-                </div>
-              </div>
+              <h3 className="mb-2 text-base font-bold text-slate-900">{item.title}</h3>
+              <p className="text-sm leading-relaxed text-slate-500">{item.description}</p>
             </div>
           ))}
         </div>
@@ -913,7 +891,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white">
       <NavBar />
       <Hero />
-      <SocialProof />
+      <WhyHireFlow />
       <ProblemSection />
       <HowItWorks />
       <Features />
