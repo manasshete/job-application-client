@@ -174,7 +174,7 @@ export function JobDetailDialog({
                     <Briefcase className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">Job Posting:</span>
                     <a
-                      href={job.jobUrl}
+                      href={/^https?:\/\//i.test(job.jobUrl!) ? job.jobUrl! : `https://${job.jobUrl}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 font-medium text-primary hover:underline"

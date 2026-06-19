@@ -36,6 +36,13 @@ const statusLabels: Record<JobStatus, string> = {
   rejected: 'Rejected',
 }
 
+// Ensure a URL is absolute so it opens the external site rather than routing
+// to a relative path on this domain (which would produce a 404).
+function toAbsoluteUrl(url: string): string {
+  if (!url) return url
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`
+}
+
 export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, onMoveLeft, onMoveRight }: JobCardProps) {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
 
@@ -67,7 +74,7 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
             <CardTitle className="flex-1 text-base font-semibold leading-tight text-card-foreground">
               {job.jobUrl ? (
                 <a
-                  href={job.jobUrl}
+                  href={toAbsoluteUrl(job.jobUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-primary underline-offset-4 hover:underline"
@@ -85,7 +92,7 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                  className="h-8 w-8 shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <MoreVertical className="h-4 w-4" />
@@ -203,12 +210,12 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
           ) : null}
         </CardContent>
         
-        {/* Arrow Navigation */}
+        {/* Arrow Navigation — always visible on touch devices, hover-only on desktop */}
         {(canMoveLeft && onMoveLeft) && (
           <Button
             variant="default"
             size="icon"
-            className="absolute left-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full shadow-lg opacity-0 transition-all group-hover:opacity-100 hover:scale-110"
+            className="absolute left-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full shadow-lg transition-all hover:scale-110 md:opacity-0 md:group-hover:opacity-100"
             onClick={(e) => {
               e.stopPropagation()
               onMoveLeft()
@@ -221,7 +228,7 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
           <Button
             variant="default"
             size="icon"
-            className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full shadow-lg opacity-0 transition-all group-hover:opacity-100 hover:scale-110"
+            className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full shadow-lg transition-all hover:scale-110 md:opacity-0 md:group-hover:opacity-100"
             onClick={(e) => {
               e.stopPropagation()
               onMoveRight()

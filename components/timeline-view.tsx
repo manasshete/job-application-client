@@ -65,7 +65,7 @@ export function TimelineView({ jobs, onJobClick }: TimelineViewProps) {
                           <div className="flex items-center gap-2">
                             {job.jobUrl ? (
                               <a
-                                href={job.jobUrl}
+                                href={/^https?:\/\//i.test(job.jobUrl!) ? job.jobUrl! : `https://${job.jobUrl}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1.5 text-base font-semibold text-primary underline-offset-4 hover:underline"
