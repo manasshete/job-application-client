@@ -105,7 +105,7 @@ export function ApplicationCard({ application, onUpdate, onDelete }: Application
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5" />
-              {formatDate(application.appliedDate)}
+              {formatDate(application.dateApplied)}
             </div>
             {application.location && (
               <div className="flex items-center gap-1">
@@ -123,9 +123,9 @@ export function ApplicationCard({ application, onUpdate, onDelete }: Application
           {application.notes && (
             <p className="text-sm text-muted-foreground line-clamp-2">{application.notes}</p>
           )}
-          {application.url && (
+          {application.jobUrl && (
             <a
-              href={application.url}
+              href={application.jobUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-primary hover:underline flex items-center gap-1"
@@ -197,9 +197,9 @@ export function ApplicationCard({ application, onUpdate, onDelete }: Application
                   id="edit-appliedDate"
                   type="date"
                   required
-                  value={formData.appliedDate}
+                  value={formData.dateApplied}
                   onChange={(e) =>
-                    setFormData({ ...formData, appliedDate: e.target.value })
+                    setFormData({ ...formData, dateApplied: e.target.value })
                   }
                 />
               </div>
@@ -231,9 +231,9 @@ export function ApplicationCard({ application, onUpdate, onDelete }: Application
               <Input
                 id="edit-url"
                 type="url"
-                value={formData.url || ''}
+                value={formData.jobUrl || ''}
                 onChange={(e) =>
-                  setFormData({ ...formData, url: e.target.value })
+                  setFormData({ ...formData, jobUrl: e.target.value })
                 }
               />
             </div>

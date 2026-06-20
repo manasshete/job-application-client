@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { Job, JobStatus } from '@/app/page'
+import type { Job, JobStatus } from '@/lib/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   DropdownMenu,
@@ -34,6 +34,7 @@ const statusLabels: Record<JobStatus, string> = {
   interview: 'Interview',
   offer: 'Offer',
   rejected: 'Rejected',
+  accepted: 'Accepted',
 }
 
 // Ensure a URL is absolute so it opens the external site rather than routing
@@ -161,7 +162,7 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
           {/* Tags */}
           {job.tags && job.tags.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
-              {job.tags.map((tag) => (
+              {job.tags.map((tag: string) => (
                 <Badge key={tag} variant="outline" className="text-xs">
                   {tag}
                 </Badge>
@@ -186,10 +187,10 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
                 <Badge variant="secondary" className="flex items-center gap-1.5 text-xs">
                   <Users className="h-3 w-3" />
                   <span>{job.interviews.length} Interview{job.interviews.length !== 1 ? 's' : ''}</span>
-                  {job.interviews.some(i => i.status === 'completed') && (
+                  {job.interviews.some((i: { status: string }) => i.status === 'completed') && (
                     <CheckCircle2 className="h-3 w-3 text-green-500" />
                   )}
-                  {job.interviews.some(i => i.status === 'scheduled') && (
+                  {job.interviews.some((i: { status: string }) => i.status === 'scheduled') && (
                     <Clock className="h-3 w-3 text-amber-500" />
                   )}
                 </Badge>
@@ -198,10 +199,10 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
                 <Badge variant="secondary" className="flex items-center gap-1.5 text-xs">
                   <ClipboardList className="h-3 w-3" />
                   <span>{job.tasks.length} Task{job.tasks.length !== 1 ? 's' : ''}</span>
-                  {job.tasks.some(t => t.status === 'completed' || t.status === 'submitted') && (
+                  {job.tasks.some((t: { status: string }) => t.status === 'completed' || t.status === 'submitted') && (
                     <CheckCircle2 className="h-3 w-3 text-green-500" />
                   )}
-                  {job.tasks.some(t => t.status === 'in-progress') && (
+                  {job.tasks.some((t: { status: string }) => t.status === 'in-progress') && (
                     <Clock className="h-3 w-3 text-amber-500" />
                   )}
                 </Badge>

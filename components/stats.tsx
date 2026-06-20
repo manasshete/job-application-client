@@ -1,6 +1,6 @@
 'use client'
 
-import type { Job } from '@/app/page'
+import type { Job } from '@/lib/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Briefcase, Clock, CheckCircle2, XCircle } from 'lucide-react'
 

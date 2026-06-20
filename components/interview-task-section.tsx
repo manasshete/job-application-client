@@ -3,7 +3,7 @@
 import React from "react"
 
 import { useState } from 'react'
-import type { Interview, Task, InterviewStatus, TaskStatus } from '@/app/page'
+import type { Interview, Task, InterviewStatus, TaskStatus } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,9 +28,10 @@ interface InterviewTaskSectionProps {
 }
 
 const interviewStatusConfig: Record<InterviewStatus, { label: string; icon: React.ReactNode; color: string }> = {
+  pending: { label: 'Pending', icon: <Clock className="h-3 w-3" />, color: 'text-yellow-500' },
   scheduled: { label: 'Scheduled', icon: <Calendar className="h-3 w-3" />, color: 'text-blue-500' },
   completed: { label: 'Completed', icon: <CheckCircle2 className="h-3 w-3" />, color: 'text-green-500' },
-  pending: { label: 'Pending', icon: <Clock className="h-3 w-3" />, color: 'text-yellow-500' },
+  cancelled: { label: 'Cancelled', icon: <Circle className="h-3 w-3" />, color: 'text-muted-foreground' },
 }
 
 const taskStatusConfig: Record<TaskStatus, { label: string; icon: React.ReactNode; color: string }> = {

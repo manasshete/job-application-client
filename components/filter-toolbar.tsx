@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import type { JobStatus } from '@/app/page'
+import type { JobStatus } from '@/lib/types'
 
 interface FilterToolbarProps {
   hiddenStatuses: JobStatus[]
@@ -35,6 +35,7 @@ const statusLabels: Record<JobStatus, string> = {
   interview: 'Interview',
   offer: 'Offer',
   rejected: 'Rejected',
+  accepted: 'Accepted',
 }
 
 export function FilterToolbar({

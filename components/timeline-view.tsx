@@ -3,7 +3,7 @@
 import { Calendar, Building2, MapPin, ExternalLink } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { Job, JobStatus } from '@/app/page'
+import type { Job, JobStatus } from '@/lib/types'
 
 interface TimelineViewProps {
   jobs: Job[]
@@ -15,6 +15,7 @@ const statusColors: Record<JobStatus, string> = {
   interview: 'bg-amber-500',
   offer: 'bg-green-500',
   rejected: 'bg-red-500',
+  accepted: 'bg-emerald-500',
 }
 
 const statusLabels: Record<JobStatus, string> = {
@@ -22,6 +23,7 @@ const statusLabels: Record<JobStatus, string> = {
   interview: 'Interview',
   offer: 'Offer',
   rejected: 'Rejected',
+  accepted: 'Accepted',
 }
 
 export function TimelineView({ jobs, onJobClick }: TimelineViewProps) {
@@ -99,7 +101,7 @@ export function TimelineView({ jobs, onJobClick }: TimelineViewProps) {
                           </div>
                           {job.tags && job.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1.5">
-                              {job.tags.map((tag) => (
+                              {job.tags.map((tag: string) => (
                                 <Badge key={tag} variant="outline" className="text-xs">
                                   {tag}
                                 </Badge>

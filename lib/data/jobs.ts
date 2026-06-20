@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import type { Job, Interview, Task, ActivityLogEntry } from '@/app/page'
+import type { Job, Interview, Task, ActivityLogEntry } from '@/lib/types'
 
 export async function getJobs(): Promise<Job[]> {
   const supabase = await createClient()

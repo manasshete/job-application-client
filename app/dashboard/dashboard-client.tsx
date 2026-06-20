@@ -16,7 +16,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
-import type { Job, JobStatus } from '../page'
+import type { Job, JobStatus } from '@/lib/types'
 
 
 interface DashboardClientProps {
@@ -46,7 +46,7 @@ export function DashboardClient({
   const availableTags = useMemo(() => {
     const tags = new Set<string>()
     jobs.forEach((job) => {
-      job.tags?.forEach((tag) => tags.add(tag))
+      job.tags?.forEach((tag: string) => tags.add(tag))
     })
     return Array.from(tags)
   }, [jobs])

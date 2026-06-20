@@ -3,7 +3,7 @@
 import React from "react"
 
 import { useState, useEffect } from 'react'
-import type { Job, JobStatus } from '@/app/page'
+import type { Job, JobStatus } from '@/lib/types'
 import {
   Dialog,
   DialogContent,
@@ -46,6 +46,7 @@ const statusConfig: Record<JobStatus, { label: string; variant: 'default' | 'sec
   interview: { label: 'Interview', variant: 'default' },
   offer: { label: 'Offer', variant: 'default' },
   rejected: { label: 'Rejected', variant: 'destructive' },
+  accepted: { label: 'Accepted', variant: 'outline' },
 }
 
 export function JobDetailDialog({
@@ -239,7 +240,7 @@ export function JobDetailDialog({
                       {job.activityLog
                         .slice()
                         .reverse()
-                        .map((entry) => (
+                        .map((entry: { id: string; timestamp: string; action: string; oldValue?: string; newValue?: string }) => (
                           <div
                             key={entry.id}
                             className="flex gap-3 rounded-lg border border-border bg-muted/30 p-3"

@@ -1,6 +1,6 @@
 'use client'
 
-import type { Job, JobStatus } from '@/app/page'
+import type { Job, JobStatus } from '@/lib/types'
 import { JobCard } from './job-card'
 
 interface JobBoardProps {

@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import type { Job } from '@/app/page'
+import type { Job } from '@/lib/types'
 
 interface QuickActionsMenuProps {
   jobs: Job[]

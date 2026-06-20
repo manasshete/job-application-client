@@ -1,6 +1,6 @@
 import { Calendar, TrendingUp, Clock, Target } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { Job } from '@/app/page'
+import type { Job } from '@/lib/types'
 
 interface WeeklySummaryProps {
   jobs: Job[]

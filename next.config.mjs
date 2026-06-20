@@ -21,11 +21,6 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  typescript: {
-    // TODO: remove once all type errors are resolved — masking build errors
-    // allows type-safety bugs to silently reach production.
-    ignoreBuildErrors: true,
-  },
   images: {
     unoptimized: true,
   },

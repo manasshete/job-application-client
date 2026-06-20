@@ -3,7 +3,7 @@
 import React from "react"
 
 import { useState, useEffect } from 'react'
-import type { Job, JobStatus } from '@/app/page'
+import type { Job, JobStatus } from '@/lib/types'
 import {
   Dialog,
   DialogContent,
