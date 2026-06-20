@@ -408,7 +408,7 @@ function WhyHireFlow() {
                   <item.icon className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="mb-2 text-base font-bold text-slate-900">{item.title}</h3>
-                <p className="text-sm leading-relaxed text-slate-500">{item.description}</p>
+                <p className="text-sm leading-7 text-slate-500">{item.description}</p>
               </div>
             </AnimateIn>
           ))}
@@ -964,12 +964,12 @@ function SeoContent() {
             const Icon = point.icon
             return (
               <AnimateIn key={point.title} delay={`reveal-delay-${i + 1}` as 'reveal-delay-1'}>
-                <div className="group h-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                <div className="group h-full rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition-shadow hover:shadow-md">
                   <div className="feature-icon flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50">
                     <Icon className="h-5 w-5 text-blue-600" />
                   </div>
                   <h3 className="mt-4 text-lg font-semibold text-slate-900">{point.title}</h3>
-                  <p className="mt-2 text-pretty text-sm leading-relaxed text-slate-500">
+                  <p className="mt-2 text-sm leading-7 text-slate-500">
                     {point.body}
                   </p>
                 </div>
