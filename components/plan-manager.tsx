@@ -114,7 +114,7 @@ export function PlanManager({ currentTier }: PlanManagerProps) {
               </div>
 
               <div className="mb-1 flex items-baseline gap-1">
-                <span className="text-2xl font-bold text-foreground">{price === 0 ? 'Free' : `£${price}`}</span>
+                <span className="text-2xl font-bold text-foreground">{price === 0 ? 'Free' : `₹${price}`}</span>
                 {price > 0 && <span className="text-sm text-muted-foreground">/month</span>}
               </div>
               <p className="mb-4 text-xs text-muted-foreground">{meta.blurb}</p>

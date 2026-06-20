@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { PlanManager } from '@/components/plan-manager'
-import { SUBSCRIPTION_LIMITS } from '@/lib/subscription'
+import { SUBSCRIPTION_LIMITS, SUBSCRIPTION_PRICING } from '@/lib/subscription'
 import {
   Crown,
   Zap,
@@ -42,7 +42,9 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
   const limits     = SUBSCRIPTION_LIMITS[profile.subscription_tier]
   const isPaid     = profile.subscription_tier !== 'free'
   const tierLabel  = profile.subscription_tier.charAt(0).toUpperCase() + profile.subscription_tier.slice(1)
-  const priceLabel = profile.subscription_tier === 'free' ? 'Free' : profile.subscription_tier === 'pro' ? '£10/month' : '£15/month'
+  const priceLabel = profile.subscription_tier === 'free'
+    ? 'Free'
+    : `₹${SUBSCRIPTION_PRICING[profile.subscription_tier]}/month`
 
   return (
     <div className="min-h-screen bg-background">

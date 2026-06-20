@@ -96,7 +96,7 @@ export async function POST(req: Request) {
       razorpay_order_id: orderId,
       razorpay_payment_id: paymentId,
       amount: expectedAmount,
-      currency: order.currency ?? 'GBP',
+      currency: order.currency ?? 'INR',
       tier,
       status: 'completed',
     })

@@ -52,11 +52,11 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, SubscriptionLimits> =
   },
 }
 
-// Subscription pricing in GBP
+// Subscription pricing in INR (rupees)
 export const SUBSCRIPTION_PRICING: Record<SubscriptionTier, number> = {
   free: 0,
-  pro: 10,
-  premium: 15,
+  pro: 299,
+  premium: 499,
 }
 
 export function checkLimit(tier: SubscriptionTier, current: number, limit: keyof SubscriptionLimits): boolean {

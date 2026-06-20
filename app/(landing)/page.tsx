@@ -114,7 +114,7 @@ const PRICING_TIERS = [
   {
     id: 'free' as const,
     name: 'Free',
-    price: '£0',
+    price: '₹0',
     period: null,
     description: 'Start organising your job search today.',
     features: [
@@ -132,7 +132,7 @@ const PRICING_TIERS = [
   {
     id: 'pro' as const,
     name: 'Pro',
-    price: `£${SUBSCRIPTION_PRICING.pro}`,
+    price: `₹${SUBSCRIPTION_PRICING.pro}`,
     period: '/mo',
     description: 'For active job seekers applying consistently.',
     features: [
@@ -155,7 +155,7 @@ const PRICING_TIERS = [
   {
     id: 'premium' as const,
     name: 'Premium',
-    price: `£${SUBSCRIPTION_PRICING.premium}`,
+    price: `₹${SUBSCRIPTION_PRICING.premium}`,
     period: '/mo',
     description: 'Maximum AI power for the serious job seeker.',
     features: [

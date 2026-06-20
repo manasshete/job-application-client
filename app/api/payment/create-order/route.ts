@@ -4,10 +4,11 @@ import { createOrder } from '@/lib/razorpay'
 
 export const dynamic = 'force-dynamic'
 
-// Server-authoritative pricing. Never trust amounts from the client.
+// Server-authoritative pricing in the smallest currency unit (paise for INR).
+// Never trust amounts from the client.
 export const SUBSCRIPTION_PRICES: Record<string, number> = {
-  pro: 1000, // £10.00 in pence
-  premium: 1500, // £15.00 in pence
+  pro: 29900, // ₹299.00 in paise
+  premium: 49900, // ₹499.00 in paise
 }
 
 export async function POST(req: Request) {
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
 
     const order = await createOrder({
       amount,
-      currency: 'GBP',
+      currency: 'INR',
       receipt: `hireflow_${user.id}_${Date.now()}`,
       // notes are returned to us (signed) by Razorpay on verification, so we
       // use them as the source of truth for which tier was actually paid for.
