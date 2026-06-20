@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { AnimateIn } from '@/components/landing/animate-in'
 import {
   ArrowRight,
   Check,
@@ -251,47 +252,50 @@ function Hero() {
   return (
     <section className="relative overflow-hidden bg-white pt-20 pb-0">
       <div className="mx-auto max-w-7xl px-6">
-        {/* Badge */}
-        <div className="mb-6 flex justify-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
-            <Zap className="h-3.5 w-3.5" />
-            AI-powered job search management
+        {/* Hero sequence — staggered fade-up on page load */}
+        <div className="hero-sequence">
+          {/* Badge */}
+          <div className="mb-6 flex animate-fade-up justify-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
+              <Zap className="h-3.5 w-3.5" />
+              AI-powered job search management
+            </div>
           </div>
+
+          {/* Headline */}
+          <h1 className="animate-fade-up mx-auto max-w-4xl text-balance text-center text-5xl font-bold tracking-tight text-slate-900 md:text-6xl lg:text-7xl">
+            AI Job Application Tracker{' '}
+            <span className="text-blue-600">&amp; Resume Tailoring Tool</span>
+          </h1>
+
+          {/* Subheadline */}
+          <p className="animate-fade-up mx-auto mt-6 max-w-2xl text-pretty text-center text-lg leading-relaxed text-slate-500 md:text-xl">
+            Track every application in a visual Kanban board, instantly extract job details from any
+            job link, tailor your resume and cover letter with AI, and download ATS-optimized PDFs
+            ready to submit.
+          </p>
+
+          {/* CTAs */}
+          <div className="animate-fade-up mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link href="/auth/sign-up">
+              <Button size="lg" className="h-12 rounded-lg bg-blue-600 px-8 text-base font-semibold shadow-sm transition-transform hover:scale-[1.03] hover:bg-blue-700 active:scale-[0.97]">
+                Start Free
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <a href="#how-it-works">
+              <Button size="lg" variant="outline" className="h-12 rounded-lg px-8 text-base font-semibold text-slate-700 transition-transform hover:scale-[1.03] active:scale-[0.97]">
+                See how it works
+              </Button>
+            </a>
+          </div>
+          <p className="animate-fade-up mt-4 text-center text-sm text-slate-400">
+            Free to start. No credit card required.
+          </p>
         </div>
 
-        {/* Headline */}
-        <h1 className="mx-auto max-w-4xl text-balance text-center text-5xl font-bold tracking-tight text-slate-900 md:text-6xl lg:text-7xl">
-          AI Job Application Tracker{' '}
-          <span className="text-blue-600">&amp; Resume Tailoring Tool</span>
-        </h1>
-
-        {/* Subheadline */}
-        <p className="mx-auto mt-6 max-w-2xl text-pretty text-center text-lg leading-relaxed text-slate-500 md:text-xl">
-          Track every application in a visual Kanban board, instantly extract job details from any
-          job link, tailor your resume and cover letter with AI, and download ATS-optimized PDFs
-          ready to submit.
-        </p>
-
-        {/* CTAs */}
-        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link href="/auth/sign-up">
-            <Button size="lg" className="h-12 rounded-lg bg-blue-600 px-8 text-base font-semibold shadow-sm hover:bg-blue-700">
-              Start Free
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-          <a href="#how-it-works">
-            <Button size="lg" variant="outline" className="h-12 rounded-lg px-8 text-base font-semibold text-slate-700">
-              See how it works
-            </Button>
-          </a>
-        </div>
-        <p className="mt-4 text-center text-sm text-slate-400">
-          Free to start. No credit card required.
-        </p>
-
-        {/* Dashboard mockup */}
-        <div className="relative mt-16 mx-auto max-w-5xl">
+        {/* Dashboard mockup — gentle float */}
+        <div className="animate-float relative mt-16 mx-auto max-w-5xl">
           <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-2xl shadow-slate-200/80">
             {/* Browser chrome */}
             <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3">
@@ -396,14 +400,16 @@ function WhyHireFlow() {
         </div>
 
         <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {WHY_HIREFLOW.map((item) => (
-            <div key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-7">
-              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600">
-                <item.icon className="h-5 w-5 text-white" />
+          {WHY_HIREFLOW.map((item, i) => (
+            <AnimateIn key={item.title} delay={`reveal-delay-${i + 1}` as 'reveal-delay-1'}>
+              <div className="group h-full rounded-2xl border border-slate-200 bg-slate-50 p-7 transition-shadow hover:shadow-md">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 feature-icon">
+                  <item.icon className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="mb-2 text-base font-bold text-slate-900">{item.title}</h3>
+                <p className="text-sm leading-relaxed text-slate-500">{item.description}</p>
               </div>
-              <h3 className="mb-2 text-base font-bold text-slate-900">{item.title}</h3>
-              <p className="text-sm leading-relaxed text-slate-500">{item.description}</p>
-            </div>
+            </AnimateIn>
           ))}
         </div>
       </div>
@@ -428,17 +434,20 @@ function ProblemSection() {
         <div className="mt-16 grid gap-10 md:grid-cols-2 md:items-center">
           {/* Pain points */}
           <div className="space-y-4">
-            {PAIN_POINTS.map((point) => (
-              <div key={point} className="flex items-start gap-4 rounded-xl border border-red-100 bg-white p-5 shadow-sm">
-                <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100">
-                  <X className="h-3.5 w-3.5 text-red-600" />
+            {PAIN_POINTS.map((point, i) => (
+              <AnimateIn key={point} delay={`reveal-delay-${i + 1}` as 'reveal-delay-1'}>
+                <div className="flex items-start gap-4 rounded-xl border border-red-100 bg-white p-5 shadow-sm">
+                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100">
+                    <X className="h-3.5 w-3.5 text-red-600" />
+                  </div>
+                  <p className="text-sm leading-relaxed text-slate-700">{point}</p>
                 </div>
-                <p className="text-sm leading-relaxed text-slate-700">{point}</p>
-              </div>
+              </AnimateIn>
             ))}
           </div>
 
           {/* Solution */}
+          <AnimateIn variant="reveal-scale">
           <div className="rounded-2xl border border-blue-100 bg-white p-10 shadow-sm">
             <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600">
               <Zap className="h-6 w-6 text-white" />
@@ -469,6 +478,7 @@ function ProblemSection() {
               </Link>
             </div>
           </div>
+          </AnimateIn>
         </div>
       </div>
     </section>
@@ -488,7 +498,8 @@ function HowItWorks() {
 
         <div className="mt-20 grid gap-12 md:grid-cols-3">
           {HOW_IT_WORKS.map((step, i) => (
-            <div key={step.step} className="relative">
+            <AnimateIn key={step.step} delay={`reveal-delay-${i + 1}` as 'reveal-delay-1'}>
+            <div className="relative">
               {/* Connector line */}
               {i < HOW_IT_WORKS.length - 1 && (
                 <div className="absolute left-full top-8 hidden h-px w-full -translate-x-6 border-t-2 border-dashed border-slate-200 md:block" />
@@ -503,6 +514,7 @@ function HowItWorks() {
               <p className="mt-3 text-sm leading-relaxed text-slate-500">{step.description}</p>
               <p className="mt-3 text-xs font-medium text-blue-600">{step.detail}</p>
             </div>
+            </AnimateIn>
           ))}
         </div>
       </div>
@@ -525,19 +537,21 @@ function Features() {
         </div>
 
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f) => (
-            <div key={f.title} className="group relative rounded-2xl border border-slate-200 bg-white p-8 transition-all hover:border-blue-200 hover:shadow-md">
-              {f.tag && (
-                <span className="absolute right-4 top-4 rounded-full bg-blue-600 px-3 py-0.5 text-xs font-semibold text-white">
-                  {f.tag}
-                </span>
-              )}
-              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
-                <f.icon className="h-5 w-5" />
+          {FEATURES.map((f, i) => (
+            <AnimateIn key={f.title} delay={`reveal-delay-${(i % 6) + 1}` as 'reveal-delay-1'}>
+              <div className="group relative h-full rounded-2xl border border-slate-200 bg-white p-8 transition-all duration-200 hover:border-blue-200 hover:shadow-lg hover:-translate-y-1">
+                {f.tag && (
+                  <span className="absolute right-4 top-4 rounded-full bg-blue-600 px-3 py-0.5 text-xs font-semibold text-white">
+                    {f.tag}
+                  </span>
+                )}
+                <div className="feature-icon mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                  <f.icon className="h-5 w-5" />
+                </div>
+                <h3 className="mb-2 text-lg font-bold text-slate-900">{f.title}</h3>
+                <p className="text-sm leading-relaxed text-slate-500">{f.description}</p>
               </div>
-              <h3 className="mb-2 text-lg font-bold text-slate-900">{f.title}</h3>
-              <p className="text-sm leading-relaxed text-slate-500">{f.description}</p>
-            </div>
+            </AnimateIn>
           ))}
         </div>
       </div>
@@ -562,7 +576,8 @@ function ProductShowcase() {
         {/* Feature showcase cards */}
         <div className="mt-16 grid gap-8 md:grid-cols-2">
           {/* Application detail */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <AnimateIn delay="reveal-delay-1">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
             <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
               <p className="text-xs font-semibold text-slate-600">Application Detail View</p>
             </div>
@@ -594,9 +609,11 @@ function ProductShowcase() {
               </div>
             </div>
           </div>
+          </AnimateIn>
 
           {/* Resume tailoring */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <AnimateIn delay="reveal-delay-2">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
             <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
               <p className="text-xs font-semibold text-slate-600">AI Resume Tailoring</p>
             </div>
@@ -605,7 +622,7 @@ function ProductShowcase() {
                 <p className="text-xs font-semibold text-blue-700 mb-1">AI is tailoring your resume...</p>
                 <p className="text-xs text-blue-600">Matching your experience to: Senior Software Engineer at Stripe</p>
                 <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-blue-200">
-                  <div className="h-full w-3/4 rounded-full bg-blue-600" />
+                  <div className="animate-progress-fill h-full rounded-full bg-blue-600" />
                 </div>
               </div>
               <div className="space-y-2">
@@ -623,9 +640,11 @@ function ProductShowcase() {
               </div>
             </div>
           </div>
+          </AnimateIn>
 
           {/* Interview scheduling */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <AnimateIn delay="reveal-delay-3">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
             <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
               <p className="text-xs font-semibold text-slate-600">Interview Scheduling</p>
             </div>
@@ -646,9 +665,11 @@ function ProductShowcase() {
               ))}
             </div>
           </div>
+          </AnimateIn>
 
           {/* Analytics */}
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <AnimateIn delay="reveal-delay-4">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
             <div className="border-b border-slate-100 bg-slate-50 px-5 py-3">
               <p className="text-xs font-semibold text-slate-600">Application Analytics</p>
             </div>
@@ -685,6 +706,7 @@ function ProductShowcase() {
               </div>
             </div>
           </div>
+          </AnimateIn>
         </div>
       </div>
     </section>
@@ -706,12 +728,12 @@ function Pricing() {
         </div>
 
         <div className="mt-16 grid gap-8 md:grid-cols-3">
-          {PRICING_TIERS.map((tier) => (
+          {PRICING_TIERS.map((tier, i) => (
+            <AnimateIn key={tier.id} variant="reveal-scale" delay={`reveal-delay-${i + 1}` as 'reveal-delay-1'}>
             <div
-              key={tier.id}
-              className={`relative flex flex-col rounded-2xl border p-8 ${
+              className={`relative flex h-full flex-col rounded-2xl border p-8 transition-shadow hover:shadow-xl ${
                 tier.highlighted
-                  ? 'border-blue-600 bg-white shadow-xl shadow-blue-600/10 ring-1 ring-blue-600'
+                  ? 'animate-glow-pulse border-blue-600 bg-white shadow-xl shadow-blue-600/10 ring-1 ring-blue-600'
                   : 'border-slate-200 bg-white shadow-sm'
               }`}
             >
@@ -748,7 +770,7 @@ function Pricing() {
 
               <Link href={tier.href} className="block">
                 <Button
-                  className={`w-full rounded-lg ${
+                  className={`w-full rounded-lg transition-transform hover:scale-[1.02] active:scale-[0.98] ${
                     tier.highlighted
                       ? 'bg-blue-600 hover:bg-blue-700'
                       : 'bg-slate-900 text-white hover:bg-slate-800'
@@ -759,6 +781,7 @@ function Pricing() {
                 </Button>
               </Link>
             </div>
+            </AnimateIn>
           ))}
         </div>
 
@@ -812,7 +835,7 @@ function FAQ() {
 function FinalCTA() {
   return (
     <section className="bg-slate-900 py-28">
-      <div className="mx-auto max-w-3xl px-6 text-center">
+      <AnimateIn variant="reveal-scale" className="mx-auto max-w-3xl px-6 text-center">
         <h2 className="text-balance text-4xl font-bold tracking-tight text-white sm:text-5xl">
           Spend less time organising.{' '}
           <br className="hidden sm:block" />
@@ -823,14 +846,14 @@ function FinalCTA() {
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link href="/auth/sign-up">
-            <Button size="lg" className="h-12 rounded-lg bg-white px-8 text-base font-semibold text-slate-900 hover:bg-slate-100">
+            <Button size="lg" className="animate-glow-pulse h-12 rounded-lg bg-white px-8 text-base font-semibold text-slate-900 transition-transform hover:scale-[1.04] hover:bg-slate-100 active:scale-[0.97]">
               Start Free — No Card Required
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
         </div>
         <p className="mt-6 text-sm text-slate-500">Free forever for up to 10 applications.</p>
-      </div>
+      </AnimateIn>
     </section>
   )
 }
@@ -936,21 +959,20 @@ function SeoContent() {
           </p>
         </div>
         <div className="mt-12 grid gap-6 sm:grid-cols-2">
-          {SEO_POINTS.map((point) => {
+          {SEO_POINTS.map((point, i) => {
             const Icon = point.icon
             return (
-              <div
-                key={point.title}
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50">
-                  <Icon className="h-5 w-5 text-blue-600" />
+              <AnimateIn key={point.title} delay={`reveal-delay-${i + 1}` as 'reveal-delay-1'}>
+                <div className="group h-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                  <div className="feature-icon flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50">
+                    <Icon className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-slate-900">{point.title}</h3>
+                  <p className="mt-2 text-pretty text-sm leading-relaxed text-slate-500">
+                    {point.body}
+                  </p>
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-slate-900">{point.title}</h3>
-                <p className="mt-2 text-pretty text-sm leading-relaxed text-slate-500">
-                  {point.body}
-                </p>
-              </div>
+              </AnimateIn>
             )
           })}
         </div>
