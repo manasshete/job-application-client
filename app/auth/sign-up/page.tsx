@@ -51,7 +51,7 @@ export default function Page() {
   return (
     <div className="flex min-h-svh w-full bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/40">
       {/* Left branding panel */}
-      <div className="hidden flex-col items-center justify-center bg-blue-600 px-12 text-white lg:flex lg:w-1/2">
+      <div className="animate-fade-in hidden flex-col items-center justify-center bg-blue-600 px-12 text-white lg:flex lg:w-1/2">
         <div className="max-w-sm text-center">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20">
             <Briefcase className="h-8 w-8 text-white" />
@@ -74,7 +74,7 @@ export default function Page() {
       </div>
 
       {/* Right form panel */}
-      <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
+      <div className="flex w-full items-center justify-center p-6 sm:p-8 lg:w-1/2">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="mb-8 flex items-center justify-center gap-2 lg:hidden">
@@ -84,7 +84,7 @@ export default function Page() {
             <span className="text-2xl font-bold text-slate-900">HireFlow</span>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div className="animate-scale-in rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
             <h2 className="mb-1 text-2xl font-bold text-slate-900">Create your account</h2>
             <p className="mb-8 text-sm text-slate-500">Get started free — no credit card required</p>
 

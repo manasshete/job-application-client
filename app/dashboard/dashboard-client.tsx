@@ -9,7 +9,7 @@ import { QuickActionsMenu } from '@/components/quick-actions-menu'
 import { WeeklySummary } from '@/components/weekly-summary'
 import { TimelineView } from '@/components/timeline-view'
 import { JobDetailDialog } from '@/components/job-detail-dialog'
-import { Plus, Search, LayoutGrid, Baseline as Timeline, LogOut, Settings } from 'lucide-react'
+import { Plus, Search, LayoutGrid, Baseline as Timeline, LogOut, Settings, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -40,6 +40,7 @@ export function DashboardClient({
   const [sortBy, setSortBy] = useState('dateApplied-desc')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -193,31 +194,30 @@ export function DashboardClient({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                HireFlow
-              </h1>
-              <Badge 
-                variant={subscriptionTier === 'premium' ? 'default' : subscriptionTier === 'pro' ? 'secondary' : 'outline'}
-                className={
-                  subscriptionTier === 'premium' 
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0' 
-                    : subscriptionTier === 'pro' 
-                    ? 'bg-blue-600 text-white border-0' 
-                    : ''
-                }
-              >
-                {subscriptionTier.charAt(0).toUpperCase() + subscriptionTier.slice(1)}
-              </Badge>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Manage and track your job applications in one place
-            </p>
+      {/* ── Top navigation bar ── */}
+      <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+          {/* Brand + tier badge */}
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+              HireFlow
+            </h1>
+            <Badge
+              variant={subscriptionTier === 'premium' ? 'default' : subscriptionTier === 'pro' ? 'secondary' : 'outline'}
+              className={
+                subscriptionTier === 'premium'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-xs'
+                  : subscriptionTier === 'pro'
+                  ? 'bg-blue-600 text-white border-0 text-xs'
+                  : 'text-xs'
+              }
+            >
+              {subscriptionTier.charAt(0).toUpperCase() + subscriptionTier.slice(1)}
+            </Badge>
           </div>
-          <div className="flex items-center gap-2">
+
+          {/* Desktop actions */}
+          <div className="hidden items-center gap-2 sm:flex">
             <Button onClick={() => router.push('/dashboard/settings')} variant="outline" size="sm">
               <Settings className="mr-2 h-4 w-4" />
               Account
@@ -237,37 +237,95 @@ export function DashboardClient({
               Add Job
             </Button>
           </div>
+
+          {/* Mobile: Add + menu toggle */}
+          <div className="flex items-center gap-2 sm:hidden">
+            <Button onClick={() => setIsAddDialogOpen(true)} size="sm" className="h-9 px-3">
+              <Plus className="h-4 w-4" />
+              <span className="sr-only">Add Job</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => setIsMobileMenuOpen((o) => !o)}
+              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            >
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
         </div>
 
-        <Stats jobs={jobs} />
-        <WeeklySummary jobs={jobs} />
+        {/* Mobile slide-down menu */}
+        {isMobileMenuOpen && (
+          <div className="animate-fade-down border-t border-border bg-background px-4 pb-4 pt-3 sm:hidden">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Account
+            </p>
+            <div className="flex flex-col gap-2">
+              <Button
+                onClick={() => { router.push('/dashboard/settings'); setIsMobileMenuOpen(false) }}
+                variant="outline"
+                className="h-11 w-full justify-start"
+              >
+                <Settings className="mr-3 h-4 w-4" />
+                Account Settings
+              </Button>
+              <Button
+                onClick={handleSignOut}
+                variant="ghost"
+                className="h-11 w-full justify-start text-muted-foreground"
+              >
+                <LogOut className="mr-3 h-4 w-4" />
+                Sign Out
+              </Button>
+              <QuickActionsMenu
+                jobs={jobs}
+                onExportCSV={exportToCSV}
+                onClearRejected={clearRejected}
+                onArchiveOld={archiveOld}
+              />
+            </div>
+          </div>
+        )}
+      </header>
 
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      {/* ── Main content ── */}
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {/* Stats + weekly summary */}
+        <div className="animate-fade-up">
+          <Stats jobs={jobs} />
+          <WeeklySummary jobs={jobs} />
+        </div>
+
+        {/* Search + view toggle row */}
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              type="text"
-              placeholder="Search by company, position, location, or notes..."
+              type="search"
+              placeholder="Search company, position, location…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="h-10 pl-10 sm:h-9"
             />
           </div>
-          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
-            <TabsList>
-              <TabsTrigger value="board" className="gap-2">
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'board' | 'timeline')}>
+            <TabsList className="h-10 sm:h-9">
+              <TabsTrigger value="board" className="gap-1.5 px-3">
                 <LayoutGrid className="h-4 w-4" />
-                Board
+                <span>Board</span>
               </TabsTrigger>
-              <TabsTrigger value="timeline" className="gap-2">
+              <TabsTrigger value="timeline" className="gap-1.5 px-3">
                 <Timeline className="h-4 w-4" />
-                Timeline
+                <span>Timeline</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
 
-        <div className="mb-6">
+        {/* Filter toolbar */}
+        <div className="mb-5">
           <FilterToolbar
             hiddenStatuses={hiddenStatuses}
             onToggleStatus={(status) =>
@@ -287,12 +345,14 @@ export function DashboardClient({
           />
         </div>
 
+        {/* Board / timeline */}
         {viewMode === 'board' ? (
           <JobBoard jobs={filteredJobs} onUpdateJob={updateJob} onDeleteJob={deleteJob} />
         ) : (
           <TimelineView jobs={filteredJobs} onJobClick={setSelectedJob} />
         )}
 
+        {/* Dialogs */}
         <AddJobDialog
           open={isAddDialogOpen}
           onOpenChange={setIsAddDialogOpen}
@@ -320,6 +380,7 @@ export function DashboardClient({
             documentsUsedThisMonth={documentsUsedThisMonth}
           />
         )}
+
         {/* Footer disclaimer */}
         <div className="mt-12 border-t border-border pb-8 pt-6">
           <p className="text-center text-xs leading-relaxed text-muted-foreground">
@@ -328,7 +389,7 @@ export function DashboardClient({
             Your data is stored securely and is never shared with third parties. We are not responsible for outcomes resulting from applications submitted using this tool.
           </p>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

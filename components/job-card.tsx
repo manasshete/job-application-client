@@ -66,8 +66,8 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
 
   return (
     <>
-      <Card 
-        className="group relative cursor-pointer overflow-hidden transition-all hover:shadow-md" 
+      <Card
+        className="group relative cursor-pointer overflow-hidden card-hover btn-press border border-border bg-card shadow-sm"
         onClick={handleCardClick}
       >
         <CardHeader className="pb-3">
@@ -93,8 +93,9 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 shrink-0"
+                  className="h-9 w-9 shrink-0 transition-colors hover:bg-accent"
                   onClick={(e) => e.stopPropagation()}
+                  aria-label="Card actions"
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
@@ -211,16 +212,17 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
           ) : null}
         </CardContent>
         
-        {/* Arrow Navigation — always visible on touch devices, hover-only on desktop */}
+        {/* Arrow navigation — 44px touch targets, visible on touch / hover on mouse */}
         {(canMoveLeft && onMoveLeft) && (
           <Button
             variant="default"
             size="icon"
-            className="absolute left-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full shadow-lg transition-all hover:scale-110 md:opacity-0 md:group-hover:opacity-100"
+            className="absolute left-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full shadow-md transition-transform hover:scale-110 active:scale-95 md:h-7 md:w-7 md:opacity-0 md:group-hover:opacity-100"
             onClick={(e) => {
               e.stopPropagation()
               onMoveLeft()
             }}
+            aria-label="Move left"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -229,11 +231,12 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
           <Button
             variant="default"
             size="icon"
-            className="absolute right-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full shadow-lg transition-all hover:scale-110 md:opacity-0 md:group-hover:opacity-100"
+            className="absolute right-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full shadow-md transition-transform hover:scale-110 active:scale-95 md:h-7 md:w-7 md:opacity-0 md:group-hover:opacity-100"
             onClick={(e) => {
               e.stopPropagation()
               onMoveRight()
             }}
+            aria-label="Move right"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

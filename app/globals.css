@@ -8,6 +8,121 @@
   }
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Animation keyframes — GPU-accelerated (transform + opacity only)
+   ───────────────────────────────────────────────────────────── */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to   { background-position: 200% center; }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Animation utility classes
+   ───────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  .animate-fade-in        { animation: fade-in      0.3s ease-out both; }
+  .animate-fade-up        { animation: fade-up      0.35s ease-out both; }
+  .animate-fade-down      { animation: fade-down    0.3s ease-out both; }
+  .animate-scale-in       { animation: scale-in     0.25s ease-out both; }
+  .animate-slide-in-left  { animation: slide-in-left  0.3s ease-out both; }
+  .animate-slide-in-right { animation: slide-in-right 0.3s ease-out both; }
+
+  /* Staggered children — apply to parent, children get --stagger-delay set by index */
+  .stagger-children > * { animation-fill-mode: both; }
+  .stagger-children > *:nth-child(1)  { animation-delay: 0ms; }
+  .stagger-children > *:nth-child(2)  { animation-delay: 60ms; }
+  .stagger-children > *:nth-child(3)  { animation-delay: 120ms; }
+  .stagger-children > *:nth-child(4)  { animation-delay: 180ms; }
+  .stagger-children > *:nth-child(5)  { animation-delay: 240ms; }
+  .stagger-children > *:nth-child(6)  { animation-delay: 300ms; }
+
+  /* Shimmer loading placeholder */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--muted-foreground) / 0.08) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% auto;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  /* Hide native scrollbar (Kanban mobile horizontal scroll) */
+  .scrollbar-none {
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none; /* Chrome / Safari */
+  }
+
+  /* Card hover lift */
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px hsl(var(--foreground) / 0.08);
+  }
+
+  /* Button press */
+  .btn-press {
+    transition: transform 0.1s ease;
+    will-change: transform;
+  }
+  .btn-press:active { transform: scale(0.96); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Respect reduced-motion at all times
+   ───────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer base {
   :root {
     /* Blue/white light theme */
