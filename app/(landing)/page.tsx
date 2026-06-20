@@ -13,6 +13,10 @@ import {
   Zap,
   Shield,
   Clock,
+  LayoutGrid,
+  Sparkles,
+  FileCheck,
+  Link2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SUBSCRIPTION_PRICING, SUBSCRIPTION_LIMITS } from '@/lib/subscription'
@@ -895,51 +899,60 @@ function Footer() {
   )
 }
 
+const SEO_POINTS = [
+  {
+    icon: LayoutGrid,
+    title: 'Visual Job Application Tracking',
+    body: 'Spreadsheets break down fast. See every application as a card on a Kanban board grouped by stage — Applied, Interviewing, Offer, Rejected — so your whole job search is clear at a glance.',
+  },
+  {
+    icon: Sparkles,
+    title: 'AI Resume Tailoring',
+    body: 'Generic resumes miss the keywords hiring teams scan for. AI analyzes each job description and rewrites your real experience to match the role — without inventing anything.',
+  },
+  {
+    icon: FileCheck,
+    title: 'ATS-Optimized Resumes',
+    body: 'Most companies filter resumes with ATS software before a human reads them. HireFlow exports clean, single-column layouts these systems parse reliably, so you reach more recruiters.',
+  },
+  {
+    icon: Link2,
+    title: 'One Link to Apply Faster',
+    body: 'Paste a job link to extract the details, track it visually, tailor your resume and cover letter, and download a submit-ready PDF — turning a scattered process into a repeatable system.',
+  },
+]
+
 function SeoContent() {
   return (
-    <section className="border-b border-slate-100 bg-white py-24">
-      <div className="mx-auto max-w-3xl px-6">
-        <h2 className="text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          Why Use an AI Job Application Tracker?
-        </h2>
-        <div className="mt-6 space-y-5 text-base leading-relaxed text-slate-600">
-          <p>
-            Most job seekers start out tracking applications in a spreadsheet. It works for the first
-            few roles, but it quickly breaks down. Rows pile up, statuses go stale, and you lose sight
-            of which company you applied to, which resume you sent, and when a follow-up is due.
-            Spreadsheets were never designed to manage a fast-moving job search, and the manual data
-            entry alone eats hours every week.
+    <section className="border-b border-slate-100 bg-slate-50 py-24">
+      <div className="mx-auto max-w-5xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            Why Use an AI Job Application Tracker?
+          </h2>
+          <p className="mt-4 text-pretty text-lg leading-relaxed text-slate-500">
+            Stop juggling spreadsheets. HireFlow combines visual tracking, AI resume tailoring, and
+            ATS-ready exports so you apply to more roles with less effort.
           </p>
-          <p>
-            A visual job application tracker fixes this. Instead of scanning rows of text, you see
-            every application as a card on a Kanban board, grouped by stage — Applied, Interviewing,
-            Offer, and Rejected. Moving a card from one column to the next takes a single tap, so the
-            real status of your entire job search is always clear at a glance. This visual job
-            tracking approach makes it far easier to spot stalled applications, prioritize follow-ups,
-            and stay organized across dozens of roles at once.
-          </p>
-          <p>
-            Tailoring your resume to each job description is one of the highest-impact things you can
-            do to land more interviews. Generic resumes rarely match what a specific role is asking
-            for, and they often miss the exact keywords a hiring team is scanning for. AI resume
-            tailoring analyzes the job description and rewrites your existing experience to emphasize
-            the most relevant skills and achievements — without inventing anything — so your
-            application speaks directly to the role.
-          </p>
-          <p>
-            This matters even more because of Applicant Tracking Systems (ATS). Most companies use ATS
-            software to parse, score, and filter resumes before a human ever reads them. If your
-            resume uses complex tables, graphics, or unusual formatting, the ATS may misread it and
-            rank you lower. HireFlow generates ATS-friendly resumes in clean, single-column layouts
-            that these systems parse reliably, improving the odds your application reaches a recruiter.
-          </p>
-          <p>
-            Bringing it all together, an AI-powered job application tracker like HireFlow lets you
-            extract job details from any link, track every application visually, tailor your resume and
-            cover letter to each role, and download ATS-optimized PDFs ready to submit — turning a
-            scattered, manual process into a fast, organized, repeatable system that helps you apply to
-            more roles with less effort.
-          </p>
+        </div>
+        <div className="mt-12 grid gap-6 sm:grid-cols-2">
+          {SEO_POINTS.map((point) => {
+            const Icon = point.icon
+            return (
+              <div
+                key={point.title}
+                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50">
+                  <Icon className="h-5 w-5 text-blue-600" />
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-slate-900">{point.title}</h3>
+                <p className="mt-2 text-pretty text-sm leading-relaxed text-slate-500">
+                  {point.body}
+                </p>
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>
@@ -1036,12 +1049,12 @@ export default function LandingPage() {
       <StructuredData />
       <NavBar />
       <Hero />
-      <SeoContent />
       <WhyHireFlow />
       <ProblemSection />
       <HowItWorks />
       <Features />
       <ProductShowcase />
+      <SeoContent />
       <Pricing />
       <FAQ />
       <FinalCTA />
