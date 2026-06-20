@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SUBSCRIPTION_PRICING, SUBSCRIPTION_LIMITS } from '@/lib/subscription'
+import { siteConfig } from '@/lib/site-config'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -53,21 +54,21 @@ const PAIN_POINTS = [
 const HOW_IT_WORKS = [
   {
     step: '01',
-    title: 'Paste a job URL',
-    description: 'Found a role you like? Paste the link. AI automatically extracts the company, title, salary, location, and requirements — no manual copying.',
+    title: 'Track Job Applications Instantly',
+    description: 'Paste a job URL and automatically extract the company name, role, location, salary, and application details into your Kanban board. You can also manually create and manage job application cards.',
     detail: 'Works with LinkedIn, Indeed, company pages, and more.',
   },
   {
     step: '02',
-    title: 'Generate tailored documents',
-    description: 'Upload your master CV once. For each application HireFlow creates a tailored resume and cover letter that highlights your most relevant experience.',
-    detail: 'Downloadable as PDF. ATS-optimised formatting.',
+    title: 'AI Resume Tailoring & Cover Letter Generation',
+    description: 'Upload your master resume and cover letter once. HireFlow analyzes the job description and creates tailored, ATS-friendly versions optimized for the specific role.',
+    detail: 'Tailored to each job description. ATS-optimized formatting.',
   },
   {
     step: '03',
-    title: 'Track every application',
-    description: 'One dashboard for every application. Update statuses, log interviews, set reminders, and always know exactly where you stand.',
-    detail: 'Kanban view, timeline view, and detailed analytics.',
+    title: 'Download ATS-Optimized Files & Apply',
+    description: 'Export tailored resumes and cover letters as downloadable PDF or TXT files, track every status update, and apply with confidence.',
+    detail: 'PDF & TXT export. Kanban view, timeline view, and analytics.',
   },
 ]
 
@@ -174,28 +175,36 @@ const PRICING_TIERS = [
 
 const FAQS = [
   {
+    q: 'What is a job application tracker?',
+    a: 'A job application tracker is a tool that helps you organize and monitor every job you apply to in one place. HireFlow is an AI-powered job application tracker that uses a visual Kanban board to show the exact status of each application — applied, interviewing, offer, or rejected — so you never lose track of a role or miss a follow-up.',
+  },
+  {
+    q: 'How does HireFlow extract job details from a URL?',
+    a: 'Paste a job link and HireFlow automatically reads the posting and extracts key details — company name, role, location, salary, and requirements — then fills them into a new application card. This job link parsing removes the manual copy-and-paste work of tracking applications in a spreadsheet. It works with LinkedIn, Indeed, company career pages, and more.',
+  },
+  {
+    q: 'Can I tailor my resume to a specific job description?',
+    a: 'Yes. Upload your master resume once and HireFlow analyzes the target job description, then rewrites and emphasizes your most relevant experience to match the role. It tailors your existing experience rather than fabricating new content, so you stay truthful while improving keyword relevance.',
+  },
+  {
+    q: 'Does HireFlow create ATS-friendly resumes?',
+    a: 'Yes. HireFlow produces ATS-optimized resumes using clean, single-column formatting without tables, graphics, or unusual fonts — the formats most reliably parsed by Applicant Tracking Systems (ATS). This improves the chance your resume is read correctly and ranked by automated screening software.',
+  },
+  {
+    q: 'Can I generate cover letters using AI?',
+    a: 'Yes. HireFlow includes an AI cover letter generator that writes a personalized cover letter matched to the specific job description in seconds. You provide your key points and the AI handles the structure and tone, producing an ATS-friendly letter you can download.',
+  },
+  {
+    q: 'Can I download my resume as a PDF?',
+    a: 'Yes. Every tailored resume and cover letter can be downloaded as a PDF or plain-text (TXT) file, ready to submit to any job application or upload to an ATS.',
+  },
+  {
+    q: 'Is HireFlow free to use?',
+    a: 'Yes. HireFlow offers a free plan that includes up to 10 applications and 5 AI extractions per month so you can track job applications and try the core AI before upgrading. Paid Pro and Premium plans add AI resume tailoring, AI cover letters, PDF downloads, and higher monthly limits.',
+  },
+  {
     q: 'Is my resume data secure?',
     a: 'Yes. All data is encrypted at rest and in transit. We use Supabase with row-level security, meaning your data is strictly isolated from other accounts. We will never share or sell your information.',
-  },
-  {
-    q: 'Are the generated resumes ATS-friendly?',
-    a: 'Yes. Our resume templates use clean, single-column formatting without tables, graphics, or unusual fonts — the formats most commonly accepted by Applicant Tracking Systems.',
-  },
-  {
-    q: 'Can employers detect AI-generated content?',
-    a: 'HireFlow tailors your existing experience — it does not fabricate content. The AI rephrases and emphasises your real achievements. You should always review and personalise before submitting.',
-  },
-  {
-    q: 'What happens when I run out of AI credits?',
-    a: 'You can upgrade your plan at any time from your account page to get more extractions and document generations. Your existing data is never deleted when credits run out.',
-  },
-  {
-    q: 'Can I manage multiple resume versions?',
-    a: 'Yes. Upload a master CV and generate tailored versions for each application. Every version is stored against the relevant job so you always know which one was sent.',
-  },
-  {
-    q: 'Is there a free trial for paid features?',
-    a: 'The Free plan includes 5 AI extractions so you can experience the core AI before upgrading. Paid plans can be changed from your account page at any time.',
   },
 ]
 
@@ -248,13 +257,15 @@ function Hero() {
 
         {/* Headline */}
         <h1 className="mx-auto max-w-4xl text-balance text-center text-5xl font-bold tracking-tight text-slate-900 md:text-6xl lg:text-7xl">
-          Track Every Application.{' '}
-          <span className="text-blue-600">Land More Interviews.</span>
+          AI Job Application Tracker{' '}
+          <span className="text-blue-600">&amp; Resume Tailoring Tool</span>
         </h1>
 
         {/* Subheadline */}
         <p className="mx-auto mt-6 max-w-2xl text-pretty text-center text-lg leading-relaxed text-slate-500 md:text-xl">
-          HireFlow organises your entire job search in one place. AI extracts job details, tailors your resume, and writes your cover letters — so you can focus on getting hired.
+          Track every application in a visual Kanban board, instantly extract job details from any
+          job link, tailor your resume and cover letter with AI, and download ATS-optimized PDFs
+          ready to submit.
         </p>
 
         {/* CTAs */}
@@ -467,7 +478,7 @@ function HowItWorks() {
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">How It Works</p>
           <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-            From chaos to clarity in 3 steps
+            How HireFlow Helps You Track Job Applications Faster
           </h2>
         </div>
 
@@ -884,13 +895,148 @@ function Footer() {
   )
 }
 
+function SeoContent() {
+  return (
+    <section className="border-b border-slate-100 bg-white py-24">
+      <div className="mx-auto max-w-3xl px-6">
+        <h2 className="text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          Why Use an AI Job Application Tracker?
+        </h2>
+        <div className="mt-6 space-y-5 text-base leading-relaxed text-slate-600">
+          <p>
+            Most job seekers start out tracking applications in a spreadsheet. It works for the first
+            few roles, but it quickly breaks down. Rows pile up, statuses go stale, and you lose sight
+            of which company you applied to, which resume you sent, and when a follow-up is due.
+            Spreadsheets were never designed to manage a fast-moving job search, and the manual data
+            entry alone eats hours every week.
+          </p>
+          <p>
+            A visual job application tracker fixes this. Instead of scanning rows of text, you see
+            every application as a card on a Kanban board, grouped by stage — Applied, Interviewing,
+            Offer, and Rejected. Moving a card from one column to the next takes a single tap, so the
+            real status of your entire job search is always clear at a glance. This visual job
+            tracking approach makes it far easier to spot stalled applications, prioritize follow-ups,
+            and stay organized across dozens of roles at once.
+          </p>
+          <p>
+            Tailoring your resume to each job description is one of the highest-impact things you can
+            do to land more interviews. Generic resumes rarely match what a specific role is asking
+            for, and they often miss the exact keywords a hiring team is scanning for. AI resume
+            tailoring analyzes the job description and rewrites your existing experience to emphasize
+            the most relevant skills and achievements — without inventing anything — so your
+            application speaks directly to the role.
+          </p>
+          <p>
+            This matters even more because of Applicant Tracking Systems (ATS). Most companies use ATS
+            software to parse, score, and filter resumes before a human ever reads them. If your
+            resume uses complex tables, graphics, or unusual formatting, the ATS may misread it and
+            rank you lower. HireFlow generates ATS-friendly resumes in clean, single-column layouts
+            that these systems parse reliably, improving the odds your application reaches a recruiter.
+          </p>
+          <p>
+            Bringing it all together, an AI-powered job application tracker like HireFlow lets you
+            extract job details from any link, track every application visually, tailor your resume and
+            cover letter to each role, and download ATS-optimized PDFs ready to submit — turning a
+            scattered, manual process into a fast, organized, repeatable system that helps you apply to
+            more roles with less effort.
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function StructuredData() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'SoftwareApplication',
+        '@id': `${siteConfig.url}/#software`,
+        name: siteConfig.name,
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        url: siteConfig.url,
+        description: siteConfig.description,
+        offers: [
+          {
+            '@type': 'Offer',
+            name: 'Free',
+            price: '0',
+            priceCurrency: 'INR',
+          },
+          {
+            '@type': 'Offer',
+            name: 'Pro',
+            price: String(SUBSCRIPTION_PRICING.pro),
+            priceCurrency: 'INR',
+          },
+          {
+            '@type': 'Offer',
+            name: 'Premium',
+            price: String(SUBSCRIPTION_PRICING.premium),
+            priceCurrency: 'INR',
+          },
+        ],
+        featureList: [
+          'Job Application Tracker',
+          'Kanban Job Board',
+          'AI Resume Tailoring',
+          'AI Cover Letter Generator',
+          'ATS Resume Optimization',
+          'Job Link Extraction',
+          'PDF Export',
+        ],
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${siteConfig.url}/#website`,
+        url: siteConfig.url,
+        name: siteConfig.name,
+        description: siteConfig.description,
+        publisher: { '@id': `${siteConfig.url}/#organization` },
+      },
+      {
+        '@type': 'Organization',
+        '@id': `${siteConfig.url}/#organization`,
+        name: siteConfig.name,
+        url: siteConfig.url,
+        logo: `${siteConfig.url}${siteConfig.ogImage}`,
+        description: siteConfig.description,
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': `${siteConfig.url}/#faq`,
+        mainEntity: FAQS.map((faq) => ({
+          '@type': 'Question',
+          name: faq.q,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.a,
+          },
+        })),
+      },
+    ],
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      // JSON-LD structured data for Google rich results and AI search engines.
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
+      <StructuredData />
       <NavBar />
       <Hero />
+      <SeoContent />
       <WhyHireFlow />
       <ProblemSection />
       <HowItWorks />
