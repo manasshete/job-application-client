@@ -309,23 +309,23 @@ function Hero() {
               </div>
             </div>
             {/* Dashboard content */}
-            <div className="bg-slate-50 p-6">
-              {/* Top stats */}
-              <div className="mb-5 grid grid-cols-4 gap-4">
+            <div className="bg-slate-50 p-3 sm:p-6">
+              {/* Top stats — 2 cols on mobile, 4 on sm+ */}
+              <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-5 sm:grid-cols-4 sm:gap-4">
                 {[
                   { label: 'Total Applied', value: '34', color: 'text-blue-600' },
                   { label: 'In Progress', value: '12', color: 'text-amber-600' },
                   { label: 'Interviews', value: '5', color: 'text-green-600' },
                   { label: 'Offers', value: '2', color: 'text-purple-600' },
                 ].map((s) => (
-                  <div key={s.label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <p className="text-xs text-slate-500">{s.label}</p>
-                    <p className={`mt-1 text-2xl font-bold ${s.color}`}>{s.value}</p>
+                  <div key={s.label} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+                    <p className="text-[11px] leading-tight text-slate-500 sm:text-xs">{s.label}</p>
+                    <p className={`mt-1 text-xl font-bold sm:text-2xl ${s.color}`}>{s.value}</p>
                   </div>
                 ))}
               </div>
-              {/* Kanban */}
-              <div className="grid grid-cols-4 gap-3">
+              {/* Kanban — 2 cols on mobile (Applied + Interviewing), 4 on sm+ */}
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
                 {[
                   {
                     col: 'Applied',
@@ -333,14 +333,14 @@ function Hero() {
                     cards: [
                       { company: 'Stripe', role: 'Senior Engineer', time: '2d ago' },
                       { company: 'Notion', role: 'Product Designer', time: '3d ago' },
-                      { company: 'Vercel', role: 'DevRel Engineer', time: '5d ago' },
+                      { company: 'Vercel', role: 'DevRel', time: '5d ago' },
                     ],
                   },
                   {
                     col: 'Interviewing',
                     color: 'bg-amber-100 text-amber-700',
                     cards: [
-                      { company: 'Linear', role: 'Frontend Engineer', time: '1d ago' },
+                      { company: 'Linear', role: 'Frontend Eng', time: '1d ago' },
                       { company: 'Figma', role: 'Staff Designer', time: '4d ago' },
                     ],
                   },
@@ -358,17 +358,18 @@ function Hero() {
                       { company: 'Airbnb', role: 'iOS Engineer', time: '6d ago' },
                     ],
                   },
-                ].map((col) => (
-                  <div key={col.col}>
-                    <div className={`mb-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${col.color}`}>
+                ].map((col, i) => (
+                  /* Hide Offer + Rejected columns on mobile — show all 4 on sm+ */
+                  <div key={col.col} className={i >= 2 ? 'hidden sm:block' : ''}>
+                    <div className={`mb-2 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold sm:px-2.5 sm:text-xs ${col.color}`}>
                       {col.col}
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5 sm:space-y-2">
                       {col.cards.map((card) => (
-                        <div key={card.company} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                          <p className="text-xs font-semibold text-slate-800">{card.company}</p>
-                          <p className="text-xs text-slate-500">{card.role}</p>
-                          <p className="mt-1.5 text-[10px] text-slate-400">{card.time}</p>
+                        <div key={card.company} className="rounded-lg border border-slate-200 bg-white p-2 shadow-sm sm:rounded-xl sm:p-3">
+                          <p className="text-[11px] font-semibold leading-tight text-slate-800 sm:text-xs">{card.company}</p>
+                          <p className="text-[10px] leading-tight text-slate-500 sm:text-xs">{card.role}</p>
+                          <p className="mt-1 text-[9px] text-slate-400 sm:text-[10px]">{card.time}</p>
                         </div>
                       ))}
                     </div>

@@ -159,14 +159,17 @@ export function AddJobDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
+      <DialogContent className="flex flex-col sm:max-w-[500px] p-0">
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
+          {/* Sticky header */}
+          <DialogHeader className="shrink-0 border-b px-6 py-4">
             <DialogTitle>Add New Job Application</DialogTitle>
             <DialogDescription>
               Add a new job application to track your progress
             </DialogDescription>
           </DialogHeader>
+          {/* Scrollable body */}
+          <div className="flex-1 overflow-y-auto px-6">
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="jobUrl">Job Posting URL (Optional)</Label>
@@ -410,7 +413,9 @@ export function AddJobDialog({
               />
             </div>
           </div>
-          <DialogFooter>
+          </div>
+          {/* Sticky footer */}
+          <DialogFooter className="shrink-0 border-t px-6 py-4">
             <Button
               type="button"
               variant="outline"
