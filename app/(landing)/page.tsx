@@ -566,8 +566,8 @@ function ProductShowcase() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Location', value: 'London, UK (Hybrid)' },
-                  { label: 'Salary', value: '£90,000 – £120,000' },
+                  { label: 'Location', value: 'Bengaluru, IN (Hybrid)' },
+                  { label: 'Salary', value: '₹18,00,000 – ₹28,00,000' },
                   { label: 'Applied', value: '12 June 2026' },
                   { label: 'Resume sent', value: 'stripe-tailored-v2.pdf' },
                 ].map((row) => (

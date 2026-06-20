@@ -348,7 +348,7 @@ export function DocumentGeneratorDialog({
           <DocumentDisclaimer />
           <div className="space-y-4 py-2">
             <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
-              <p className="text-sm font-medium">Pro — £10/month includes:</p>
+              <p className="text-sm font-medium">Pro — ₹299/month includes:</p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• AI-tailored resumes for each job</li>
                 <li>• AI-generated cover letters</li>
@@ -358,7 +358,7 @@ export function DocumentGeneratorDialog({
               </ul>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
-              <p className="text-sm font-medium">Premium — £15/month includes:</p>
+              <p className="text-sm font-medium">Premium — ₹499/month includes:</p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• Everything in Pro</li>
                 <li>• Up to 500 documents/month</li>

@@ -214,7 +214,7 @@ export function AddJobDialog({
                     <p className="text-sm font-medium">Tailor your documents for this role?</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Generate a tailored resume and cover letter using AI.
-                      {!isPremium && ' Requires Pro (£10/month) or Premium (£15/month).'}
+                      {!isPremium && ' Requires Pro (₹299/month) or Premium (₹499/month).'}
                     </p>
                   </div>
                 </div>

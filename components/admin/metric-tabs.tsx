@@ -23,7 +23,7 @@ import {
   Users,
   UserPlus,
   Activity,
-  PoundSterling,
+  IndianRupee,
   TrendingUp,
   Zap,
   FileText,
@@ -40,7 +40,7 @@ import {
   TabLoading,
   TabError,
   useMetric,
-  formatGBP,
+  formatINR,
   formatPct,
 } from './shared'
 
@@ -162,9 +162,9 @@ export function RevenueTab() {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="MRR" value={formatGBP(m.mrr)} icon={PoundSterling} />
-        <StatCard label="ARR (projected)" value={formatGBP(m.arr)} icon={TrendingUp} />
-        <StatCard label="ARPU" value={formatGBP(m.arpu)} hint="Avg revenue per user" />
+        <StatCard label="MRR" value={formatINR(m.mrr)} icon={IndianRupee} />
+        <StatCard label="ARR (projected)" value={formatINR(m.arr)} icon={TrendingUp} />
+        <StatCard label="ARPU" value={formatINR(m.arpu)} hint="Avg revenue per user" />
         <StatCard
           label="Conversion Rate"
           value={formatPct(m.conversionRate)}
@@ -173,7 +173,7 @@ export function RevenueTab() {
       </div>
       <ChartCard title="Revenue by Tier" description="Monthly recurring revenue contribution">
         <ChartContainer
-          config={{ revenue: { label: 'Revenue (£)', color: CHART_COLORS[0] } }}
+          config={{ revenue: { label: 'Revenue (₹)', color: CHART_COLORS[0] } }}
           className="h-[280px] w-full"
         >
           <BarChart data={m.revenueByTier} accessibilityLayer>
@@ -213,7 +213,7 @@ export function FeaturesTab() {
         <StatCard label="Total Jobs Tracked" value={m.totalJobs} icon={Briefcase} />
         <StatCard
           label="Est. API Cost"
-          value={formatGBP(m.apiCost)}
+          value={formatINR(m.apiCost)}
           hint="This month, all users"
         />
       </div>

@@ -64,14 +64,14 @@ export function TabError({ message }: { message: string }) {
   )
 }
 
-const GBP = new Intl.NumberFormat('en-GB', {
+const INR = new Intl.NumberFormat('en-IN', {
   style: 'currency',
-  currency: 'GBP',
+  currency: 'INR',
   maximumFractionDigits: 2,
 })
 
-export function formatGBP(n: number): string {
-  return GBP.format(n)
+export function formatINR(n: number): string {
+  return INR.format(n)
 }
 
 export function formatPct(n: number): string {

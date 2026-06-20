@@ -1,9 +1,9 @@
 import { createAdminClient } from '@/lib/admin/service-client'
 import { SUBSCRIPTION_PRICING, SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
 
-// Approximate API cost per AI action in GBP (from cost analysis)
-const COST_PER_EXTRACTION = 0.0004 // ~£0.0004 per job extraction
-const COST_PER_DOCUMENT = 0.0019 // ~£0.0019 per generated document
+// Approximate API cost per AI action in INR (from cost analysis)
+const COST_PER_EXTRACTION = 0.04 // ~₹0.04 per job extraction
+const COST_PER_DOCUMENT = 0.2 // ~₹0.20 per generated document
 
 type Profile = {
   id: string
