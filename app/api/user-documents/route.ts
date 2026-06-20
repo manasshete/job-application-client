@@ -24,8 +24,8 @@ export async function GET() {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('[v0] Error fetching documents:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('[user-documents] Error fetching documents:', error)
+      return NextResponse.json({ error: 'Failed to fetch documents. Please try again.' }, { status: 500 })
     }
 
     return NextResponse.json(data)
@@ -95,13 +95,13 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      console.error('[v0] Error creating document:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('[user-documents] Error creating document:', error)
+      return NextResponse.json({ error: 'Failed to save document. Please try again.' }, { status: 500 })
     }
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error('[v0] API error:', error)
+    console.error('[user-documents] API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -129,13 +129,13 @@ export async function DELETE(request: Request) {
       .eq('user_id', user.id)
 
     if (error) {
-      console.error('[v0] Error deleting document:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('[user-documents] Error deleting document:', error)
+      return NextResponse.json({ error: 'Failed to delete document. Please try again.' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[v0] API error:', error)
+    console.error('[user-documents] API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

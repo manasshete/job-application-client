@@ -39,7 +39,8 @@ export async function PATCH(request: Request) {
     const { error } = await updateProfile({ full_name: sanitizeInput(fullName) })
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      console.error('[profile] Error updating profile:', error)
+      return NextResponse.json({ error: 'Failed to update profile. Please try again.' }, { status: 400 })
     }
 
     return NextResponse.json({ success: true })

@@ -1,5 +1,15 @@
 import { Resend } from 'resend'
 
+/** Escape user-supplied strings before embedding them in HTML email bodies. */
+function esc(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+}
+
 let resendInstance: Resend | null = null
 
 function getResend(): Resend {
@@ -42,8 +52,8 @@ export async function sendConfirmationEmail(email: string, confirmationUrl: stri
               <div class="content">
                 <p>Hi there,</p>
                 <p>Thanks for signing up! Click the button below to confirm your email and start tracking your job applications.</p>
-                <a href="${confirmationUrl}" class="button">Confirm Email</a>
-                <p style="color: #666; font-size: 14px;">Or copy and paste this link: ${confirmationUrl}</p>
+                <a href="${esc(confirmationUrl)}" class="button">Confirm Email</a>
+                <p style="color: #666; font-size: 14px;">Or copy and paste this link: ${esc(confirmationUrl)}</p>
                 <p>This link expires in 24 hours.</p>
               </div>
               <div class="footer">
@@ -65,7 +75,7 @@ export async function sendInterviewReminder(email: string, jobTitle: string, com
     await getResend().emails.send({
       from: 'HireFlow <noreply@hireflow.dev>',
       to: email,
-      subject: `Reminder: Interview with ${company}`,
+      subject: `Reminder: Interview with ${esc(company)}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -88,9 +98,9 @@ export async function sendInterviewReminder(email: string, jobTitle: string, com
                 <p>Hi there,</p>
                 <div class="alert">
                   <p><strong>You have an upcoming interview!</strong></p>
-                  <p><strong>Company:</strong> ${company}</p>
-                  <p><strong>Position:</strong> ${jobTitle}</p>
-                  <p><strong>Date:</strong> ${interviewDate}</p>
+                  <p><strong>Company:</strong> ${esc(company)}</p>
+                  <p><strong>Position:</strong> ${esc(jobTitle)}</p>
+                  <p><strong>Date:</strong> ${esc(interviewDate)}</p>
                 </div>
                 <p>Make sure you're prepared! Log in to HireFlow to review the job details and your tailored resume.</p>
               </div>
@@ -113,7 +123,7 @@ export async function sendStatusUpdateEmail(email: string, jobTitle: string, com
     await getResend().emails.send({
       from: 'HireFlow <noreply@hireflow.dev>',
       to: email,
-      subject: `Job Application Status: ${newStatus}`,
+      subject: `Job Application Status: ${esc(newStatus)}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -136,9 +146,9 @@ export async function sendStatusUpdateEmail(email: string, jobTitle: string, com
                 <p>Hi there,</p>
                 <p>Your job application status has been updated!</p>
                 <div class="status">
-                  <p><strong>Company:</strong> ${company}</p>
-                  <p><strong>Position:</strong> ${jobTitle}</p>
-                  <p><strong>New Status:</strong> <span style="color: #2563eb; font-weight: bold;">${newStatus}</span></p>
+                  <p><strong>Company:</strong> ${esc(company)}</p>
+                  <p><strong>Position:</strong> ${esc(jobTitle)}</p>
+                  <p><strong>New Status:</strong> <span style="color: #2563eb; font-weight: bold;">${esc(newStatus)}</span></p>
                 </div>
                 <p>Log in to HireFlow to see more details and next steps.</p>
               </div>
@@ -188,15 +198,15 @@ export async function sendWeeklyDigest(email: string, stats: { totalApplications
                 <p>Here's how your job search is going this week:</p>
                 <div class="stats">
                   <div class="stat-box">
-                    <div class="stat-number">${stats.totalApplications}</div>
+                    <div class="stat-number">${Number(stats.totalApplications)}</div>
                     <div class="stat-label">Applications</div>
                   </div>
                   <div class="stat-box">
-                    <div class="stat-number">${stats.interviews}</div>
+                    <div class="stat-number">${Number(stats.interviews)}</div>
                     <div class="stat-label">Interviews</div>
                   </div>
                   <div class="stat-box">
-                    <div class="stat-number">${stats.accepted}</div>
+                    <div class="stat-number">${Number(stats.accepted)}</div>
                     <div class="stat-label">Accepted</div>
                   </div>
                 </div>

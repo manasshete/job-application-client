@@ -1,5 +1,15 @@
 import { Resend } from 'resend'
 
+/** Escape user-supplied strings before embedding them in HTML email bodies. */
+function esc(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+}
+
 let resendInstance: Resend | null = null
 
 function getResend(): Resend {
@@ -62,14 +72,14 @@ export async function sendSubscriptionChangeEmail(
                 <h1>Subscription ${action.charAt(0).toUpperCase() + action.slice(1)}</h1>
               </div>
               <div class="content">
-                <p>Hi ${fullName || 'there'},</p>
-                <p>Great news! Your HireFlow subscription has been ${action}.</p>
+                <p>Hi ${esc(fullName || 'there')},</p>
+                <p>Great news! Your HireFlow subscription has been ${esc(action)}.</p>
                 
                 <div class="tier-box">
                   <div class="from-tier">From</div>
-                  <div class="tier-name">${tierNames[fromTier] || fromTier}</div>
+                  <div class="tier-name">${esc(tierNames[fromTier] || fromTier)}</div>
                   <div class="arrow">↓</div>
-                  <div class="tier-name">${tierNames[toTier] || toTier}</div>
+                  <div class="tier-name">${esc(tierNames[toTier] || toTier)}</div>
                 </div>
 
                 ${getFeaturesSectionHtml(toTier, headerColor)}
@@ -198,8 +208,8 @@ export async function sendSubscriptionCancellationEmail(
                 <h1>Subscription Cancelled</h1>
               </div>
               <div class="content">
-                <p>Hi ${fullName || 'there'},</p>
-                <p>We're sorry to see you go! Your ${tierNames[tier] || tier} subscription has been cancelled.</p>
+                <p>Hi ${esc(fullName || 'there')},</p>
+                <p>We&apos;re sorry to see you go! Your ${esc(tierNames[tier] || tier)} subscription has been cancelled.</p>
                 
                 <div class="info-box">
                   <h3 style="margin-top: 0; color: #dc2626;">What happens now?</h3>
@@ -228,7 +238,7 @@ export async function sendSubscriptionCancellationEmail(
 
                 <div class="info-box">
                   <h3 style="margin-top: 0; color: #3b82f6;">Want to come back?</h3>
-                  <p>We'd love to have you back! You can reactivate your ${tierNames[tier] || tier} subscription anytime from your account settings. You'll immediately regain access to all your premium features.</p>
+                  <p>We&apos;d love to have you back! You can reactivate your ${esc(tierNames[tier] || tier)} subscription anytime from your account settings. You'll immediately regain access to all your premium features.</p>
                 </div>
 
                 <p style="color: #6b7280; font-size: 14px;">
@@ -289,8 +299,8 @@ export async function sendSubscriptionReactivationEmail(
                 <h1>Welcome Back!</h1>
               </div>
               <div class="content">
-                <p>Hi ${fullName || 'there'},</p>
-                <p>Welcome back to HireFlow! Your ${tierNames[tier] || tier} subscription is now active again.</p>
+                <p>Hi ${esc(fullName || 'there')},</p>
+                <p>Welcome back to HireFlow! Your ${esc(tierNames[tier] || tier)} subscription is now active again.</p>
                 
                 <div class="success-box">
                   <h3 style="margin-top: 0; color: #059669;">✓ Subscription Reactivated</h3>

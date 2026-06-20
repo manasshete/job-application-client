@@ -104,8 +104,8 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      console.error('[v0] Error creating job:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('[jobs] Error creating job:', error)
+      return NextResponse.json({ error: 'Failed to create job. Please try again.' }, { status: 500 })
     }
 
     // Create initial activity log

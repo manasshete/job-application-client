@@ -82,8 +82,8 @@ export async function PATCH(
       .eq('user_id', user.id)
 
     if (error) {
-      console.error('[v0] Error updating job:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('[jobs/id] Error updating job:', error)
+      return NextResponse.json({ error: 'Failed to update job. Please try again.' }, { status: 500 })
     }
 
     // Log status changes
@@ -127,13 +127,13 @@ export async function DELETE(
       .eq('user_id', user.id)
 
     if (error) {
-      console.error('[v0] Error deleting job:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('[jobs/id] Error deleting job:', error)
+      return NextResponse.json({ error: 'Failed to delete job. Please try again.' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[v0] API error:', error)
+    console.error('[jobs/id] API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
