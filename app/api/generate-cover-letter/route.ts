@@ -48,6 +48,24 @@ export async function POST(req: Request) {
       return Response.json({ error: 'User input and job description are required.' }, { status: 400 })
     }
 
+    // Hard length caps to prevent oversized AI prompts and prompt injection.
+    if (typeof userInput !== 'string' || userInput.length > 10000) {
+      return Response.json({ error: 'User input is too long. Maximum 10,000 characters.' }, { status: 400 })
+    }
+    if (typeof jobDescription !== 'string' || jobDescription.length > 10000) {
+      return Response.json({ error: 'Job description is too long. Maximum 10,000 characters.' }, { status: 400 })
+    }
+    if (jobTitle && (typeof jobTitle !== 'string' || jobTitle.length > 200)) {
+      return Response.json({ error: 'Job title is too long.' }, { status: 400 })
+    }
+    if (company && (typeof company !== 'string' || company.length > 200)) {
+      return Response.json({ error: 'Company name is too long.' }, { status: 400 })
+    }
+    // Strip any HTML/control characters from applicantName to prevent prompt injection.
+    const safeApplicantName = applicantName
+      ? String(applicantName).replace(/<[^>]*>/g, '').slice(0, 100)
+      : undefined
+
     const isRefine = mode === 'refine'
 
     const { text } = await generateText({
@@ -64,26 +82,26 @@ export async function POST(req: Request) {
           content: isRefine
             ? `Please refine my cover letter draft for this job:
 
-JOB TITLE: ${jobTitle}
-COMPANY: ${company}
-APPLICANT NAME: ${applicantName || 'the applicant'}
+JOB TITLE: ${jobTitle?.slice(0, 200) ?? ''}
+COMPANY: ${company?.slice(0, 200) ?? ''}
+APPLICANT NAME: ${safeApplicantName || 'the applicant'}
 JOB DESCRIPTION:
 ${jobDescription.slice(0, 3000)}
 
 MY DRAFT COVER LETTER:
-${userInput}
+${userInput.slice(0, 10000)}
 
 Return the refined cover letter only.`
             : `Please write a cover letter for this job using my key points:
 
-JOB TITLE: ${jobTitle}
-COMPANY: ${company}
-APPLICANT NAME: ${applicantName || 'the applicant'}
+JOB TITLE: ${jobTitle?.slice(0, 200) ?? ''}
+COMPANY: ${company?.slice(0, 200) ?? ''}
+APPLICANT NAME: ${safeApplicantName || 'the applicant'}
 JOB DESCRIPTION:
 ${jobDescription.slice(0, 3000)}
 
 MY KEY POINTS / DETAILS TO INCLUDE:
-${userInput}
+${userInput.slice(0, 10000)}
 
 Return the complete cover letter only.`,
         },

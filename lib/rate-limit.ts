@@ -1,12 +1,17 @@
-// Simple in-memory rate limiter.
-//
-// LIMITATION: state lives in the memory of a single serverless instance, so
-// limits are per-instance and reset on cold start. This is a best-effort
-// throttle to curb casual abuse — it is NOT a hard guarantee across a scaled,
-// multi-instance deployment. The authoritative protection against cost abuse
-// is the per-user subscription limit (checkLimit) enforced on a value stored
-// in the database. For strict distributed rate limiting, back this with
-// Upstash Redis.
+/**
+ * Simple in-memory rate limiter.
+ *
+ * @warning BEST-EFFORT ONLY — state lives in the memory of a single
+ * serverless function instance and resets on every cold start or scale-out.
+ * In a multi-instance deployment this limit is per-instance, not global.
+ *
+ * The authoritative cost-abuse protection for AI routes is the per-user
+ * subscription limit (`checkLimit`) stored in the database. This limiter
+ * provides a secondary defence against burst abuse within a single instance.
+ *
+ * For strict distributed rate limiting that survives cold starts and scales
+ * across instances, replace this implementation with Upstash Redis.
+ */
 interface RateLimitEntry {
   count: number
   resetTime: number

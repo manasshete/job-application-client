@@ -48,8 +48,17 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Resume and job description are required.' }, { status: 400 })
     }
 
-    if (resumeText.length > 15000) {
+    if (typeof resumeText !== 'string' || resumeText.length > 15000) {
       return Response.json({ error: 'Resume text is too long. Maximum 15,000 characters.' }, { status: 400 })
+    }
+    if (typeof jobDescription !== 'string' || jobDescription.length > 10000) {
+      return Response.json({ error: 'Job description is too long. Maximum 10,000 characters.' }, { status: 400 })
+    }
+    if (jobTitle && (typeof jobTitle !== 'string' || jobTitle.length > 200)) {
+      return Response.json({ error: 'Job title is too long.' }, { status: 400 })
+    }
+    if (company && (typeof company !== 'string' || company.length > 200)) {
+      return Response.json({ error: 'Company name is too long.' }, { status: 400 })
     }
 
     const { text } = await generateText({
@@ -73,8 +82,8 @@ STRICT RULES you must follow:
           role: 'user',
           content: `Please tailor my resume for this job:
 
-JOB TITLE: ${jobTitle}
-COMPANY: ${company}
+JOB TITLE: ${String(jobTitle ?? '').slice(0, 200)}
+COMPANY: ${String(company ?? '').slice(0, 200)}
 JOB DESCRIPTION:
 ${jobDescription.slice(0, 5000)}
 
