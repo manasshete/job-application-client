@@ -903,6 +903,14 @@ function Footer() {
               <li><Link href="/terms" className="hover:text-slate-900">Terms of Service</Link></li>
             </ul>
           </div>
+
+          {/* Contact */}
+          <div>
+            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-slate-400">Contact</p>
+            <ul className="space-y-3 text-sm text-slate-600">
+              <li><a href="mailto:info@pursuitz.co" className="hover:text-slate-900">info@pursuitz.co</a></li>
+            </ul>
+          </div>
         </div>
 
         <div className="mt-12 border-t border-slate-100 pt-8 space-y-3">
