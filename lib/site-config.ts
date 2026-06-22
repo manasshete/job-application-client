@@ -1,15 +1,15 @@
 // Central place for site-wide SEO + brand constants.
 // Swap `url` for your real production domain when ready.
 export const siteConfig = {
-  name: 'HireFlow',
+  name: 'Pursuitz',
   // Placeholder production domain — replace with your real domain at launch.
-  url: 'https://hireflow.app',
-  title: 'HireFlow | AI Job Application Tracker & Resume Tailoring Tool',
+  url: 'https://pursuitz.app',
+  title: 'Pursuitz | AI Job Application Tracker & Resume Tailoring Tool',
   description:
     'Track every job application in a visual Kanban board, automatically extract job details from any job link, tailor your resume and cover letter with AI, and download ATS-optimized PDFs ready to submit.',
   tagline: 'AI Job Application Tracker & Resume Tailoring Tool',
   ogImage: '/og-image.png',
-  twitter: '@hireflow',
+  twitter: '@pursuitz',
   keywords: [
     // Primary
     'job application tracker',

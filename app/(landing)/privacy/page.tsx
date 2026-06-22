@@ -21,7 +21,7 @@ export default function PrivacyPage() {
         <div className="space-y-8 text-slate-700">
           <section>
             <h2 className="mb-4 text-2xl font-semibold text-slate-900">1. Information We Collect</h2>
-            <p className="mb-3">HireFlow collects the following information:</p>
+            <p className="mb-3">Pursuitz collects the following information:</p>
             <ul className="list-inside list-disc space-y-2 ml-4">
               <li>Email address and password (for authentication)</li>
               <li>Job application details you enter (company, position, salary, etc.)</li>
@@ -35,7 +35,7 @@ export default function PrivacyPage() {
             <h2 className="mb-4 text-2xl font-semibold text-slate-900">2. How We Use Your Data</h2>
             <p className="mb-3">We use your data to:</p>
             <ul className="list-inside list-disc space-y-2 ml-4">
-              <li>Provide and maintain the HireFlow service</li>
+              <li>Provide and maintain the Pursuitz service</li>
               <li>Process your job applications and tracking preferences</li>
               <li>Generate AI-tailored resumes and cover letters</li>
               <li>Extract job posting information from URLs</li>
@@ -78,20 +78,20 @@ export default function PrivacyPage() {
               <li>Opt-out of data collection (if applicable)</li>
               <li>Export your data</li>
             </ul>
-            <p className="mt-3">To exercise these rights, contact us at privacy@hireflow.com</p>
+            <p className="mt-3">To exercise these rights, contact us at privacy@pursuitz.com</p>
           </section>
 
           <section>
             <h2 className="mb-4 text-2xl font-semibold text-slate-900">6. Cookies</h2>
             <p>
-              HireFlow uses cookies to maintain your session and preferences. You can control cookie settings in your browser.
+              Pursuitz uses cookies to maintain your session and preferences. You can control cookie settings in your browser.
             </p>
           </section>
 
           <section>
             <h2 className="mb-4 text-2xl font-semibold text-slate-900">7. Contact Us</h2>
             <p>
-              If you have questions about this privacy policy, please contact us at privacy@hireflow.com
+              If you have questions about this privacy policy, please contact us at privacy@pursuitz.com
             </p>
           </section>
         </div>

@@ -37,7 +37,7 @@ export function AdminDashboard({ adminEmail }: { adminEmail: string }) {
               <ShieldCheck className="h-5 w-5" />
             </span>
             <div>
-              <h1 className="text-lg font-bold tracking-tight">HireFlow Admin</h1>
+              <h1 className="text-lg font-bold tracking-tight">Pursuitz Admin</h1>
               <p className="text-xs text-muted-foreground">{adminEmail}</p>
             </div>
           </div>

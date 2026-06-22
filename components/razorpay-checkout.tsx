@@ -72,7 +72,7 @@ export function RazorpayCheckout({ tier, onSuccess, onError }: RazorpayCheckoutP
             }
           },
           prefill: {
-            name: 'HireFlow User',
+            name: 'Pursuitz User',
             email: '',
           },
           theme: {

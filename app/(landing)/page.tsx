@@ -25,7 +25,7 @@ import { siteConfig } from '@/lib/site-config'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const WHY_HIREFLOW = [
+const WHY_PURSUITZ = [
   {
     icon: Clock,
     title: 'Save hours every week',
@@ -66,7 +66,7 @@ const HOW_IT_WORKS = [
   {
     step: '02',
     title: 'AI Resume Tailoring & Cover Letter Generation',
-    description: 'Upload your master resume and cover letter once. HireFlow analyzes the job description and creates tailored, ATS-friendly versions optimized for the specific role.',
+    description: 'Upload your master resume and cover letter once. Pursuitz analyzes the job description and creates tailored, ATS-friendly versions optimized for the specific role.',
     detail: 'Tailored to each job description. ATS-optimized formatting.',
   },
   {
@@ -181,31 +181,31 @@ const PRICING_TIERS = [
 const FAQS = [
   {
     q: 'What is a job application tracker?',
-    a: 'A job application tracker is a tool that helps you organize and monitor every job you apply to in one place. HireFlow is an AI-powered job application tracker that uses a visual Kanban board to show the exact status of each application — applied, interviewing, offer, or rejected — so you never lose track of a role or miss a follow-up.',
+    a: 'A job application tracker is a tool that helps you organize and monitor every job you apply to in one place. Pursuitz is an AI-powered job application tracker that uses a visual Kanban board to show the exact status of each application — applied, interviewing, offer, or rejected — so you never lose track of a role or miss a follow-up.',
   },
   {
-    q: 'How does HireFlow extract job details from a URL?',
-    a: 'Paste a job link and HireFlow automatically reads the posting and extracts key details — company name, role, location, salary, and requirements — then fills them into a new application card. This job link parsing removes the manual copy-and-paste work of tracking applications in a spreadsheet. It works with LinkedIn, Indeed, company career pages, and more.',
+    q: 'How does Pursuitz extract job details from a URL?',
+    a: 'Paste a job link and Pursuitz automatically reads the posting and extracts key details — company name, role, location, salary, and requirements — then fills them into a new application card. This job link parsing removes the manual copy-and-paste work of tracking applications in a spreadsheet. It works with LinkedIn, Indeed, company career pages, and more.',
   },
   {
     q: 'Can I tailor my resume to a specific job description?',
-    a: 'Yes. Upload your master resume once and HireFlow analyzes the target job description, then rewrites and emphasizes your most relevant experience to match the role. It tailors your existing experience rather than fabricating new content, so you stay truthful while improving keyword relevance.',
+    a: 'Yes. Upload your master resume once and Pursuitz analyzes the target job description, then rewrites and emphasizes your most relevant experience to match the role. It tailors your existing experience rather than fabricating new content, so you stay truthful while improving keyword relevance.',
   },
   {
-    q: 'Does HireFlow create ATS-friendly resumes?',
-    a: 'Yes. HireFlow produces ATS-optimized resumes using clean, single-column formatting without tables, graphics, or unusual fonts — the formats most reliably parsed by Applicant Tracking Systems (ATS). This improves the chance your resume is read correctly and ranked by automated screening software.',
+    q: 'Does Pursuitz create ATS-friendly resumes?',
+    a: 'Yes. Pursuitz produces ATS-optimized resumes using clean, single-column formatting without tables, graphics, or unusual fonts — the formats most reliably parsed by Applicant Tracking Systems (ATS). This improves the chance your resume is read correctly and ranked by automated screening software.',
   },
   {
     q: 'Can I generate cover letters using AI?',
-    a: 'Yes. HireFlow includes an AI cover letter generator that writes a personalized cover letter matched to the specific job description in seconds. You provide your key points and the AI handles the structure and tone, producing an ATS-friendly letter you can download.',
+    a: 'Yes. Pursuitz includes an AI cover letter generator that writes a personalized cover letter matched to the specific job description in seconds. You provide your key points and the AI handles the structure and tone, producing an ATS-friendly letter you can download.',
   },
   {
     q: 'Can I download my resume as a PDF?',
     a: 'Yes. Every tailored resume and cover letter can be downloaded as a PDF or plain-text (TXT) file, ready to submit to any job application or upload to an ATS.',
   },
   {
-    q: 'Is HireFlow free to use?',
-    a: 'Yes. HireFlow offers a free plan that includes up to 10 applications and 5 AI extractions per month so you can track job applications and try the core AI before upgrading. Paid Pro and Premium plans add AI resume tailoring, AI cover letters, PDF downloads, and higher monthly limits.',
+    q: 'Is Pursuitz free to use?',
+    a: 'Yes. Pursuitz offers a free plan that includes up to 10 applications and 5 AI extractions per month so you can track job applications and try the core AI before upgrading. Paid Pro and Premium plans add AI resume tailoring, AI cover letters, PDF downloads, and higher monthly limits.',
   },
   {
     q: 'Is my resume data secure?',
@@ -223,7 +223,7 @@ function NavBar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
             <Briefcase className="h-4 w-4 text-white" />
           </div>
-          <span className="text-lg font-bold tracking-tight text-slate-900">HireFlow</span>
+          <span className="text-lg font-bold tracking-tight text-slate-900">Pursuitz</span>
         </div>
         <nav className="hidden items-center gap-8 md:flex">
           <a href="#features" className="text-sm text-slate-600 transition-colors hover:text-slate-900">Features</a>
@@ -305,7 +305,7 @@ function Hero() {
                 <div className="h-3 w-3 rounded-full bg-green-400" />
               </div>
               <div className="mx-auto flex h-7 w-72 items-center justify-center rounded-md border border-slate-200 bg-white text-xs text-slate-400">
-                app.hireflow.dev/dashboard
+                app.pursuitz.dev/dashboard
               </div>
             </div>
             {/* Dashboard content */}
@@ -386,12 +386,12 @@ function Hero() {
   )
 }
 
-function WhyHireFlow() {
+function WhyPursuitz() {
   return (
     <section className="border-y border-slate-100 bg-white py-20">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">Why HireFlow</p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">Why Pursuitz</p>
           <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
             A smarter way to manage your job search
           </h2>
@@ -401,7 +401,7 @@ function WhyHireFlow() {
         </div>
 
         <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {WHY_HIREFLOW.map((item, i) => (
+          {WHY_PURSUITZ.map((item, i) => (
             <AnimateIn key={item.title} delay={`reveal-delay-${i + 1}` as 'reveal-delay-1'}>
               <div className="group h-full rounded-2xl border border-slate-200 bg-slate-50 p-7 transition-shadow hover:shadow-md">
                 <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 feature-icon">
@@ -453,7 +453,7 @@ function ProblemSection() {
             <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600">
               <Zap className="h-6 w-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-slate-900">HireFlow solves all of this.</h3>
+            <h3 className="text-2xl font-bold text-slate-900">Pursuitz solves all of this.</h3>
             <p className="mt-3 text-slate-500 leading-relaxed">
               One dashboard for your entire job search. Every application, every document, every interview — organised, searchable, and always up to date.
             </p>
@@ -493,7 +493,7 @@ function HowItWorks() {
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">How It Works</p>
           <h2 className="mt-3 text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-            How HireFlow Helps You Track Job Applications Faster
+            How Pursuitz Helps You Track Job Applications Faster
           </h2>
         </div>
 
@@ -533,7 +533,7 @@ function Features() {
             Everything you need to land the job
           </h2>
           <p className="mt-4 text-slate-500">
-            From your first application to your final offer — HireFlow covers every step.
+            From your first application to your final offer — Pursuitz covers every step.
           </p>
         </div>
 
@@ -843,7 +843,7 @@ function FinalCTA() {
           <span className="text-blue-400">Spend more time getting hired.</span>
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-lg text-slate-400">
-          Join thousands of job seekers who use HireFlow to stay organised, stand out, and land more interviews.
+          Join thousands of job seekers who use Pursuitz to stay organised, stand out, and land more interviews.
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link href="/auth/sign-up">
@@ -870,7 +870,7 @@ function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
                 <Briefcase className="h-4 w-4 text-white" />
               </div>
-              <span className="font-bold text-slate-900">HireFlow</span>
+              <span className="font-bold text-slate-900">Pursuitz</span>
             </div>
             <p className="mt-3 text-sm text-slate-500 leading-relaxed">
               AI-powered job application management for serious job seekers.
@@ -909,13 +909,13 @@ function Footer() {
 
         <div className="mt-12 border-t border-slate-100 pt-8 space-y-3">
           <p className="text-xs text-slate-400 text-center">
-            Use of this service does not guarantee employment, job interviews, or job offers. HireFlow is a personal organisation tool only.
+            Use of this service does not guarantee employment, job interviews, or job offers. Pursuitz is a personal organisation tool only.
           </p>
           <p className="text-xs text-slate-400 text-center">
             AI-generated content including extracted job details, tailored resumes, and cover letters may be inaccurate. Always review and verify before submitting.
           </p>
           <p className="text-xs text-slate-400 text-center">
-            © 2026 HireFlow. All rights reserved.
+            © 2026 Pursuitz. All rights reserved.
           </p>
         </div>
       </div>
@@ -937,7 +937,7 @@ const SEO_POINTS = [
   {
     icon: FileCheck,
     title: 'ATS-Optimized Resumes',
-    body: 'Most companies filter resumes with ATS software before a human reads them. HireFlow exports clean, single-column layouts these systems parse reliably, so you reach more recruiters.',
+    body: 'Most companies filter resumes with ATS software before a human reads them. Pursuitz exports clean, single-column layouts these systems parse reliably, so you reach more recruiters.',
   },
   {
     icon: Link2,
@@ -955,7 +955,7 @@ function SeoContent() {
             Why Use an AI Job Application Tracker?
           </h2>
           <p className="mt-4 text-pretty text-lg leading-relaxed text-slate-500">
-            Stop juggling spreadsheets. HireFlow combines visual tracking, AI resume tailoring, and
+            Stop juggling spreadsheets. Pursuitz combines visual tracking, AI resume tailoring, and
             ATS-ready exports so you apply to more roles with less effort.
           </p>
         </div>
@@ -1072,7 +1072,7 @@ export default function LandingPage() {
       <StructuredData />
       <NavBar />
       <Hero />
-      <WhyHireFlow />
+      <WhyPursuitz />
       <ProblemSection />
       <HowItWorks />
       <Features />

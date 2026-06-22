@@ -28,9 +28,9 @@ function getResend(): Resend {
 export async function sendConfirmationEmail(email: string, confirmationUrl: string) {
   try {
     await getResend().emails.send({
-      from: 'HireFlow <noreply@hireflow.dev>',
+      from: 'Pursuitz <noreply@pursuitz.dev>',
       to: email,
-      subject: 'Confirm your HireFlow account',
+      subject: 'Confirm your Pursuitz account',
       html: `
         <!DOCTYPE html>
         <html>
@@ -47,7 +47,7 @@ export async function sendConfirmationEmail(email: string, confirmationUrl: stri
           <body>
             <div class="container">
               <div class="header">
-                <h1>Welcome to HireFlow</h1>
+                <h1>Welcome to Pursuitz</h1>
               </div>
               <div class="content">
                 <p>Hi there,</p>
@@ -57,7 +57,7 @@ export async function sendConfirmationEmail(email: string, confirmationUrl: stri
                 <p>This link expires in 24 hours.</p>
               </div>
               <div class="footer">
-                <p>© 2026 HireFlow. All rights reserved.</p>
+                <p>© 2026 Pursuitz. All rights reserved.</p>
               </div>
             </div>
           </body>
@@ -73,7 +73,7 @@ export async function sendConfirmationEmail(email: string, confirmationUrl: stri
 export async function sendInterviewReminder(email: string, jobTitle: string, company: string, interviewDate: string) {
   try {
     await getResend().emails.send({
-      from: 'HireFlow <noreply@hireflow.dev>',
+      from: 'Pursuitz <noreply@pursuitz.dev>',
       to: email,
       subject: `Reminder: Interview with ${esc(company)}`,
       html: `
@@ -102,10 +102,10 @@ export async function sendInterviewReminder(email: string, jobTitle: string, com
                   <p><strong>Position:</strong> ${esc(jobTitle)}</p>
                   <p><strong>Date:</strong> ${esc(interviewDate)}</p>
                 </div>
-                <p>Make sure you're prepared! Log in to HireFlow to review the job details and your tailored resume.</p>
+                <p>Make sure you're prepared! Log in to Pursuitz to review the job details and your tailored resume.</p>
               </div>
               <div class="footer">
-                <p>© 2026 HireFlow. All rights reserved.</p>
+                <p>© 2026 Pursuitz. All rights reserved.</p>
               </div>
             </div>
           </body>
@@ -121,7 +121,7 @@ export async function sendInterviewReminder(email: string, jobTitle: string, com
 export async function sendStatusUpdateEmail(email: string, jobTitle: string, company: string, newStatus: string) {
   try {
     await getResend().emails.send({
-      from: 'HireFlow <noreply@hireflow.dev>',
+      from: 'Pursuitz <noreply@pursuitz.dev>',
       to: email,
       subject: `Job Application Status: ${esc(newStatus)}`,
       html: `
@@ -150,10 +150,10 @@ export async function sendStatusUpdateEmail(email: string, jobTitle: string, com
                   <p><strong>Position:</strong> ${esc(jobTitle)}</p>
                   <p><strong>New Status:</strong> <span style="color: #2563eb; font-weight: bold;">${esc(newStatus)}</span></p>
                 </div>
-                <p>Log in to HireFlow to see more details and next steps.</p>
+                <p>Log in to Pursuitz to see more details and next steps.</p>
               </div>
               <div class="footer">
-                <p>© 2026 HireFlow. All rights reserved.</p>
+                <p>© 2026 Pursuitz. All rights reserved.</p>
               </div>
             </div>
           </body>
@@ -169,9 +169,9 @@ export async function sendStatusUpdateEmail(email: string, jobTitle: string, com
 export async function sendWeeklyDigest(email: string, stats: { totalApplications: number; interviews: number; accepted: number }) {
   try {
     await getResend().emails.send({
-      from: 'HireFlow <noreply@hireflow.dev>',
+      from: 'Pursuitz <noreply@pursuitz.dev>',
       to: email,
-      subject: 'Your HireFlow Weekly Summary',
+      subject: 'Your Pursuitz Weekly Summary',
       html: `
         <!DOCTYPE html>
         <html>
@@ -210,10 +210,10 @@ export async function sendWeeklyDigest(email: string, stats: { totalApplications
                     <div class="stat-label">Accepted</div>
                   </div>
                 </div>
-                <p>Keep up the great work! Log in to HireFlow to see more details and continue tracking your applications.</p>
+                <p>Keep up the great work! Log in to Pursuitz to see more details and continue tracking your applications.</p>
               </div>
               <div class="footer">
-                <p>© 2026 HireFlow. All rights reserved.</p>
+                <p>© 2026 Pursuitz. All rights reserved.</p>
               </div>
             </div>
           </body>

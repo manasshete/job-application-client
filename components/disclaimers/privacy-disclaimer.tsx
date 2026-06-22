@@ -10,7 +10,7 @@ export function PrivacyDisclaimer() {
         <div className="text-sm">
           <p className="font-medium text-amber-900 dark:text-amber-200">Privacy Notice</p>
           <p className="mt-1 text-amber-800 dark:text-amber-300">
-            Your data is encrypted and stored securely. We never share your personal information with third parties. By using HireFlow, you agree to our privacy practices as outlined in our Privacy Policy.
+            Your data is encrypted and stored securely. We never share your personal information with third parties. By using Pursuitz, you agree to our privacy practices as outlined in our Privacy Policy.
           </p>
         </div>
       </div>

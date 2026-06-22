@@ -41,9 +41,9 @@ export async function sendSubscriptionChangeEmail(
 
   try {
     await getResend().emails.send({
-      from: 'HireFlow <noreply@hireflow.dev>',
+      from: 'Pursuitz <noreply@pursuitz.dev>',
       to: email,
-      subject: `Your HireFlow subscription has ${action}`,
+      subject: `Your Pursuitz subscription has ${action}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -73,7 +73,7 @@ export async function sendSubscriptionChangeEmail(
               </div>
               <div class="content">
                 <p>Hi ${esc(fullName || 'there')},</p>
-                <p>Great news! Your HireFlow subscription has been ${esc(action)}.</p>
+                <p>Great news! Your Pursuitz subscription has been ${esc(action)}.</p>
                 
                 <div class="tier-box">
                   <div class="from-tier">From</div>
@@ -85,7 +85,7 @@ export async function sendSubscriptionChangeEmail(
                 ${getFeaturesSectionHtml(toTier, headerColor)}
 
                 <div class="cta">
-                  <a href="https://hireflow.dev/dashboard" class="cta-button">Go to Dashboard</a>
+                  <a href="https://pursuitz.dev/dashboard" class="cta-button">Go to Dashboard</a>
                 </div>
 
                 <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
@@ -95,8 +95,8 @@ export async function sendSubscriptionChangeEmail(
                 </p>
               </div>
               <div class="footer">
-                <p>© 2026 HireFlow. All rights reserved.</p>
-                <p>Questions? Contact us at support@hireflow.dev</p>
+                <p>© 2026 Pursuitz. All rights reserved.</p>
+                <p>Questions? Contact us at support@pursuitz.dev</p>
               </div>
             </div>
           </body>
@@ -180,9 +180,9 @@ export async function sendSubscriptionCancellationEmail(
 
   try {
     await getResend().emails.send({
-      from: 'HireFlow <noreply@hireflow.dev>',
+      from: 'Pursuitz <noreply@pursuitz.dev>',
       to: email,
-      subject: 'Your HireFlow subscription has been cancelled',
+      subject: 'Your Pursuitz subscription has been cancelled',
       html: `
         <!DOCTYPE html>
         <html>
@@ -233,7 +233,7 @@ export async function sendSubscriptionCancellationEmail(
                 </div>
 
                 <div class="cta">
-                  <a href="https://hireflow.dev/dashboard" class="cta-button">View Your Dashboard</a>
+                  <a href="https://pursuitz.dev/dashboard" class="cta-button">View Your Dashboard</a>
                 </div>
 
                 <div class="info-box">
@@ -242,11 +242,11 @@ export async function sendSubscriptionCancellationEmail(
                 </div>
 
                 <p style="color: #6b7280; font-size: 14px;">
-                  If you cancelled by mistake or have any questions, please reach out to us at support@hireflow.dev
+                  If you cancelled by mistake or have any questions, please reach out to us at support@pursuitz.dev
                 </p>
               </div>
               <div class="footer">
-                <p>© 2026 HireFlow. All rights reserved.</p>
+                <p>© 2026 Pursuitz. All rights reserved.</p>
               </div>
             </div>
           </body>
@@ -271,9 +271,9 @@ export async function sendSubscriptionReactivationEmail(
 
   try {
     await getResend().emails.send({
-      from: 'HireFlow <noreply@hireflow.dev>',
+      from: 'Pursuitz <noreply@pursuitz.dev>',
       to: email,
-      subject: 'Your HireFlow subscription is active again!',
+      subject: 'Your Pursuitz subscription is active again!',
       html: `
         <!DOCTYPE html>
         <html>
@@ -300,25 +300,25 @@ export async function sendSubscriptionReactivationEmail(
               </div>
               <div class="content">
                 <p>Hi ${esc(fullName || 'there')},</p>
-                <p>Welcome back to HireFlow! Your ${esc(tierNames[tier] || tier)} subscription is now active again.</p>
+                <p>Welcome back to Pursuitz! Your ${esc(tierNames[tier] || tier)} subscription is now active again.</p>
                 
                 <div class="success-box">
                   <h3 style="margin-top: 0; color: #059669;">✓ Subscription Reactivated</h3>
-                  <p>All your premium features are now available. You're all set to continue your job search with HireFlow's advanced tools.</p>
+                  <p>All your premium features are now available. You're all set to continue your job search with Pursuitz's advanced tools.</p>
                 </div>
 
                 ${getFeaturesSectionHtml(tier, '#059669')}
 
                 <div class="cta">
-                  <a href="https://hireflow.dev/dashboard" class="cta-button">Get Started</a>
+                  <a href="https://pursuitz.dev/dashboard" class="cta-button">Get Started</a>
                 </div>
 
                 <p style="color: #6b7280; font-size: 14px;">
-                  Have any questions? Contact our support team at support@hireflow.dev
+                  Have any questions? Contact our support team at support@pursuitz.dev
                 </p>
               </div>
               <div class="footer">
-                <p>© 2026 HireFlow. All rights reserved.</p>
+                <p>© 2026 Pursuitz. All rights reserved.</p>
               </div>
             </div>
           </body>
