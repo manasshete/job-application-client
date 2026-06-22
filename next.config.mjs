@@ -1,3 +1,5 @@
+import { withSentryConfig } from '@sentry/nextjs'
+
 /** @type {import('next').NextConfig} */
 const securityHeaders = [
   // Prevent browsers from MIME-sniffing the content-type
@@ -35,4 +37,10 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG || 'none-7mv',
+  project: process.env.SENTRY_PROJECT || 'javascript-nextjs',
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: false,
+  widenClientFileUpload: true,
+})
