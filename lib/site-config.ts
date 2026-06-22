@@ -2,8 +2,7 @@
 // Swap `url` for your real production domain when ready.
 export const siteConfig = {
   name: 'Pursuitz',
-  // Placeholder production domain — replace with your real domain at launch.
-  url: 'https://pursuitz.app',
+  url: 'https://pursuitz.co',
   title: 'Pursuitz | AI Job Application Tracker & Resume Tailoring Tool',
   description:
     'Track every job application in a visual Kanban board, automatically extract job details from any job link, tailor your resume and cover letter with AI, and download ATS-optimized PDFs ready to submit.',
