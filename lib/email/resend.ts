@@ -28,7 +28,7 @@ function getResend(): Resend {
 export async function sendConfirmationEmail(email: string, confirmationUrl: string) {
   try {
     await getResend().emails.send({
-      from: 'Pursuitz <noreply@pursuitz.dev>',
+      from: 'Pursuitz <noreply@pursuitz.co>',
       to: email,
       subject: 'Confirm your Pursuitz account',
       html: `
@@ -73,7 +73,7 @@ export async function sendConfirmationEmail(email: string, confirmationUrl: stri
 export async function sendInterviewReminder(email: string, jobTitle: string, company: string, interviewDate: string) {
   try {
     await getResend().emails.send({
-      from: 'Pursuitz <noreply@pursuitz.dev>',
+      from: 'Pursuitz <noreply@pursuitz.co>',
       to: email,
       subject: `Reminder: Interview with ${esc(company)}`,
       html: `
@@ -121,7 +121,7 @@ export async function sendInterviewReminder(email: string, jobTitle: string, com
 export async function sendStatusUpdateEmail(email: string, jobTitle: string, company: string, newStatus: string) {
   try {
     await getResend().emails.send({
-      from: 'Pursuitz <noreply@pursuitz.dev>',
+      from: 'Pursuitz <noreply@pursuitz.co>',
       to: email,
       subject: `Job Application Status: ${esc(newStatus)}`,
       html: `
@@ -169,7 +169,7 @@ export async function sendStatusUpdateEmail(email: string, jobTitle: string, com
 export async function sendWeeklyDigest(email: string, stats: { totalApplications: number; interviews: number; accepted: number }) {
   try {
     await getResend().emails.send({
-      from: 'Pursuitz <noreply@pursuitz.dev>',
+      from: 'Pursuitz <noreply@pursuitz.co>',
       to: email,
       subject: 'Your Pursuitz Weekly Summary',
       html: `

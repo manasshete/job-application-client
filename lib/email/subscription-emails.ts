@@ -41,7 +41,7 @@ export async function sendSubscriptionChangeEmail(
 
   try {
     await getResend().emails.send({
-      from: 'Pursuitz <noreply@pursuitz.dev>',
+      from: 'Pursuitz <noreply@pursuitz.co>',
       to: email,
       subject: `Your Pursuitz subscription has ${action}`,
       html: `
@@ -85,7 +85,7 @@ export async function sendSubscriptionChangeEmail(
                 ${getFeaturesSectionHtml(toTier, headerColor)}
 
                 <div class="cta">
-                  <a href="https://pursuitz.dev/dashboard" class="cta-button">Go to Dashboard</a>
+                  <a href="https://pursuitz.co/dashboard" class="cta-button">Go to Dashboard</a>
                 </div>
 
                 <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
@@ -96,7 +96,7 @@ export async function sendSubscriptionChangeEmail(
               </div>
               <div class="footer">
                 <p>© 2026 Pursuitz. All rights reserved.</p>
-                <p>Questions? Contact us at support@pursuitz.dev</p>
+                <p>Questions? Contact us at support@pursuitz.co</p>
               </div>
             </div>
           </body>
@@ -180,7 +180,7 @@ export async function sendSubscriptionCancellationEmail(
 
   try {
     await getResend().emails.send({
-      from: 'Pursuitz <noreply@pursuitz.dev>',
+      from: 'Pursuitz <noreply@pursuitz.co>',
       to: email,
       subject: 'Your Pursuitz subscription has been cancelled',
       html: `
@@ -233,7 +233,7 @@ export async function sendSubscriptionCancellationEmail(
                 </div>
 
                 <div class="cta">
-                  <a href="https://pursuitz.dev/dashboard" class="cta-button">View Your Dashboard</a>
+                  <a href="https://pursuitz.co/dashboard" class="cta-button">View Your Dashboard</a>
                 </div>
 
                 <div class="info-box">
@@ -242,7 +242,7 @@ export async function sendSubscriptionCancellationEmail(
                 </div>
 
                 <p style="color: #6b7280; font-size: 14px;">
-                  If you cancelled by mistake or have any questions, please reach out to us at support@pursuitz.dev
+                  If you cancelled by mistake or have any questions, please reach out to us at support@pursuitz.co
                 </p>
               </div>
               <div class="footer">
@@ -271,7 +271,7 @@ export async function sendSubscriptionReactivationEmail(
 
   try {
     await getResend().emails.send({
-      from: 'Pursuitz <noreply@pursuitz.dev>',
+      from: 'Pursuitz <noreply@pursuitz.co>',
       to: email,
       subject: 'Your Pursuitz subscription is active again!',
       html: `
@@ -310,11 +310,11 @@ export async function sendSubscriptionReactivationEmail(
                 ${getFeaturesSectionHtml(tier, '#059669')}
 
                 <div class="cta">
-                  <a href="https://pursuitz.dev/dashboard" class="cta-button">Get Started</a>
+                  <a href="https://pursuitz.co/dashboard" class="cta-button">Get Started</a>
                 </div>
 
                 <p style="color: #6b7280; font-size: 14px;">
-                  Have any questions? Contact our support team at support@pursuitz.dev
+                  Have any questions? Contact our support team at support@pursuitz.co
                 </p>
               </div>
               <div class="footer">
