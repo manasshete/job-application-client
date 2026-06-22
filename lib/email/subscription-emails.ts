@@ -96,7 +96,7 @@ export async function sendSubscriptionChangeEmail(
               </div>
               <div class="footer">
                 <p>© 2026 Pursuitz. All rights reserved.</p>
-                <p>Questions? Contact us at support@pursuitz.co</p>
+                <p>Questions? Contact us at info@pursuitz.co</p>
               </div>
             </div>
           </body>
@@ -242,7 +242,7 @@ export async function sendSubscriptionCancellationEmail(
                 </div>
 
                 <p style="color: #6b7280; font-size: 14px;">
-                  If you cancelled by mistake or have any questions, please reach out to us at support@pursuitz.co
+                  If you cancelled by mistake or have any questions, please reach out to us at info@pursuitz.co
                 </p>
               </div>
               <div class="footer">
@@ -314,7 +314,7 @@ export async function sendSubscriptionReactivationEmail(
                 </div>
 
                 <p style="color: #6b7280; font-size: 14px;">
-                  Have any questions? Contact our support team at support@pursuitz.co
+                  Have any questions? Contact our support team at info@pursuitz.co
                 </p>
               </div>
               <div class="footer">
