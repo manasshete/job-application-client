@@ -11,6 +11,3 @@ node_modules/
 .env*.local
 .DS_Store
 .vercel
-
-# Sentry Config File
-.env.sentry-build-plugin
