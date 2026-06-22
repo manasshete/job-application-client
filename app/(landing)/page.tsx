@@ -169,7 +169,6 @@ const PRICING_TIERS = [
       '500 AI extractions / month',
       '500 document downloads / month',
       'Priority support',
-      'Advanced analytics',
     ],
     missing: [],
     cta: 'Start Premium',
