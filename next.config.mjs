@@ -39,7 +39,7 @@ const nextConfig = {
 
 export default withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG || 'none-7mv',
-  project: process.env.SENTRY_PROJECT || 'javascript-nextjs',
+  project: process.env.SENTRY_PROJECT || 'pursuitz',
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: false,
   widenClientFileUpload: true,
