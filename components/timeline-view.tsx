@@ -4,6 +4,7 @@ import { Calendar, Building2, MapPin, ExternalLink } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { Job, JobStatus } from '@/lib/types'
+import { toSafeHref } from '@/lib/validation'
 
 interface TimelineViewProps {
   jobs: Job[]
@@ -85,7 +86,7 @@ export function TimelineView({ jobs, onJobClick }: TimelineViewProps) {
                             <div className="flex flex-wrap items-center gap-2">
                               {job.jobUrl ? (
                                 <a
-                                  href={/^https?:\/\//i.test(job.jobUrl) ? job.jobUrl : `https://${job.jobUrl}`}
+                                  href={toSafeHref(job.jobUrl)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center gap-1.5 text-base font-semibold text-primary underline-offset-4 hover:underline"

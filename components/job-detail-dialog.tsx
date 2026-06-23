@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/select'
 import { ExternalLink, Calendar, MapPin, DollarSign, Briefcase, FileText, Sparkles } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { sanitizeInput, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
+import { sanitizeInput, isValidUrl, toSafeHref, MAX_LENGTHS } from '@/lib/validation'
 import { InterviewTaskSection } from './interview-task-section'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DocumentGeneratorDialog } from './document-generator-dialog'
@@ -107,7 +107,9 @@ export function JobDetailDialog({
       location: sanitizeInput(formData.location),
       salary: sanitizeInput(formData.salary),
       notes: sanitizeInput(formData.notes),
-      jobUrl: formData.jobUrl ? sanitizeInput(formData.jobUrl) : '',
+      // URLs must NOT be HTML-escaped (that corrupts "/" and "&"); they are
+      // already validated above with isValidUrl. Store the raw, trimmed URL.
+      jobUrl: formData.jobUrl ? formData.jobUrl.trim() : '',
     }
     
     onUpdateJob(sanitizedData)
@@ -175,7 +177,7 @@ export function JobDetailDialog({
                     <Briefcase className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">Job Posting:</span>
                     <a
-                      href={/^https?:\/\//i.test(job.jobUrl!) ? job.jobUrl! : `https://${job.jobUrl}`}
+                      href={toSafeHref(job.jobUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 font-medium text-primary hover:underline"

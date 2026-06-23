@@ -134,7 +134,9 @@ export function AddJobDialog({
       location: sanitizeInput(formData.location),
       salary: sanitizeInput(formData.salary),
       notes: sanitizeInput(formData.notes),
-      jobUrl: formData.jobUrl ? sanitizeInput(formData.jobUrl) : '',
+      // URLs must NOT be HTML-escaped (that corrupts "/" and "&"); they are
+      // already validated above with isValidUrl. Store the raw, trimmed URL.
+      jobUrl: formData.jobUrl ? formData.jobUrl.trim() : '',
     }
     
     onAddJob(sanitizedData)

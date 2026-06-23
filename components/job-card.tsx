@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { MoreVertical, MapPin, DollarSign, Calendar, Trash2, ChevronLeft, ChevronRight, ExternalLink, Users, ClipboardList, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
 import { JobDetailDialog } from './job-detail-dialog'
 import { Badge } from '@/components/ui/badge'
+import { toSafeHref } from '@/lib/validation'
 
 interface JobCardProps {
   job: Job
@@ -35,13 +36,6 @@ const statusLabels: Record<JobStatus, string> = {
   offer: 'Offer',
   rejected: 'Rejected',
   accepted: 'Accepted',
-}
-
-// Ensure a URL is absolute so it opens the external site rather than routing
-// to a relative path on this domain (which would produce a 404).
-function toAbsoluteUrl(url: string): string {
-  if (!url) return url
-  return /^https?:\/\//i.test(url) ? url : `https://${url}`
 }
 
 export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, onMoveLeft, onMoveRight }: JobCardProps) {
@@ -75,7 +69,7 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
             <CardTitle className="flex-1 text-base font-semibold leading-tight text-card-foreground">
               {job.jobUrl ? (
                 <a
-                  href={toAbsoluteUrl(job.jobUrl)}
+                  href={toSafeHref(job.jobUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-primary underline-offset-4 hover:underline"

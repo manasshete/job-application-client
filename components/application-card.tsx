@@ -5,6 +5,7 @@ import React from "react"
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { toSafeHref } from '@/lib/validation'
 import {
   Dialog,
   DialogContent,
@@ -125,7 +126,7 @@ export function ApplicationCard({ application, onUpdate, onDelete }: Application
           )}
           {application.jobUrl && (
             <a
-              href={application.jobUrl}
+              href={toSafeHref(application.jobUrl)}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-primary hover:underline flex items-center gap-1"

@@ -18,6 +18,27 @@ export function sanitizeInput(input: string): string {
   return escapeHtml(stripped)
 }
 
+// Reverse escapeHtml() for the specific entities it produces. Some URLs were
+// previously stored HTML-escaped (e.g. "https:&#x2F;&#x2F;site.com&amp;a=1"),
+// which breaks links. This restores them to a usable URL.
+function unescapeHtmlEntities(text: string): string {
+  return text
+    .replace(/&#x2F;/gi, '/')
+    .replace(/&#x27;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, '&')
+}
+
+// Build a safe href for an external link: un-escape any legacy HTML-escaped
+// URL data, then guarantee an absolute http(s) URL.
+export function toSafeHref(url: string | null | undefined): string {
+  if (!url) return ''
+  const clean = unescapeHtmlEntities(url).trim()
+  return /^https?:\/\//i.test(clean) ? clean : `https://${clean}`
+}
+
 // Validate URL is safe (no javascript:, data:, file: protocols)
 export function isValidUrl(url: string): boolean {
   try {
