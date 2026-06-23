@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/admin/service-client'
 import { verifyPayment, fetchOrder, fetchPayment } from '@/lib/razorpay'
 import { SUBSCRIPTION_PRICES } from '@/app/api/payment/create-order/route'
+import { grantTokens } from '@/lib/data/tokens'
+import { SUBSCRIPTION_LIMITS } from '@/lib/subscription'
 
 export const dynamic = 'force-dynamic'
 
@@ -123,6 +125,18 @@ export async function POST(req: Request) {
     if (updateError) {
       console.error('[v0] Error updating subscription:', updateError.message)
       return NextResponse.json({ error: 'Failed to update subscription' }, { status: 500 })
+    }
+
+    // 8. Grant this tier's tokens. Each batch is valid for 60 days from now
+    //    and stacks on top of any unused tokens the user still has.
+    const limits = SUBSCRIPTION_LIMITS[tier]
+    const aiGrant = await grantTokens(user.id, 'ai_extraction', limits.aiExtractionLimit, 'payment')
+    if (aiGrant.error) {
+      console.error('[v0] Failed to grant AI extraction tokens after payment:', aiGrant.error.message)
+    }
+    const docGrant = await grantTokens(user.id, 'document_generation', limits.documentGenerationLimit, 'payment')
+    if (docGrant.error) {
+      console.error('[v0] Failed to grant document generation tokens after payment:', docGrant.error.message)
     }
 
     return NextResponse.json({ success: true, message: 'Payment successful', tier })
