@@ -74,34 +74,86 @@ export async function POST(req: Request) {
         {
           role: 'system',
           content: isRefine
-            ? `You are an expert cover letter editor. The user has written a draft cover letter. Your job is to refine and improve it to make it more compelling, professional, and relevant to the specific job. Keep the user's personal voice, specific examples, and key points. Do not add fake experiences or achievements. Output only the final cover letter with no commentary.`
-            : `You are an expert cover letter writer. The user has provided key points or details they want included. Write a complete, professional, and compelling cover letter based only on these points. Do not invent qualifications or experiences not mentioned. Output only the final cover letter with no commentary.`,
+            ? `You are an elite executive cover letter editor who transforms good letters into ATS-optimized, impact-driven masterpieces.
+
+YOUR MISSION:
+- Refine the user's draft to maximize hiring impact while keeping their authentic voice
+- Replace vague language with specific achievements and quantifiable results
+- Weave in job description keywords naturally where they match genuine experience
+- Structure each paragraph around a distinct value proposition
+- Ensure every sentence earns its place by demonstrating capability or fit
+
+STRICT GUARDRAILS:
+- Never fabricate experiences, skills, metrics, or achievements
+- Never add qualifications not explicitly mentioned
+- Preserve the user's real accomplishments; make them SHINE
+
+OUTPUT: Return ONLY the final cover letter, no commentary or explanations.`
+            : `You are an elite executive cover letter writer who transforms raw bullet points into compelling, impact-driven narratives that get candidates hired.
+
+YOUR MISSION:
+- Write a cover letter that stands out by being SPECIFIC and RESULTS-ORIENTED
+- Extract concrete achievements from the user's key points (metrics, projects, outcomes)
+- Craft a narrative that directly addresses this company's needs and challenges
+- Use job description keywords naturally where they honestly match
+- Structure the letter: Hook (why this role/company) → Core value (specific achievement + relevance) → Alignment (how you solve their problem) → Close (call to action)
+
+STRICT GUARDRAILS:
+- Only use facts and achievements the user explicitly provided
+- Never invent qualifications, experiences, or metrics
+- Do not use generic phrases like "I am a hard worker" or "I bring diverse skills"
+
+OUTPUT: Return ONLY the final, complete cover letter with no commentary.`,
         },
         {
           role: 'user',
           content: isRefine
-            ? `Please refine my cover letter draft for this job:
+            ? `CONTEXT:
+Job Title: ${jobTitle?.slice(0, 200) ?? '[Not provided]'}
+Company: ${company?.slice(0, 200) ?? '[Not provided]'}
+Applicant: ${safeApplicantName || 'the candidate'}
 
-JOB TITLE: ${jobTitle?.slice(0, 200) ?? ''}
-COMPANY: ${company?.slice(0, 200) ?? ''}
-APPLICANT NAME: ${safeApplicantName || 'the applicant'}
-JOB DESCRIPTION:
+JOB POSTING:
 ${jobDescription.slice(0, 3000)}
 
-MY DRAFT COVER LETTER:
+---
+
+MY CURRENT DRAFT:
 ${userInput.slice(0, 10000)}
+
+---
+
+REFINEMENT INSTRUCTIONS:
+1. Replace any vague language with specific examples and quantifiable results from my draft
+2. Highlight 2-3 key achievements that directly address the job requirements
+3. Ensure each paragraph has a clear purpose and drives toward the hiring decision
+4. Use keywords from the job posting naturally where my experience genuinely aligns
+5. Make it compelling, professional, and memorable—not generic
 
 Return the refined cover letter only.`
-            : `Please write a cover letter for this job using my key points:
+            : `CONTEXT:
+Job Title: ${jobTitle?.slice(0, 200) ?? '[Not provided]'}
+Company: ${company?.slice(0, 200) ?? '[Not provided]'}
+Applicant: ${safeApplicantName || 'the candidate'}
 
-JOB TITLE: ${jobTitle?.slice(0, 200) ?? ''}
-COMPANY: ${company?.slice(0, 200) ?? ''}
-APPLICANT NAME: ${safeApplicantName || 'the applicant'}
-JOB DESCRIPTION:
+JOB POSTING:
 ${jobDescription.slice(0, 3000)}
 
-MY KEY POINTS / DETAILS TO INCLUDE:
+---
+
+MY QUALIFICATIONS & KEY POINTS TO FEATURE:
 ${userInput.slice(0, 10000)}
+
+---
+
+WRITING INSTRUCTIONS:
+1. Open with a strong hook that shows you understand this company and role (not generic)
+2. Feature 2-3 specific, quantifiable achievements that address the job's core requirements
+3. Extract and highlight metrics: percentages, revenue impact, team size, timeline completions, awards, certifications
+4. Mirror job description language where it authentically matches your experience
+5. Each paragraph should answer: "Why am I uniquely qualified for THIS role at THIS company?"
+6. Close with a specific, confident call to action
+7. Avoid generic phrases; every sentence must demonstrate capability or fit
 
 Return the complete cover letter only.`,
         },
