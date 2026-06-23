@@ -1,5 +1,6 @@
 import { getJobs } from '@/lib/data/jobs'
 import { getProfile } from '@/lib/data/profiles'
+import { getTokenBalance } from '@/lib/data/tokens'
 import { DashboardClient } from './dashboard-client'
 
 // Force dynamic rendering to always fetch fresh profile data
@@ -10,7 +11,10 @@ export default async function DashboardPage() {
   
   const subscriptionTier = profile?.subscription_tier || 'free'
   const isPremium = subscriptionTier === 'premium'
-  const documentsUsedThisMonth = profile?.documents_generated_this_month || 0
+  
+  // Fetch live token balance (not the frozen monthly counter)
+  const tokenBalance = await getTokenBalance('document_generation')
+  const documentsUsedThisMonth = tokenBalance || 0
 
   return (
     <DashboardClient 
