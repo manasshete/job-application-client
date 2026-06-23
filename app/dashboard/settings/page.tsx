@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/data/profiles'
 import { getJobs } from '@/lib/data/jobs'
+import { getTokenSummary } from '@/lib/data/tokens'
 import { SettingsClient } from './settings-client'
 import type { JobStatus } from '@/lib/types'
 
@@ -21,6 +22,7 @@ export default async function SettingsPage() {
   }
 
   const jobs = await getJobs()
+  const tokenSummary = await getTokenSummary()
 
   const byStatus: Record<JobStatus, number> = {
     applied: 0,
@@ -46,5 +48,5 @@ export default async function SettingsPage() {
     activeApplications,
   }
 
-  return <SettingsClient profile={profile} stats={stats} />
+  return <SettingsClient profile={profile} stats={stats} tokenSummary={tokenSummary} />
 }

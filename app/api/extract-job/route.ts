@@ -3,8 +3,8 @@ import { z } from 'zod'
 import { isValidUrl, isPublicUrl, MAX_LENGTHS } from '@/lib/validation'
 import { rateLimit } from '@/lib/rate-limit'
 import { createClient } from '@/lib/supabase/server'
-import { getProfile, incrementAIExtractionCount } from '@/lib/data/profiles'
-import { checkLimit } from '@/lib/subscription'
+import { getProfile } from '@/lib/data/profiles'
+import { getTokenBalance, consumeToken } from '@/lib/data/tokens'
 
 const jobDetailsSchema = z.object({
   company: z.string().nullable(),
@@ -31,9 +31,10 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Profile not found' }, { status: 404 })
     }
 
-    if (!checkLimit(profile.subscription_tier, profile.ai_extractions_used, 'aiExtractionLimit')) {
+    const aiBalance = await getTokenBalance('ai_extraction')
+    if (aiBalance <= 0) {
       return Response.json(
-        { error: 'AI extraction limit reached. Please upgrade your plan.' },
+        { error: 'You have no AI extraction tokens left. Purchase or upgrade your plan to get more. Tokens are valid for 60 days from the date they are added.' },
         { status: 403 }
       )
     }
@@ -134,8 +135,8 @@ export async function POST(req: Request) {
         ],
       })
 
-      // Increment AI extraction count
-      await incrementAIExtractionCount()
+      // Consume one AI extraction token (oldest-expiring batch first)
+      await consumeToken('ai_extraction')
 
       return Response.json(output)
     } catch {

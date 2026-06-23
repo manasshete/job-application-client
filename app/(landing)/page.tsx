@@ -209,6 +209,10 @@ const FAQS = [
     q: 'Is my resume data secure?',
     a: 'Yes. All data is encrypted at rest and in transit. We use Supabase with row-level security, meaning your data is strictly isolated from other accounts. We will never share or sell your information.',
   },
+  {
+    q: 'How long are my tokens valid?',
+    a: 'Tokens for AI extractions and document generation are valid for 60 days from the date they are added to your account — whether through a purchase, an upgrade, or a downgrade. Any unused tokens roll over and stay usable on top of your newly added tokens until their 60-day window ends. Tokens are always used oldest-first so you get the most out of every batch.',
+  },
 ]
 
 // ─── Components ──────────────────────────────────────────────────────────────
@@ -783,6 +787,11 @@ function Pricing() {
             </AnimateIn>
           ))}
         </div>
+
+        {/* Token validity note */}
+        <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-slate-500">
+          All tokens are valid for 60 days from the date they are added to your account. Unused tokens roll over and stay usable on top of new tokens until they expire.
+        </p>
 
         {/* Trust signals */}
         <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-slate-500">

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import type { Profile } from '@/lib/data/profiles'
+import type { TokenSummary } from '@/lib/data/tokens'
 import type { JobStats } from './page'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ import {
 interface SettingsClientProps {
   profile: Profile
   stats: JobStats
+  tokenSummary: TokenSummary
 }
 
 const STATUS_META: Record<
@@ -36,8 +38,16 @@ const STATUS_META: Record<
   rejected:  { label: 'Rejected',     icon: XCircle,         className: 'text-muted-foreground' },
 }
 
-export function SettingsClient({ profile, stats }: SettingsClientProps) {
+export function SettingsClient({ profile, stats, tokenSummary }: SettingsClientProps) {
   const router = useRouter()
+
+  const expiryLabel = tokenSummary.nextExpiry
+    ? new Date(tokenSummary.nextExpiry).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    : null
 
   const limits     = SUBSCRIPTION_LIMITS[profile.subscription_tier]
   const isPaid     = profile.subscription_tier !== 'free'
@@ -131,7 +141,7 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
 
               {/* Feature usage */}
               <div className="space-y-2 border-t border-border pt-4">
-                <p className="text-sm font-medium text-foreground">Plan Features &amp; Usage</p>
+                <p className="text-sm font-medium text-foreground">Plan Features &amp; Token Balance</p>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
@@ -140,20 +150,28 @@ export function SettingsClient({ profile, stats }: SettingsClientProps) {
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
                     <span>
-                      AI Extractions:{' '}
-                      {limits.aiExtractionLimit === -1
-                        ? `Unlimited (${profile.ai_extractions_used ?? 0} used)`
-                        : `${profile.ai_extractions_used ?? 0} / ${limits.aiExtractionLimit} used this month`}
+                      AI Extraction tokens:{' '}
+                      <span className="font-medium text-foreground">{tokenSummary.aiExtractionBalance}</span> remaining
                     </span>
                   </div>
                   {limits.hasDocumentGeneration && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
                       <span>
-                        Documents: {profile.documents_generated_this_month ?? 0} / {limits.documentGenerationLimit} used this month
+                        Document Generation tokens:{' '}
+                        <span className="font-medium text-foreground">{tokenSummary.documentGenerationBalance}</span> remaining
                       </span>
                     </div>
                   )}
+                </div>
+                <div className="mt-3 flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+                  <CalendarClock className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  <span>
+                    Tokens are valid for 60 days from the date they are added to your account.
+                    {expiryLabel
+                      ? ` Your next batch of tokens expires on ${expiryLabel}.`
+                      : ' You have no active tokens right now.'}
+                  </span>
                 </div>
               </div>
 

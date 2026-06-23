@@ -2,6 +2,7 @@ import { generateText } from 'ai'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
 import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
+import { getTokenBalance, consumeToken } from '@/lib/data/tokens'
 
 export async function POST(req: Request) {
   try {
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
     // Check subscription tier (Pro or Premium have document generation)
     const { data: profile } = await supabase
       .from('profiles')
-      .select('subscription_tier, documents_generated_this_month')
+      .select('subscription_tier')
       .eq('id', user.id)
       .single()
 
@@ -29,9 +30,10 @@ export async function POST(req: Request) {
       )
     }
 
-    if (profile.documents_generated_this_month >= limits.documentGenerationLimit) {
+    const docBalance = await getTokenBalance('document_generation')
+    if (docBalance <= 0) {
       return Response.json(
-        { error: `Monthly document generation limit (${limits.documentGenerationLimit}) reached. Resets next month.` },
+        { error: 'You have no document generation tokens left. Tokens are valid for 60 days from the date they are added; renew or upgrade to get more.' },
         { status: 403 }
       )
     }
@@ -134,7 +136,7 @@ Return the complete tailored resume as plain text. Every statement must be trace
 
     // Increment document count via SECURITY DEFINER RPC (direct column writes
     // are revoked for the user-scoped client to prevent tampering).
-    await supabase.rpc('increment_documents_generated', { p_user_id: user.id })
+    await consumeToken('document_generation')
 
     return Response.json({ tailoredResume: text })
   } catch (err) {

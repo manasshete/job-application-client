@@ -93,21 +93,28 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="mb-4 text-2xl font-semibold text-slate-900">9. Modifications</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-slate-900">9. Tokens, Billing &amp; Validity</h2>
+            <p>
+              Paid plans and any add-ons are delivered as tokens for AI extractions and document generation. Tokens are valid for 60 days from the date they are added to your account, whether they are obtained through a new purchase, an upgrade, or a downgrade. Unused tokens roll over and remain usable on top of newly added tokens until their individual 60-day validity period expires, after which they are forfeited. Tokens are consumed oldest-expiring first. Tokens have no cash value, are non-transferable, and are non-refundable once added to your account.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="mb-4 text-2xl font-semibold text-slate-900">10. Modifications</h2>
             <p>
               Pursuitz may revise these terms of service for the website at any time without notice. By using this website, you are agreeing to be bound by the then current version of these terms of service.
             </p>
           </section>
 
           <section>
-            <h2 className="mb-4 text-2xl font-semibold text-slate-900">10. Governing Law</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-slate-900">11. Governing Law</h2>
             <p>
               These terms and conditions are governed by and construed in accordance with the laws of the United Kingdom, and you irrevocably submit to the exclusive jurisdiction of the courts located in the UK.
             </p>
           </section>
 
           <section>
-            <h2 className="mb-4 text-2xl font-semibold text-slate-900">11. Contact</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-slate-900">12. Contact</h2>
             <p>
               If you have any questions about these Terms of Service, please contact us at terms@pursuitz.com
             </p>

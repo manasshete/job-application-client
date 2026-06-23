@@ -162,6 +162,9 @@ function getFeaturesSectionHtml(tier: string, color: string): string {
       <ul class="feature-list">
         ${features.map(f => `<li>${f}</li>`).join('')}
       </ul>
+      <p style="margin: 16px 0 0; padding-top: 12px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 13px;">
+        Note: Tokens are valid for 60 days from the date they are added to your account. Any unused tokens roll over and remain usable until they expire.
+      </p>
     </div>
   `
 }
