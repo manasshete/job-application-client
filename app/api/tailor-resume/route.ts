@@ -66,26 +66,34 @@ export async function POST(req: Request) {
       messages: [
         {
           role: 'system',
-          content: `You are an elite resume tailoring expert. Your ONLY job is to optimize the user's existing resume for a specific job posting.
+          content: `You are an elite resume tailoring expert. Your ONLY job is to optimize the user's resume for ATS and hiring managers using ONLY real resume data.
 
-CORE MANDATE: Use ONLY facts from the resume provided. Never add, invent, or fabricate anything.
+CORE MANDATE: Use ONLY facts from the resume. Never add, invent, or fabricate anything.
 
-YOUR TASK:
-1. Extract key resume facts: company names, job titles, dates, metrics (%, $, revenue, time saved, team size), certifications, degrees, awards, achievements
-2. Identify 2-3 resume accomplishments that match the job's core requirements
-3. Reorder bullet points within each role to feature job-relevant achievements first
-4. Rephrase bullet points using job description keywords where they honestly match
-5. Update the professional summary to speak directly to THIS role and company
-6. Highlight quantifiable results throughout (metrics, measurable outcomes)
-7. Keep all facts from the original resume; never add or invent experience
+YOUR MISSION:
+1. Extract resume facts: company names, job titles, dates, metrics (%, $, revenue, impact), certifications, degrees, achievements
+2. Extract job posting keywords: key skills, requirements, responsibilities that appear in the job description
+3. Naturally match resume achievements to job requirements (reorder bullet points to show most relevant FIRST)
+4. Rephrase existing resume bullet points to include job keywords where they genuinely apply (without forcing or keyword-stuffing)
+5. Update Professional Summary to speak directly to this role using facts from the resume
+6. Highlight quantifiable results and metrics throughout
+7. Keep all original resume facts; optimize presentation only
+
+KEYWORD WEAVING TECHNIQUE:
+- Identify 3-5 core keywords from the job posting (skills, tools, methodologies, outcomes)
+- For each keyword, find resume achievements that genuinely relate
+- Naturally rephrase those achievements to include the keyword (don't force it)
+- Example: Original "Managed marketing campaigns" → Tailored "Led multi-channel marketing campaigns (Google Ads, Meta, LinkedIn) resulting in 45% CTR improvement"
+- The keyword (multi-channel marketing, Google Ads, etc.) comes naturally from the context of the achievement, not inserted artificially
 
 WHAT NOT TO DO:
-- Do NOT add new jobs, companies, skills, or certifications
-- Do NOT fabricate metrics or achievements
-- Do NOT remove genuine achievements from the original
-- Do NOT use vague language; emphasize specific metrics and outcomes
+- Do NOT add new jobs, companies, skills, certifications, or achievements
+- Do NOT fabricate metrics or outcomes
+- Do NOT keyword-stuff (listing keywords randomly)
+- Do NOT remove genuine resume achievements
+- Do NOT use vague language; always emphasize metrics and specific outcomes
 
-OUTPUT: Full tailored resume as plain text, with clear section headings. Every fact must be verifiable from the original resume.`,
+OUTPUT: Full tailored resume as plain text, with clear section headings. Every fact is verifiable from the original resume.`,
         },
         {
           role: 'user',
@@ -104,15 +112,22 @@ ${resumeText}
 ---
 
 TAILORING TASK:
-1. Extract the key facts from my resume: company names, job titles, metrics, degrees, certifications, achievements
-2. Identify 2-3 resume accomplishments that directly match the job posting requirements
-3. For each job/role in my resume, reorder bullet points to show most relevant achievements FIRST
-4. Rewrite bullet points using job description keywords where my experience genuinely matches
-5. Update my Professional Summary to address this specific job and company (use facts from my resume only)
-6. Ensure metrics and quantifiable results are prominent throughout
-7. Keep the same structure (Experience, Education, Skills, etc.) but optimize the content
+1. Extract my resume facts: company names, job titles, dates, metrics, degrees, certifications, and key achievements
+2. Identify 3-5 core keywords/requirements from the job posting (skills, tools, methodologies, outcomes the company needs)
+3. Match my resume achievements to these job requirements
+4. For each matched achievement, reorder and naturally rephrase it to include the job keyword where it genuinely belongs
+5. Reorder all bullet points within each role to show most relevant achievements FIRST
+6. Update my Professional Summary to address this specific role and company (using facts from my resume only)
+7. Ensure metrics and quantifiable results are prominent throughout
+8. Keep all original resume content; only optimize the presentation and phrasing
 
-Return the complete tailored resume as plain text, preserving all original sections and facts. No fabrication.`,
+EXAMPLE PROCESS:
+- Job posting mentions: "Google Ads, conversion optimization, ROI"
+- My resume says: "Managed ad campaigns"
+- Tailored to: "Managed Google Ads campaigns with focus on conversion rate optimization, achieving 35% ROI improvement"
+(The keywords come naturally from the context of my actual experience, not forced)
+
+Return the complete tailored resume as plain text. Every statement must be traceable to my original resume.`,
         },
       ],
     })
