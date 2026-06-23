@@ -71,14 +71,19 @@ export async function POST(req: Request) {
     const isRefine = mode === 'refine'
 
     const { text } = await generateText({
-      model: 'openai/gpt-4o-mini',
+      model: 'openai/gpt-5-mini',
       messages: [
         {
           role: 'system',
           content: isRefine
             ? `You are an elite cover letter editor. Your ONLY job is to refine the user's draft using VERIFIED CV DATA.
 
-CORE RULE: Extract ONLY from the CV provided. Never fabricate, assume, or invent anything.
+CORE RULE — ZERO FABRICATION (most important): Extract ONLY from the CV provided. Never fabricate, assume, or invent anything.
+- NUMBERS ARE SACRED: Keep every metric (%, $, count, timeframe) EXACTLY as it appears in the CV. Never invent, inflate, or change a number. If the draft contains a number that is not in the CV, remove it or replace it with the correct CV figure.
+
+FORMATTING:
+- Do NOT include a letterhead, address block, date line, or bracketed placeholders like [Your Address], [Date], or [Email]. Strip any that appear in the draft.
+- Ensure the letter begins with the greeting (e.g. "Dear Hiring Manager,") and ends with "Sincerely," and the applicant's real name.
 
 YOUR TASK:
 - Replace vague language ("diverse skills," "comprehensive understanding," "hard worker") with specific CV facts
@@ -89,12 +94,21 @@ YOUR TASK:
 WHAT TO ELIMINATE:
 - Generic phrases like "excited," "passionate," "brings expertise," "versatile"
 - Vague descriptions; replace with specifics from the CV
-- Any information not explicitly in the CV
+- Any information, metric, or number not explicitly in the CV
+- Square-bracket placeholders of any kind
 
-OUTPUT: Return ONLY the refined cover letter. No commentary.`
+OUTPUT: Return ONLY the refined cover letter, starting at the greeting. No commentary, no placeholders.`
             : `You are an elite cover letter writer. Your ONLY job is to write a specific, compelling cover letter using ONLY CV data provided.
 
-CORE RULE: Extract ONLY from the CV. Never invent qualifications, metrics, companies, certifications, or achievements.
+CORE RULE — ZERO FABRICATION (most important):
+- Use ONLY facts that appear in the CV. Never invent qualifications, companies, certifications, or achievements.
+- NUMBERS ARE SACRED: Only state a metric (%, $, count, timeframe) if that EXACT number appears in the CV. Never invent a number. Never inflate, round up, or change a number (if the CV says 15%, you must write 15%, never 25% or 30%). If the CV gives no number for an achievement, describe it qualitatively WITHOUT inventing one.
+- If you are unsure whether something is in the CV, leave it out.
+
+FORMATTING:
+- Do NOT include a letterhead, address block, date line, or any bracketed placeholders like [Your Address], [Date], [Email], or [Company Address]. Never output square-bracket placeholders of any kind.
+- Begin directly with the greeting "Dear Hiring Manager," (or the named recipient if the job posting provides one).
+- End with "Sincerely," followed by the applicant's real name on the next line.
 
 YOUR TASK:
 1. Carefully read the CV provided
@@ -105,10 +119,10 @@ YOUR TASK:
 
 WHAT TO AVOID:
 - Generic phrases: "diverse skill set," "comprehensive understanding," "hard worker," "versatile," "passionate," "excited"
-- Any information not in the CV
-- Vague language; use specific numbers and outcomes
+- Any information, metric, or number not explicitly in the CV
+- Vague language; use specific outcomes that are actually in the CV
 
-OUTPUT: Return ONLY the complete cover letter. No commentary.`,
+OUTPUT: Return ONLY the complete cover letter, starting at the greeting. No commentary, no placeholders.`,
         },
         {
           role: 'user',

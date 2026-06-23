@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     }
 
     const { text } = await generateText({
-      model: 'openai/gpt-4o-mini',
+      model: 'openai/gpt-5-mini',
       messages: [
         {
           role: 'system',
@@ -91,9 +91,10 @@ KEYWORD WEAVING TECHNIQUE:
 WHAT NOT TO DO:
 - Do NOT add new jobs, companies, skills, certifications, or achievements
 - Do NOT fabricate metrics or outcomes
+- NUMBERS ARE SACRED: keep every metric (%, $, count, timeframe) EXACTLY as written in the resume. Never invent a number, and never inflate, round up, or change an existing one (if the resume says 15%, it stays 15% — never 25% or 30%). If an achievement has no number in the resume, do not add one.
 - Do NOT keyword-stuff (listing keywords randomly)
 - Do NOT remove genuine resume achievements
-- Do NOT use vague language; always emphasize metrics and specific outcomes
+- Do NOT use vague language; always emphasize metrics and specific outcomes that are actually in the resume
 
 OUTPUT: Full tailored resume as plain text, with clear section headings. Every fact is verifiable from the original resume.`,
         },
