@@ -98,31 +98,33 @@ WHAT TO ELIMINATE:
 - Square-bracket placeholders of any kind
 
 OUTPUT: Return ONLY the refined cover letter, starting at the greeting. No commentary, no placeholders.`
-            : `You are an elite cover letter writer. Your ONLY job is to write a specific, compelling cover letter using ONLY CV data provided.
+            : `You are an elite persuasive cover letter writer. Your job is to write a NARRATIVE-DRIVEN, COMPELLING letter that makes the hiring manager want to meet this candidate.
 
-CORE RULE — ZERO FABRICATION (most important):
-- Use ONLY facts that appear in the CV. Never invent qualifications, companies, certifications, or achievements.
-- NUMBERS ARE SACRED: Only state a metric (%, $, count, timeframe) if that EXACT number appears in the CV. Never invent a number. Never inflate, round up, or change a number (if the CV says 15%, you must write 15%, never 25% or 30%). If the CV gives no number for an achievement, describe it qualitatively WITHOUT inventing one.
-- If you are unsure whether something is in the CV, leave it out.
+CORE RULES (ZERO FABRICATION):
+- Use ONLY facts, achievements, metrics, and details from the CV. Never invent, assume, or embellish.
+- NUMBERS ARE SACRED: Keep every metric (%, $, growth, team size, timeframe) EXACTLY as written in the CV. Never invent, inflate, or change any number. If the CV says 15%, write 15%, never 25%.
+- Do NOT mention companies, qualifications, certifications, or achievements not in the CV.
 
-FORMATTING:
-- Do NOT include a letterhead, address block, date line, or any bracketed placeholders like [Your Address], [Date], [Email], or [Company Address]. Never output square-bracket placeholders of any kind.
-- Begin directly with the greeting "Dear Hiring Manager," (or the named recipient if the job posting provides one).
-- End with "Sincerely," followed by the applicant's real name on the next line.
+STRUCTURE (This is not a list—weave it into narrative):
+1. **OPENING (1-2 sentences)**: Lead with a SPECIFIC insight that proves you understand this role + company. Reference ONE concrete achievement from the CV that directly solves a core job requirement (e.g., for Air Charter's 45+ website network, reference CMS or multi-site experience).
+2. **BODY PARAGRAPH 1**: Tell the story of a key achievement with METRICS. Show how it directly applies to this job. Use 1-2 CV facts (company, title, specific outcome).
+3. **BODY PARAGRAPH 2**: Showcase a complementary strength (if Para 1 was technical, this is operational; if Para 1 was metrics, this is process). Again, use CV facts with proof.
+4. **BODY PARAGRAPH 3 (optional)**: If you have a third strong achievement (e.g., SEO/analytics if the previous two were CMS/content), include it. Otherwise, skip.
+5. **CLOSING (2-3 sentences)**: Confident, forward-looking statement. Reference the company by name and explain specifically why you want to join their mission (based on job posting hints). End with a clear next step.
 
-YOUR TASK:
-1. Carefully read the CV provided
-2. Extract specific facts: company names, job titles, dates, metrics (revenue, %, growth, team size), certifications, degrees, awards, projects
-3. Identify 2-3 achievements from the CV that match this job's requirements
-4. Structure: Strong hook (company + specific CV achievement) → Achievement #1 with metrics and job relevance → Achievement #2 with job connection → Achievement #3 if strong → Close
-5. Every sentence MUST reference a specific CV fact; no generalities
+TONE:
+- Professional but human (not robotic or stiff)
+- Confident but not arrogant (show, don't tell)
+- Specific and detailed (reference actual companies, metrics, projects from the CV)
+- AVOID: "diverse skill set," "passionate," "excited," "hard worker," "comprehensive," "versatile," "team player" (filler words)
 
-WHAT TO AVOID:
-- Generic phrases: "diverse skill set," "comprehensive understanding," "hard worker," "versatile," "passionate," "excited"
-- Any information, metric, or number not explicitly in the CV
-- Vague language; use specific outcomes that are actually in the CV
+FORMAT:
+- No letterhead, date, address block, or [bracketed placeholders] like [Your Address] or [Date].
+- Start: "Dear Hiring Manager,"
+- End: "Sincerely," then the applicant's real name.
+- 3-4 body paragraphs (keep it tight, 1 page).
 
-OUTPUT: Return ONLY the complete cover letter, starting at the greeting. No commentary, no placeholders.`,
+OUTPUT: Return ONLY the complete cover letter. No commentary, explanations, or meta-text.`,
         },
         {
           role: 'user',
@@ -165,19 +167,32 @@ ${userInput.slice(0, 15000)}
 
 ---
 
-COVER LETTER TASK:
-1. Extract from my CV: company names, job titles, dates, specific achievements, metrics (%, $, numbers), certifications, degrees, projects
-2. Identify 2-3 achievements that match the job posting requirements
-3. Write the cover letter with this structure:
-   - Opening: Company name + specific achievement that shows relevance to this role
-   - Paragraph 2: Achievement #1 with specific metrics and how it applies to the job
-   - Paragraph 3: Achievement #2 with specific metrics and job relevance
-   - Paragraph 4: Achievement #3 if strong, OR explain how your background solves a problem in the job posting
-   - Closing: Specific next step
-4. Every sentence must reference a specific CV fact (company, metric, certification, project, degree)
-5. NO generic phrases. NO assumptions. ONLY CV data.
+YOUR TASK:
+STEP 1 — ANALYZE THE JOB:
+- What are the core responsibilities? (e.g., managing global websites, CMS, SEO, analytics, workflows)
+- What's the implied challenge? (e.g., 45+ sites to manage, need for attention to detail, technical + soft skills)
+- What company value is hinted at? (e.g., global scale, precision, collaboration)
 
-Return the complete cover letter only.`,
+STEP 2 — MINE THE CV:
+- Find experiences where the candidate directly handled similar challenges (e.g., CMS work, multi-site projects, SEO, analytics, content management)
+- Extract SPECIFIC metrics that prove capability (%, $, numbers, team sizes, timelines)
+- Identify a progression or pattern that shows growth in relevant skills
+
+STEP 3 — BUILD THE NARRATIVE:
+- **Opening**: Lead with ONE specific CV achievement that proves you understand and can excel at THIS job. Make the hiring manager think "this person gets it."
+  Example: "Managing [number of] websites across [description] at [company] taught me that scalable digital infrastructure requires both technical precision and strategic thinking—exactly what your 45+ global network needs."
+- **Paragraph 2**: Tell the story of how you excelled at a core job requirement (e.g., CMS mastery, SEO, content management). Use specific metrics and outcomes. Show how it applies to Air Charter's needs.
+- **Paragraph 3**: Showcase a complementary strength (attention to detail, cross-functional collaboration, analytical rigor, workflow optimization). Again, use CV proof with metrics.
+- **Paragraph 4** (if applicable): If you have a third strong relevant experience, include it. Otherwise, close here.
+- **Closing**: Confidence + specificity. Why do you want to work at Air Charter specifically? Reference the job posting (e.g., "your commitment to growing a global digital presence," "the scale of your website network") and end with a clear ask (e.g., "I'd welcome the chance to discuss how I can bring this experience to your team").
+
+STEP 4 — POLISH:
+- Every sentence references a CV fact (company, title, metric, achievement, degree, certification). No vague claims.
+- No generic phrases like "passionate," "excited," "diverse skills," "comprehensive understanding."
+- Numbers stay exactly as in the CV.
+- Tone: professional, confident, specific, human (not robotic).
+
+RETURN: The complete cover letter only. No commentary.`,
         },
       ],
     })
