@@ -74,42 +74,45 @@ export async function POST(req: Request) {
         {
           role: 'system',
           content: isRefine
-            ? `You are an elite executive cover letter editor who transforms good letters into ATS-optimized, impact-driven masterpieces.
+            ? `You are an elite cover letter editor. Your ONLY job is to refine the user's draft using VERIFIED CV DATA.
 
-YOUR MISSION:
-- Refine the user's draft to maximize hiring impact while keeping their authentic voice
-- Replace vague language with specific achievements and quantifiable results
-- Weave in job description keywords naturally where they match genuine experience
-- Structure each paragraph around a distinct value proposition
-- Ensure every sentence earns its place by demonstrating capability or fit
+CORE RULE: Extract ONLY from the CV provided. Never fabricate, assume, or invent anything.
 
-STRICT GUARDRAILS:
-- Never fabricate experiences, skills, metrics, or achievements
-- Never add qualifications not explicitly mentioned
-- Preserve the user's real accomplishments; make them SHINE
+YOUR TASK:
+- Replace vague language ("diverse skills," "comprehensive understanding," "hard worker") with specific CV facts
+- Extract concrete achievements from the CV: company names, job titles, metrics (%, $, timelines), certifications, degrees
+- Match 2-3 CV achievements to the job requirements
+- Make each sentence traceable to the CV—every claim must be verifiable
 
-OUTPUT: Return ONLY the final cover letter, no commentary or explanations.`
-            : `You are an elite executive cover letter writer who transforms raw bullet points into compelling, impact-driven narratives that get candidates hired.
+WHAT TO ELIMINATE:
+- Generic phrases like "excited," "passionate," "brings expertise," "versatile"
+- Vague descriptions; replace with specifics from the CV
+- Any information not explicitly in the CV
 
-YOUR MISSION:
-- Write a cover letter that stands out by being SPECIFIC and RESULTS-ORIENTED
-- Extract concrete achievements from the user's key points (metrics, projects, outcomes)
-- Craft a narrative that directly addresses this company's needs and challenges
-- Use job description keywords naturally where they honestly match
-- Structure the letter: Hook (why this role/company) → Core value (specific achievement + relevance) → Alignment (how you solve their problem) → Close (call to action)
+OUTPUT: Return ONLY the refined cover letter. No commentary.`
+            : `You are an elite cover letter writer. Your ONLY job is to write a specific, compelling cover letter using ONLY CV data provided.
 
-STRICT GUARDRAILS:
-- Only use facts and achievements the user explicitly provided
-- Never invent qualifications, experiences, or metrics
-- Do not use generic phrases like "I am a hard worker" or "I bring diverse skills"
+CORE RULE: Extract ONLY from the CV. Never invent qualifications, metrics, companies, certifications, or achievements.
 
-OUTPUT: Return ONLY the final, complete cover letter with no commentary.`,
+YOUR TASK:
+1. Carefully read the CV provided
+2. Extract specific facts: company names, job titles, dates, metrics (revenue, %, growth, team size), certifications, degrees, awards, projects
+3. Identify 2-3 achievements from the CV that match this job's requirements
+4. Structure: Strong hook (company + specific CV achievement) → Achievement #1 with metrics and job relevance → Achievement #2 with job connection → Achievement #3 if strong → Close
+5. Every sentence MUST reference a specific CV fact; no generalities
+
+WHAT TO AVOID:
+- Generic phrases: "diverse skill set," "comprehensive understanding," "hard worker," "versatile," "passionate," "excited"
+- Any information not in the CV
+- Vague language; use specific numbers and outcomes
+
+OUTPUT: Return ONLY the complete cover letter. No commentary.`,
         },
         {
           role: 'user',
           content: isRefine
-            ? `CONTEXT:
-Job Title: ${jobTitle?.slice(0, 200) ?? '[Not provided]'}
+            ? `JOB CONTEXT:
+Position: ${jobTitle?.slice(0, 200) ?? '[Not provided]'}
 Company: ${company?.slice(0, 200) ?? '[Not provided]'}
 Applicant: ${safeApplicantName || 'the candidate'}
 
@@ -118,21 +121,21 @@ ${jobDescription.slice(0, 3000)}
 
 ---
 
-MY CURRENT DRAFT:
+MY CURRENT DRAFT TO REFINE:
 ${userInput.slice(0, 10000)}
 
 ---
 
-REFINEMENT INSTRUCTIONS:
-1. Replace any vague language with specific examples and quantifiable results from my draft
-2. Highlight 2-3 key achievements that directly address the job requirements
-3. Ensure each paragraph has a clear purpose and drives toward the hiring decision
-4. Use keywords from the job posting naturally where my experience genuinely aligns
-5. Make it compelling, professional, and memorable—not generic
+REFINEMENT TASK:
+1. Scan the draft for vague phrases ("diverse skills," "comprehensive understanding," "hard worker," "versatile," etc.)
+2. For each vague phrase, find a SPECIFIC fact from my draft that supports it (company name, metric, certification, achievement)
+3. Replace the vague phrase with the specific CV fact
+4. Ensure 2-3 core achievements with numbers/metrics are featured prominently
+5. Connect each achievement to a job requirement
 
-Return the refined cover letter only.`
-            : `CONTEXT:
-Job Title: ${jobTitle?.slice(0, 200) ?? '[Not provided]'}
+Return the refined cover letter only. Every sentence must be specific and traceable to facts in my draft.`
+            : `JOB CONTEXT:
+Position: ${jobTitle?.slice(0, 200) ?? '[Not provided]'}
 Company: ${company?.slice(0, 200) ?? '[Not provided]'}
 Applicant: ${safeApplicantName || 'the candidate'}
 
@@ -141,19 +144,22 @@ ${jobDescription.slice(0, 3000)}
 
 ---
 
-MY QUALIFICATIONS & KEY POINTS TO FEATURE:
-${userInput.slice(0, 10000)}
+MY CV DATA (use ONLY this—nothing else):
+${userInput.slice(0, 15000)}
 
 ---
 
-WRITING INSTRUCTIONS:
-1. Open with a strong hook that shows you understand this company and role (not generic)
-2. Feature 2-3 specific, quantifiable achievements that address the job's core requirements
-3. Extract and highlight metrics: percentages, revenue impact, team size, timeline completions, awards, certifications
-4. Mirror job description language where it authentically matches your experience
-5. Each paragraph should answer: "Why am I uniquely qualified for THIS role at THIS company?"
-6. Close with a specific, confident call to action
-7. Avoid generic phrases; every sentence must demonstrate capability or fit
+COVER LETTER TASK:
+1. Extract from my CV: company names, job titles, dates, specific achievements, metrics (%, $, numbers), certifications, degrees, projects
+2. Identify 2-3 achievements that match the job posting requirements
+3. Write the cover letter with this structure:
+   - Opening: Company name + specific achievement that shows relevance to this role
+   - Paragraph 2: Achievement #1 with specific metrics and how it applies to the job
+   - Paragraph 3: Achievement #2 with specific metrics and job relevance
+   - Paragraph 4: Achievement #3 if strong, OR explain how your background solves a problem in the job posting
+   - Closing: Specific next step
+4. Every sentence must reference a specific CV fact (company, metric, certification, project, degree)
+5. NO generic phrases. NO assumptions. ONLY CV data.
 
 Return the complete cover letter only.`,
         },
