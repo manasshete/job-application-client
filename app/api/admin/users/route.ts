@@ -32,7 +32,32 @@ export async function GET(req: Request) {
     const { data, error } = await query
     if (error) throw error
 
-    return NextResponse.json({ users: data ?? [] })
+    const users = data ?? []
+
+    // Attach live token balances (active, unexpired) for each user.
+    const userIds = users.map((u) => u.id)
+    const aiTokens = new Map<string, number>()
+    const docTokens = new Map<string, number>()
+    if (userIds.length > 0) {
+      const { data: batches } = await admin
+        .from('token_batches')
+        .select('user_id, token_type, remaining, expires_at')
+        .in('user_id', userIds)
+        .gt('remaining', 0)
+        .gt('expires_at', new Date().toISOString())
+      for (const b of batches ?? []) {
+        const target = b.token_type === 'ai_extraction' ? aiTokens : docTokens
+        target.set(b.user_id, (target.get(b.user_id) ?? 0) + (b.remaining ?? 0))
+      }
+    }
+
+    const usersWithTokens = users.map((u) => ({
+      ...u,
+      ai_tokens_remaining: aiTokens.get(u.id) ?? 0,
+      document_tokens_remaining: docTokens.get(u.id) ?? 0,
+    }))
+
+    return NextResponse.json({ users: usersWithTokens })
   } catch (error) {
     console.error('[v0] Admin user search error:', error)
     return NextResponse.json({ error: 'Failed to load users' }, { status: 500 })

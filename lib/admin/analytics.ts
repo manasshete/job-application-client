@@ -38,6 +38,61 @@ async function getAllProfiles(): Promise<Profile[]> {
   return (data ?? []) as Profile[]
 }
 
+type TokenBatch = {
+  user_id: string
+  token_type: string
+  granted: number
+  remaining: number
+  expires_at: string
+}
+
+async function getAllTokenBatches(): Promise<TokenBatch[]> {
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('token_batches')
+    .select('user_id, token_type, granted, remaining, expires_at')
+  if (error) throw new Error(`Failed to load token batches: ${error.message}`)
+  return (data ?? []) as TokenBatch[]
+}
+
+// Aggregate token batches into per-user consumed totals and active remaining
+// balances (consumed = granted - remaining; only unexpired batches count toward
+// "remaining"). Used by feature-usage and system-health metrics.
+function aggregateTokens(batches: TokenBatch[]) {
+  const now = Date.now()
+  const consumed = {
+    ai_extraction: 0,
+    document_generation: 0,
+  }
+  const consumedByUser = {
+    ai_extraction: new Set<string>(),
+    document_generation: new Set<string>(),
+  }
+  const remainingByUser = {
+    ai_extraction: new Map<string, number>(),
+    document_generation: new Map<string, number>(),
+  }
+
+  for (const b of batches) {
+    const type = b.token_type as 'ai_extraction' | 'document_generation'
+    if (type !== 'ai_extraction' && type !== 'document_generation') continue
+
+    const used = Math.max(0, (b.granted ?? 0) - (b.remaining ?? 0))
+    if (used > 0) {
+      consumed[type] += used
+      consumedByUser[type].add(b.user_id)
+    }
+    if (new Date(b.expires_at).getTime() > now) {
+      remainingByUser[type].set(
+        b.user_id,
+        (remainingByUser[type].get(b.user_id) ?? 0) + (b.remaining ?? 0)
+      )
+    }
+  }
+
+  return { consumed, consumedByUser, remainingByUser }
+}
+
 // ============ TAB 1: USER METRICS ============
 export async function getUserMetrics() {
   const profiles = await getAllProfiles()
@@ -133,11 +188,13 @@ export async function getRevenueMetrics() {
 
 // ============ TAB 3: FEATURE USAGE ============
 export async function getFeatureUsage() {
-  const profiles = await getAllProfiles()
   const admin = createAdminClient()
+  const batches = await getAllTokenBatches()
+  const { consumed, consumedByUser } = aggregateTokens(batches)
 
-  const totalExtractions = profiles.reduce((s, p) => s + (p.ai_extractions_used ?? 0), 0)
-  const totalDocuments = profiles.reduce((s, p) => s + (p.documents_generated_this_month ?? 0), 0)
+  // Total tokens actually consumed across all users (granted - remaining).
+  const totalExtractions = consumed.ai_extraction
+  const totalDocuments = consumed.document_generation
 
   const { count: jobsCount } = await admin
     .from('jobs')
@@ -146,11 +203,9 @@ export async function getFeatureUsage() {
     .from('user_documents')
     .select('*', { count: 'exact', head: true })
 
-  // Adoption: how many users have used each AI feature this month
-  const usersUsingExtractions = profiles.filter((p) => (p.ai_extractions_used ?? 0) > 0).length
-  const usersUsingDocuments = profiles.filter(
-    (p) => (p.documents_generated_this_month ?? 0) > 0
-  ).length
+  // Adoption: how many users have consumed at least one token of each type.
+  const usersUsingExtractions = consumedByUser.ai_extraction.size
+  const usersUsingDocuments = consumedByUser.document_generation.size
 
   const apiCost =
     totalExtractions * COST_PER_EXTRACTION + totalDocuments * COST_PER_DOCUMENT
@@ -173,7 +228,10 @@ export async function getSystemHealth() {
   const admin = createAdminClient()
   const profiles = await getAllProfiles()
 
-  // Users at or near their limits (potential friction points)
+  // Users who have run out of usable tokens (0 active remaining) for a feature
+  // their tier is entitled to — these are potential friction points.
+  const batches = await getAllTokenBatches()
+  const { remainingByUser } = aggregateTokens(batches)
   let extractionLimitHits = 0
   let documentLimitHits = 0
   for (const p of profiles) {
@@ -182,13 +240,13 @@ export async function getSystemHealth() {
     if (!limits) continue
     if (
       limits.aiExtractionLimit > 0 &&
-      (p.ai_extractions_used ?? 0) >= limits.aiExtractionLimit
+      (remainingByUser.ai_extraction.get(p.id) ?? 0) <= 0
     ) {
       extractionLimitHits++
     }
     if (
-      limits.documentGenerationLimit > 0 &&
-      (p.documents_generated_this_month ?? 0) >= limits.documentGenerationLimit
+      limits.hasDocumentGeneration &&
+      (remainingByUser.document_generation.get(p.id) ?? 0) <= 0
     ) {
       documentLimitHits++
     }

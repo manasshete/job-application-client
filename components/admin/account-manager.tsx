@@ -31,8 +31,8 @@ type AdminUser = {
   subscription_tier: string | null
   subscription_status: string | null
   is_admin: boolean
-  ai_extractions_used: number | null
-  documents_generated_this_month: number | null
+  ai_tokens_remaining: number | null
+  document_tokens_remaining: number | null
   created_at: string
 }
 
@@ -155,8 +155,8 @@ export function AccountManager() {
                       <Badge variant={TIER_VARIANT[currentTier] ?? 'outline'} className="capitalize">
                         {currentTier}
                       </Badge>
-                      <span>{user.ai_extractions_used ?? 0} extractions</span>
-                      <span>{user.documents_generated_this_month ?? 0} docs</span>
+                      <span>{user.ai_tokens_remaining ?? 0} AI tokens left</span>
+                      <span>{user.document_tokens_remaining ?? 0} doc tokens left</span>
                     </div>
                   </div>
 

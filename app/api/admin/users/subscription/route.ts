@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 import { verifyAdmin, logAdminAction } from '@/lib/admin/auth'
 import { createAdminClient } from '@/lib/admin/service-client'
 import { sendSubscriptionChangeEmail } from '@/lib/email/subscription-emails'
-import type { SubscriptionTier } from '@/lib/subscription'
+import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
+import { grantTokens } from '@/lib/data/tokens'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,6 +75,23 @@ export async function POST(req: Request) {
         code: updateError.code,
       })
       throw updateError
+    }
+
+    // On an upgrade to a paid tier, grant that tier's tokens (valid 60 days),
+    // mirroring the payment flow. Downgrades grant nothing — the user keeps
+    // whatever unexpired tokens they already have.
+    if (tier !== 'free' && !isDowngrade(previousTier, tier)) {
+      const limits = SUBSCRIPTION_LIMITS[tier as SubscriptionTier]
+      if (limits) {
+        const aiGrant = await grantTokens(userId, 'ai_extraction', limits.aiExtractionLimit, 'admin')
+        if (aiGrant.error) {
+          console.error('[v0] Admin upgrade: failed to grant AI tokens:', aiGrant.error.message)
+        }
+        const docGrant = await grantTokens(userId, 'document_generation', limits.documentGenerationLimit, 'admin')
+        if (docGrant.error) {
+          console.error('[v0] Admin upgrade: failed to grant document tokens:', docGrant.error.message)
+        }
+      }
     }
 
     // Audit log (best-effort)
