@@ -132,10 +132,7 @@ CV:
 ${userInput.slice(0, 15000)}`
 
     const { text } = await generateText({
-      // Claude is used for cover letters because it produces natural, persuasive prose.
-      // gpt-5-mini (a reasoning/analysis model) produces structured but flat text—
-      // good for resume analysis, poor for human-sounding persuasive writing.
-      model: 'anthropic/claude-opus-4.6',
+      model: 'openai/gpt-4o',
       messages: [
         {
           role: 'user',
