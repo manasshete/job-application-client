@@ -132,7 +132,7 @@ CV:
 ${userInput.slice(0, 15000)}`
 
     const { text } = await generateText({
-      model: 'openai/gpt-4o-mini',
+      model: 'openai/gpt-4o',
       messages: [
         {
           role: 'user',
