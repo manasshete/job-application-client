@@ -71,45 +71,49 @@ export async function POST(req: Request) {
     const isRefine = mode === 'refine'
 
     const systemPrompt = isRefine
-      ? `You are a professional cover letter writer refining a draft.
+      ? `You are a professional cover letter editor. You must SUBSTANTIALLY REWRITE the draft — do not return it unchanged or only lightly edited.
 
-RULES — follow these without exception:
-- Only use facts present in the CV. Never add, invent, or imply anything not there.
-- Keep every number (%, £, $, metric, timeframe) EXACTLY as written in the CV.
-- Do not output any commentary, headers, or meta-text — only the finished letter.
-- No letterhead, date, or address block. No [bracketed placeholders] of any kind.
+OUTPUT FORMAT:
+- Plain text only. No markdown. No asterisks, hyphens, bullet points, or bold formatting of any kind.
+- No letterhead, date, address block, or [bracketed placeholders].
 - Start with: Dear Hiring Manager,
-- End with: Sincerely, then the applicant's full name on the next line.
+- End with: Sincerely, followed by the applicant's full name on the next line.
+- 300–420 words.
 
-WHAT TO FIX IN THE DRAFT:
-- Cut any sentence that could apply to literally any candidate ("I am a hard worker", "I am passionate about marketing", "I have a diverse skill set") — replace with a specific fact from the CV.
-- Every paragraph must contain at least one concrete detail: a company name, a role title, a metric, a tool, a result.
-- The letter should sound like a confident real person wrote it — not a template.
-- 300–420 words maximum.`
-      : `You are a professional cover letter writer. Write a cover letter for the applicant below.
+MANDATORY CHANGES — you must do ALL of these:
+1. Replace every vague phrase with a specific fact from the CV: company name, job title, tool, platform, or metric. Examples of vague phrases that must be replaced: "a leading firm", "significant experience", "various clients", "strong results", "I am eager", "I am passionate", "hard worker", "diverse skill set", "team player", "comprehensive understanding".
+2. If the draft says "a leading firm" or any unnamed company, replace it with the actual company name from the CV.
+3. Every body paragraph must contain at least one of: a real company name, a job title, a platform/tool name, or a number/metric from the CV.
+4. The closing paragraph must name the employer's company specifically — not a generic sign-off.
+5. Remove any sentence that could apply to any candidate in any industry.
 
-RULES — follow these without exception:
-- Only use facts present in the CV. Never add, invent, or imply anything not in the CV.
-- Keep every number (%, £, $, metric, timeframe) EXACTLY as written in the CV.
-- Do not output any commentary, headers, labels, or meta-text — only the finished letter.
-- No letterhead, date, or address block. No [bracketed placeholders] of any kind.
+DO NOT return the draft as-is. The output must be visibly and substantially different from the input draft.`
+      : `You are a professional cover letter writer.
+
+OUTPUT FORMAT:
+- Plain text only. No markdown. No asterisks, hyphens, bullet points, or bold formatting of any kind.
+- No letterhead, date, address block, or [bracketed placeholders].
 - Start with: Dear Hiring Manager,
-- End with: Sincerely, then the applicant's full name on the next line.
-- 300–420 words maximum.
+- End with: Sincerely, followed by the applicant's full name on the next line.
+- 300–420 words.
+- Use only facts from the CV. Never invent companies, tools, metrics, or experience.
+- Keep every number exactly as written in the CV.
 
-HOW TO WRITE IT:
-Before writing, silently identify the 3 most important things the employer needs from this role. Then write 4 paragraphs:
+BEFORE WRITING — silently identify:
+- The 3 most important requirements in the job posting.
+- The 2 strongest matching experiences in the CV with a specific company name and metric/outcome.
 
-Paragraph 1 — Opening (2–3 sentences): State the role and company. Give ONE specific reason why this candidate wants this job — rooted in something real about the company or role, not a generic statement.
+STRUCTURE — 4 paragraphs:
 
-Paragraph 2 — Strongest proof (3–4 sentences): Lead with the candidate's single most relevant experience. Name the company, describe what they actually did, and include the most impressive metric or outcome from the CV. Connect it directly to what this employer needs.
+Paragraph 1 (2–3 sentences): Name the role and the employer's company. Give one specific reason this candidate fits this role — tied to something real in the job posting, not a generic opener.
 
-Paragraph 3 — Second proof + breadth (3–4 sentences): Bring in a second relevant experience or skill area. Be specific — name tools, platforms, or responsibilities. Show how this rounds out the candidate's fit.
+Paragraph 2 (3–4 sentences): The candidate's strongest relevant experience. Name the actual company and role title. Describe the specific work done and the outcome — use the best metric from the CV. Connect it directly to what this employer needs.
 
-Paragraph 4 — Close (2–3 sentences): Confident, direct close. Reference the company by name. End with a clear expression of interest in next steps.
+Paragraph 3 (3–4 sentences): A second relevant skill or experience area. Name the tools, platforms, or responsibilities. Show how it adds to fit for this specific role.
 
-TONE: Confident, specific, natural. Reads like a real person — not a template. No clichés.
-FORBIDDEN PHRASES: "passionate about", "hard worker", "diverse skill set", "I am excited to", "comprehensive understanding", "team player", "I believe I would be", "I am a highly motivated".`
+Paragraph 4 (2–3 sentences): Confident close. Name the employer's company. Express clear interest in the role — specific, not generic.
+
+FORBIDDEN PHRASES — never write: "passionate about", "hard worker", "diverse skill set", "I am excited to", "eager to bring", "I believe I would be", "highly motivated", "team player", "comprehensive understanding", "a leading firm", "various clients".`
 
     const userMessage = isRefine
       ? `JOB POSTING:
