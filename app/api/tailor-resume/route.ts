@@ -64,57 +64,71 @@ export async function POST(req: Request) {
     }
 
     const { text } = await generateText({
-      model: 'openai/gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content: `You are an expert recruiter and ATS specialist tailoring a CV for a specific job.
+      model: 'anthropic/claude-sonnet-4-5',
+      system: `You are an expert CV writer tailoring a candidate's CV for a specific job posting.
 
-OUTPUT FORMAT — strictly plain text:
-- No markdown. No asterisks (**), no hyphens used as bullets, no hash symbols (#), no underscores.
-- Section headings are written in UPPERCASE on their own line (e.g. PROFESSIONAL SUMMARY, SKILLS, EXPERIENCE, EDUCATION).
-- Bullet points use a simple dash followed by a space: -  
-- Do not wrap any text in asterisks or other markdown characters.
+STRICT OUTPUT FORMAT — plain text only:
+- No markdown whatsoever. No asterisks, no hashes, no underscores, no bold, no italics.
+- Section headings in UPPERCASE on their own line.
+- Bullet points use a dash and space: -  
+- Contact details on a single line after the name.
 
-RULES:
-- Only use information explicitly in the original CV. Never add, invent, or imply anything not there.
-- Keep every number (%, £, $, metric, timeframe) EXACTLY as written in the CV.
-- Do not add skills, tools, companies, certifications, or achievements not in the original CV.
-- If the job requires something not in the CV, do not fabricate it — simply omit.
+FABRICATION IS FORBIDDEN:
+- Only use companies, job titles, tools, metrics, and facts explicitly in the original CV.
+- Keep every number (%, £, $, timeframe) exactly as written.
+- If the job requires something not in the CV, omit it — never invent it.
 
-PROCESS (silently — do NOT include in output):
-1. Identify the core responsibilities, required skills, and ATS keywords from the job description.
-2. Map each requirement to the closest matching CV evidence.
-3. Decide relevance order: most relevant experience and bullets surface first.
+YOUR TASK — you must make ALL of these changes. A CV that looks nearly identical to the original is a failure:
 
-OUTPUT — return ONLY the clean tailored CV in this exact structure:
+1. PROFESSIONAL SUMMARY — rewrite it completely from scratch for this specific role.
+   - Use the job title and employer name in the summary.
+   - Mention the 2–3 skills most critical to this specific job.
+   - Remove any skills or experience irrelevant to this role from the summary.
+   - Do not copy sentences from the original summary.
 
+2. SKILLS — reorder skill groups so the most relevant to this job appear first.
+   - Remove skill groups entirely irrelevant to this role.
+   - Within each group, put the most relevant skills first.
+   - Rename skill groups to match the job's terminology if appropriate.
+
+3. EXPERIENCE — for each role, reorder bullets so the most relevant to this job come first.
+   - Rewrite each bullet using the exact terminology from the job description where accurate.
+   - Example: if the job says "managing and maintaining websites" and the CV says "built database-driven websites", rewrite as "Managed and maintained client websites, ensuring content accuracy and platform performance".
+   - Example: if the job says "creating and scheduling content" and the CV says "managed content calendars", rewrite as "Created and scheduled content across social media platforms, managing publishing calendars and engagement".
+   - Remove bullets entirely irrelevant to this role to keep the CV focused.
+   - Keep all numbers and metrics exactly as written.
+
+4. Keep EDUCATION, CERTIFICATIONS, LANGUAGES exactly as in the original CV.
+
+OUTPUT STRUCTURE:
 [Candidate Name]
-[Contact details on one line]
+[Contact line]
 
 PROFESSIONAL SUMMARY
-[2–4 sentences rewritten for this specific role using only CV facts. No generic phrases.]
+[Fully rewritten 2–4 sentences]
 
 SKILLS
-[Skills grouped by category, ordered by relevance to this job. Plain text, comma-separated within each group.]
+[Skill Group Most Relevant to Job]: skill1, skill2, skill3
+[Second Skill Group]: skill1, skill2
+[continue...]
 
 EXPERIENCE
-[Company Name | Job Title | Start Date - End Date]
-- [Most relevant achievement/responsibility first, reworded to match job terminology where accurate]
+[Company] | [Job Title] | [Dates]
+- [Most relevant bullet first, rewritten in job's language]
 - [Second bullet]
 [Repeat for each role]
 
 EDUCATION
-[Degree, Institution, Year]
+[As in original]
 
 CERTIFICATIONS
-[Only if present in original CV]
+[As in original]
 
 LANGUAGES
-[Only if present in original CV]
+[As in original]
 
-No analysis, no "Job Match" sections, no ATS keyword lists, no notes, no commentary — just the CV.`,
-        },
+Return ONLY the tailored CV. No notes, no commentary, no analysis sections.`,
+      messages: [
         {
           role: 'user',
           content: `ROLE: ${String(jobTitle ?? '').slice(0, 200)}
@@ -123,14 +137,10 @@ COMPANY: ${String(company ?? '').slice(0, 200)}
 JOB DESCRIPTION:
 ${jobDescription.slice(0, 5000)}
 
----
-
 ORIGINAL CV:
 ${resumeText}
 
----
-
-Tailor this CV for the role above. Rewrite the professional summary, reorder skills and experience bullets by relevance, and naturally incorporate job-relevant terminology. Output only the clean tailored CV — no analysis, no section labels like "Job Match Analysis", no ATS keyword lists, no notes.`,
+Tailor this CV for the ${String(jobTitle ?? 'role')} at ${String(company ?? 'this company')}. The output must look visibly and substantially different from the original — rewrite the summary from scratch, reorder skills by relevance, and rewrite experience bullets using the job's own language.`,
         },
       ],
     })
