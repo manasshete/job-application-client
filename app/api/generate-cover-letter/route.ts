@@ -70,16 +70,8 @@ export async function POST(req: Request) {
 
     const isRefine = mode === 'refine'
 
-    const { text } = await generateText({
-      // Claude is used for cover letters because it produces natural, persuasive prose.
-      // gpt-5-mini (a reasoning/analysis model) produces structured but flat text—
-      // good for resume analysis, poor for human-sounding persuasive writing.
-      model: 'anthropic/claude-opus-4.6',
-      messages: [
-        {
-          role: 'user',
-          content: isRefine
-            ? `You are a professional cover letter writer refining a draft.
+    const systemPrompt = isRefine
+      ? `You are a professional cover letter writer refining a draft.
 
 RULES — follow these without exception:
 - Only use facts present in the CV. Never add, invent, or imply anything not there.
@@ -93,18 +85,8 @@ WHAT TO FIX IN THE DRAFT:
 - Cut any sentence that could apply to literally any candidate ("I am a hard worker", "I am passionate about marketing", "I have a diverse skill set") — replace with a specific fact from the CV.
 - Every paragraph must contain at least one concrete detail: a company name, a role title, a metric, a tool, a result.
 - The letter should sound like a confident real person wrote it — not a template.
-- 300–420 words maximum.
-
-JOB POSTING:
-${jobDescription.slice(0, 3000)}
-
-APPLICANT: ${safeApplicantName || 'the candidate'}
-ROLE: ${jobTitle?.slice(0, 200) ?? 'the position'}
-COMPANY: ${company?.slice(0, 200) ?? 'the company'}
-
-DRAFT TO REFINE:
-${userInput.slice(0, 10000)}`
-            : `You are a professional cover letter writer. Write a cover letter for the applicant below.
+- 300–420 words maximum.`
+      : `You are a professional cover letter writer. Write a cover letter for the applicant below.
 
 RULES — follow these without exception:
 - Only use facts present in the CV. Never add, invent, or imply anything not in the CV.
@@ -118,22 +100,28 @@ RULES — follow these without exception:
 HOW TO WRITE IT:
 Before writing, silently identify the 3 most important things the employer needs from this role. Then write 4 paragraphs:
 
-Paragraph 1 — Opening (2–3 sentences):
-State the role and company. Give ONE specific reason why this candidate wants this job — rooted in something real about the company or role, not a generic statement.
+Paragraph 1 — Opening (2–3 sentences): State the role and company. Give ONE specific reason why this candidate wants this job — rooted in something real about the company or role, not a generic statement.
 
-Paragraph 2 — Strongest proof (3–4 sentences):
-Lead with the candidate's single most relevant experience. Name the company, describe what they actually did, and include the most impressive metric or outcome from the CV. Connect it directly to what this employer needs.
+Paragraph 2 — Strongest proof (3–4 sentences): Lead with the candidate's single most relevant experience. Name the company, describe what they actually did, and include the most impressive metric or outcome from the CV. Connect it directly to what this employer needs.
 
-Paragraph 3 — Second proof + breadth (3–4 sentences):
-Bring in a second relevant experience or skill area. Be specific — name tools, platforms, or responsibilities. Show how this rounds out the candidate's fit.
+Paragraph 3 — Second proof + breadth (3–4 sentences): Bring in a second relevant experience or skill area. Be specific — name tools, platforms, or responsibilities. Show how this rounds out the candidate's fit.
 
-Paragraph 4 — Close (2–3 sentences):
-Confident, direct close. Reference the company by name. End with a clear expression of interest in next steps.
+Paragraph 4 — Close (2–3 sentences): Confident, direct close. Reference the company by name. End with a clear expression of interest in next steps.
 
 TONE: Confident, specific, natural. Reads like a real person — not a template. No clichés.
-FORBIDDEN PHRASES: "passionate about", "hard worker", "diverse skill set", "I am excited to", "comprehensive understanding", "team player", "I believe I would be", "I am a highly motivated".
+FORBIDDEN PHRASES: "passionate about", "hard worker", "diverse skill set", "I am excited to", "comprehensive understanding", "team player", "I believe I would be", "I am a highly motivated".`
 
-JOB POSTING:
+    const userMessage = isRefine
+      ? `JOB POSTING:
+${jobDescription.slice(0, 3000)}
+
+APPLICANT: ${safeApplicantName || 'the candidate'}
+ROLE: ${jobTitle?.slice(0, 200) ?? 'the position'}
+COMPANY: ${company?.slice(0, 200) ?? 'the company'}
+
+DRAFT TO REFINE:
+${userInput.slice(0, 10000)}`
+      : `JOB POSTING:
 ${jobDescription.slice(0, 3000)}
 
 APPLICANT: ${safeApplicantName || 'the candidate'}
@@ -141,9 +129,20 @@ ROLE: ${jobTitle?.slice(0, 200) ?? 'the position'}
 COMPANY: ${company?.slice(0, 200) ?? 'the company'}
 
 CV:
-${userInput.slice(0, 15000)}`,
+${userInput.slice(0, 15000)}`
+
+    const { text } = await generateText({
+      // Claude is used for cover letters because it produces natural, persuasive prose.
+      // gpt-5-mini (a reasoning/analysis model) produces structured but flat text—
+      // good for resume analysis, poor for human-sounding persuasive writing.
+      model: 'anthropic/claude-opus-4.6',
+      messages: [
+        {
+          role: 'user',
+          content: userMessage,
         },
       ],
+      system: systemPrompt,
     })
 
     // Increment document count via SECURITY DEFINER RPC (direct column writes
