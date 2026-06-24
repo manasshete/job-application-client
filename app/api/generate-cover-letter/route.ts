@@ -71,113 +71,77 @@ export async function POST(req: Request) {
     const isRefine = mode === 'refine'
 
     const { text } = await generateText({
-      model: 'openai/gpt-5-mini',
+      // Claude is used for cover letters because it produces natural, persuasive prose.
+      // gpt-5-mini (a reasoning/analysis model) produces structured but flat text—
+      // good for resume analysis, poor for human-sounding persuasive writing.
+      model: 'anthropic/claude-opus-4.6',
       messages: [
-        {
-          role: 'system',
-          content: isRefine
-            ? `You are an experienced hiring manager refining a cover letter draft.
-
-CRITICAL RULES:
-- Use only information found in the CV.
-- Never fabricate experience, achievements, projects, industries, software, responsibilities, or results.
-- Keep every metric (%, $, number, timeframe) EXACTLY as written in the CV. Never invent or change numbers.
-
-YOUR TASK:
-- Remove generic phrases ("diverse skills," "comprehensive understanding," "hard worker," "passionate," "excited").
-- Replace vague statements with specific CV facts: company names, job titles, metrics, achievements.
-- Ensure 2-3 strong achievements with numbers are highlighted.
-- Connect each achievement to the job requirements.
-- Make every sentence specific and interview-defensible.
-
-FORMAT:
-- No letterhead, date, address block, or [bracketed placeholders].
-- Start: "Dear Hiring Manager,"
-- End: "Sincerely," then the applicant's real name.
-
-OUTPUT: Return ONLY the refined cover letter. No commentary.`
-            : `You are an experienced hiring manager writing a professional cover letter on behalf of the candidate.
-
-CRITICAL RULES:
-- Use only information found in the CV.
-- Never fabricate experience, achievements, projects, industries, software, responsibilities, or results.
-- Do not claim qualifications the candidate does not possess.
-- If direct experience is missing, use transferable skills instead.
-- Keep every metric (%, $, number, timeframe) EXACTLY as written in the CV. Never invent or change numbers.
-
-TASK:
-Write a tailored cover letter that:
-1. Explains why the candidate is interested in the position.
-2. Connects the candidate's experience to the employer's requirements.
-3. Highlights the most relevant skills and achievements from the CV.
-4. Demonstrates understanding of the company's role and needs.
-5. Maintains a professional, confident, and natural tone.
-6. Avoids generic AI phrases and clichés.
-7. Remains concise (300-450 words).
-8. Sounds like a real person wrote it.
-
-STRUCTURE:
-
-Paragraph 1:
-- Express interest in the role.
-- Explain why the company or opportunity is appealing.
-
-Paragraph 2:
-- Highlight the candidate's most relevant experience.
-- Connect it directly to the role requirements.
-
-Paragraph 3:
-- Explain how the candidate's skills can contribute to the team.
-- Address transferable skills where necessary.
-
-Paragraph 4:
-- Closing statement and expression of interest in discussing the role further.
-
-FORMAT:
-- No letterhead, date, address block, or [bracketed placeholders].
-- Start: "Dear Hiring Manager,"
-- End: "Sincerely," then the applicant's real name.
-
-IMPORTANT:
-Before writing, identify the 5 most important requirements in the job description and ensure the letter addresses them using evidence from the CV. If a requirement is not supported by the CV, do not fabricate evidence.
-
-OUTPUT: Return ONLY the complete cover letter.`,
-        },
         {
           role: 'user',
           content: isRefine
-            ? `JOB CONTEXT:
-Position: ${jobTitle?.slice(0, 200) ?? '[Not provided]'}
-Company: ${company?.slice(0, 200) ?? '[Not provided]'}
-Applicant: ${safeApplicantName || 'the candidate'}
+            ? `You are a professional cover letter writer refining a draft.
+
+RULES — follow these without exception:
+- Only use facts present in the CV. Never add, invent, or imply anything not there.
+- Keep every number (%, £, $, metric, timeframe) EXACTLY as written in the CV.
+- Do not output any commentary, headers, or meta-text — only the finished letter.
+- No letterhead, date, or address block. No [bracketed placeholders] of any kind.
+- Start with: Dear Hiring Manager,
+- End with: Sincerely, then the applicant's full name on the next line.
+
+WHAT TO FIX IN THE DRAFT:
+- Cut any sentence that could apply to literally any candidate ("I am a hard worker", "I am passionate about marketing", "I have a diverse skill set") — replace with a specific fact from the CV.
+- Every paragraph must contain at least one concrete detail: a company name, a role title, a metric, a tool, a result.
+- The letter should sound like a confident real person wrote it — not a template.
+- 300–420 words maximum.
 
 JOB POSTING:
 ${jobDescription.slice(0, 3000)}
 
----
+APPLICANT: ${safeApplicantName || 'the candidate'}
+ROLE: ${jobTitle?.slice(0, 200) ?? 'the position'}
+COMPANY: ${company?.slice(0, 200) ?? 'the company'}
 
 DRAFT TO REFINE:
-${userInput.slice(0, 10000)}
+${userInput.slice(0, 10000)}`
+            : `You are a professional cover letter writer. Write a cover letter for the applicant below.
 
----
+RULES — follow these without exception:
+- Only use facts present in the CV. Never add, invent, or imply anything not in the CV.
+- Keep every number (%, £, $, metric, timeframe) EXACTLY as written in the CV.
+- Do not output any commentary, headers, labels, or meta-text — only the finished letter.
+- No letterhead, date, or address block. No [bracketed placeholders] of any kind.
+- Start with: Dear Hiring Manager,
+- End with: Sincerely, then the applicant's full name on the next line.
+- 300–420 words maximum.
 
-Refine this draft by removing vague language and replacing it with specific achievements, metrics, and CV facts. Every sentence must be specific and verifiable.`
-            : `JOB CONTEXT:
-Position: ${jobTitle?.slice(0, 200) ?? '[Not provided]'}
-Company: ${company?.slice(0, 200) ?? '[Not provided]'}
-Applicant: ${safeApplicantName || 'the candidate'}
+HOW TO WRITE IT:
+Before writing, silently identify the 3 most important things the employer needs from this role. Then write 4 paragraphs:
+
+Paragraph 1 — Opening (2–3 sentences):
+State the role and company. Give ONE specific reason why this candidate wants this job — rooted in something real about the company or role, not a generic statement.
+
+Paragraph 2 — Strongest proof (3–4 sentences):
+Lead with the candidate's single most relevant experience. Name the company, describe what they actually did, and include the most impressive metric or outcome from the CV. Connect it directly to what this employer needs.
+
+Paragraph 3 — Second proof + breadth (3–4 sentences):
+Bring in a second relevant experience or skill area. Be specific — name tools, platforms, or responsibilities. Show how this rounds out the candidate's fit.
+
+Paragraph 4 — Close (2–3 sentences):
+Confident, direct close. Reference the company by name. End with a clear expression of interest in next steps.
+
+TONE: Confident, specific, natural. Reads like a real person — not a template. No clichés.
+FORBIDDEN PHRASES: "passionate about", "hard worker", "diverse skill set", "I am excited to", "comprehensive understanding", "team player", "I believe I would be", "I am a highly motivated".
 
 JOB POSTING:
 ${jobDescription.slice(0, 3000)}
 
----
+APPLICANT: ${safeApplicantName || 'the candidate'}
+ROLE: ${jobTitle?.slice(0, 200) ?? 'the position'}
+COMPANY: ${company?.slice(0, 200) ?? 'the company'}
 
-CV DATA:
-${userInput.slice(0, 15000)}
-
----
-
-Identify the 5 most important requirements in the job posting. Write a cover letter that addresses each one using specific evidence from the CV. Lead with the most relevant achievement.`,
+CV:
+${userInput.slice(0, 15000)}`,
         },
       ],
     })
