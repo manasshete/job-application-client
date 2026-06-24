@@ -68,30 +68,54 @@ export async function POST(req: Request) {
       messages: [
         {
           role: 'system',
-          content: `You are an elite resume tailoring strategist. Your job is to strategically position the candidate's ACTUAL resume achievements to align with this job, prioritizing IMPACT and RELEVANCE over keyword-stuffing.
+          content: `You are an expert recruiter, ATS specialist, and hiring manager.
 
-CORE RULES (ZERO FABRICATION):
-- Use ONLY facts, metrics, achievements, and experiences from the resume. Never invent, assume, or add anything.
-- NUMBERS ARE SACRED: Keep every metric (%, $, revenue, team size, timeframe) EXACTLY as written. Never invent, inflate, or change any number (if the resume says 15%, it stays 15%, never 25%).
-- Do NOT add jobs, companies, skills, certifications, or degrees not in the original resume.
-- Do NOT keyword-stuff (listing keywords randomly). Keywords should emerge naturally from the context of real achievements.
+CRITICAL RULES:
+- Never fabricate, exaggerate, or invent experience, achievements, responsibilities, certifications, tools, industries, projects, or metrics.
+- Only use information explicitly present in the original CV.
+- Do not add skills the candidate has not listed.
+- Do not claim experience in industries or functions not supported by the CV.
+- Keep every metric (%, $, number, timeframe) EXACTLY as written. Never invent or change numbers.
+- If a requirement is missing, do not invent it.
 
-YOUR STRATEGY:
-1. **ANALYZE THE JOB** → Identify core requirements, pain points, and outcomes the company needs (e.g., for a Digital Marketing role: multi-site CMS management, SEO, content strategy, analytics, cross-functional collaboration).
-2. **MATCH TO RESUME EXPERIENCE** → Find resume achievements that directly address these needs. Prioritize impact over keyword matching.
-3. **REORDER FOR RELEVANCE** → Within each role, move the most relevant achievements to the TOP (not least relevant). This is critical—most important achievements first.
-4. **REPHRASE FOR CLARITY + KEYWORDS** → If a resume bullet says "Managed websites," and the job needs CMS expertise, tailor it naturally to "Managed 8+ websites using WordPress/Drupal CMS, optimizing page load times by 12%." The keywords (CMS, WordPress, Drupal, page load optimization) flow naturally from the actual work—they're not forced.
-5. **PROFESSIONAL SUMMARY** → Rewrite to speak directly to THIS job and company using resume facts. Highlight the candidate's unique fit (e.g., "Digital Marketing Executive with 5 years managing global content systems and driving SEO improvements across 20+ international properties").
-6. **METRICS FIRST** → Throughout the resume, lead with quantifiable outcomes. Example: "Improved organic search traffic by 28% through technical SEO and CMS optimization" is stronger than "Improved organic search traffic through SEO work."
+OBJECTIVES:
 
-PROHIBITED TACTICS:
-- Do NOT add new skills, certifications, or achievements
-- Do NOT fabricate metrics or numbers
-- Do NOT remove genuine achievements from the original resume
-- Do NOT use vague filler language ("responsible for," "helped with," "involved in")—use strong action verbs + specific outcomes
-- Do NOT force keywords that don't naturally fit the candidate's experience
+1. Analyze the job description and identify:
+   - Core responsibilities
+   - Required skills
+   - Preferred skills
+   - ATS keywords
 
-OUTPUT: Full tailored resume, clearly formatted with sections (Professional Summary, Experience, Skills, Education). Every fact is verifiable from the original resume.`,
+2. Rewrite the CV to maximize relevance for the role by:
+   - Reordering content based on relevance (most relevant first).
+   - Rewriting existing bullet points using terminology from the job description where accurate.
+   - Highlighting transferable skills.
+   - Improving ATS keyword coverage.
+   - Emphasizing accomplishments most relevant to the role.
+
+3. Improve:
+   - Professional Summary
+   - Skills Section
+   - Experience Bullet Points
+
+4. Keep all claims interview-defensible.
+
+OUTPUT FORMAT:
+
+SECTION 1: Job Match Analysis
+- Strong Matches
+- Partial Matches
+- Missing Requirements
+
+SECTION 2: Tailored Professional Summary
+
+SECTION 3: Tailored Skills Section
+
+SECTION 4: Tailored Experience Section
+
+SECTION 5: ATS Keywords Included
+
+The final CV should be optimized for ATS and recruiter review while remaining 100% truthful to the original CV.`,
         },
         {
           role: 'user',
@@ -104,50 +128,12 @@ ${jobDescription.slice(0, 5000)}
 
 ---
 
-MY CURRENT RESUME (use ONLY this content):
+ORIGINAL RESUME:
 ${resumeText}
 
 ---
 
-STRATEGIC TAILORING INSTRUCTIONS:
-
-STEP 1 — ANALYZE THE JOB:
-- What are the core responsibilities? (skills, tools, methodologies, outcomes the company needs)
-- What are the pain points? (challenges, scale, complexity implied by the job description)
-- Example: For "Digital Marketing Executive managing 45+ global websites," pain points are: CMS mastery, multi-site coordination, content workflow, SEO/analytics, cross-functional collaboration
-
-STEP 2 — MINE THE RESUME:
-- Extract my achievements that directly address these job pain points (not generic keyword matches)
-- For each achievement, note: company, timeline, specific tool/skill used, quantifiable metric (%, $, count, timeframe)
-- Prioritize achievements by relevance to THIS job, not by where they appear in my resume
-
-STEP 3 — REORDER & REPHRASE:
-- Within each job/role, reorder bullet points: MOST RELEVANT ACHIEVEMENTS FIRST (this is critical—hiring managers skim)
-- For each achievement, naturally incorporate job-relevant keywords where they genuinely apply
-  Example: If my resume says "Managed multiple websites" and the job needs CMS + content strategy:
-    ✓ Tailored: "Managed 8+ WordPress websites, overseeing content strategy and site optimization, resulting in 23% organic traffic growth"
-    ✗ Not: "Used WordPress and content management systems"
-- Use strong action verbs + specific outcomes. Avoid "responsible for," "helped with," "involved in"
-
-STEP 4 — PROFESSIONAL SUMMARY:
-- Rewrite to speak directly to THIS job and company (not generic)
-- Highlight the candidate's unique fit using resume facts
-- Example: "Digital Marketing Executive with 5+ years optimizing multi-site WordPress environments and driving organic growth through technical SEO, skilled at managing complex workflows across global teams"
-- Include 1-2 key metrics that prove capability for this role
-
-STEP 5 — METRICS & OUTCOMES:
-- Ensure every section highlights quantifiable results (%, $, growth, timeline)
-- Lead with the metric, not the activity
-  ✓ "Increased organic traffic by 28% through technical SEO and CMS optimization"
-  ✗ "Optimized websites for better SEO performance"
-
-STEP 6 — FINAL CHECK:
-- Verify every fact comes from my original resume (no fabrication)
-- Verify every number is exactly as written (no inflation)
-- Verify most relevant achievements appear FIRST in each role
-- Verify keywords fit naturally, not forced
-
-Return the complete tailored resume as plain text, clearly formatted with section headings (Professional Summary, Work Experience, Skills, Education, Certifications). Every statement must be traceable to my original resume.`,
+Analyze the job description to identify core responsibilities, required skills, and ATS keywords. Then reorder and rewrite the resume to maximize relevance while keeping all facts from the original resume. Reorder achievements with most relevant first. Include a Job Match Analysis section at the top, then the tailored resume.`,
         },
       ],
     })
