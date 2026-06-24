@@ -150,8 +150,12 @@ ${userInput.slice(0, 15000)}`
     await consumeToken('document_generation')
 
     return Response.json({ coverLetter: text })
-  } catch (err) {
-    console.error('[v0] cover-letter error:', err)
-    return Response.json({ error: 'Failed to generate cover letter. Please try again.' }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    const cause = err instanceof Error && (err as Error & { cause?: unknown }).cause
+    console.error('[v0] cover-letter error message:', message)
+    console.error('[v0] cover-letter error cause:', cause)
+    console.error('[v0] cover-letter error full:', err)
+    return Response.json({ error: `Failed to generate cover letter: ${message}` }, { status: 500 })
   }
 }
