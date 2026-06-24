@@ -143,10 +143,10 @@ const PRICING_TIERS = [
     description: 'For active job seekers applying consistently.',
     features: [
       'Unlimited applications',
-      '200 AI extractions / month',
+      '100 AI extractions / month',
       'AI Resume Tailoring',
       'AI Cover Letter Generation',
-      '200 document downloads / month',
+      '100 document downloads / month',
       'PDF downloads',
       'Timeline & Kanban view',
       'Export to CSV',
@@ -166,8 +166,8 @@ const PRICING_TIERS = [
     description: 'Maximum AI power for the serious job seeker.',
     features: [
       'Everything in Pro',
-      '500 AI extractions / month',
-      '500 document downloads / month',
+      '300 AI extractions / month',
+      '300 document downloads / month',
     ],
     missing: [],
     cta: 'Start Premium',

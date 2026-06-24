@@ -134,10 +134,10 @@ function getFeaturesSectionHtml(tier: string, color: string): string {
     ],
     pro: [
       'Unlimited applications',
-      '200 AI extractions/month',
+      '100 AI extractions/month',
       'AI Resume Tailoring',
       'AI Cover Letter Generation',
-      '200 documents/month',
+      '100 documents/month',
       'PDF downloads',
       'Timeline view',
       'Export to CSV',
@@ -147,8 +147,8 @@ function getFeaturesSectionHtml(tier: string, color: string): string {
     ],
     premium: [
       'Everything in Pro',
-      '500 AI extractions/month',
-      '500 documents/month',
+      '300 AI extractions/month',
+      '300 documents/month',
       'Priority support',
       'Advanced analytics',
     ],

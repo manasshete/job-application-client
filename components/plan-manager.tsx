@@ -41,13 +41,13 @@ const TIER_META: Record<
     label: 'Pro',
     icon: Zap,
     blurb: 'For active job seekers',
-    features: ['Unlimited applications', '200 AI extractions/month', 'AI resume & cover letters', '200 documents/month'],
+    features: ['Unlimited applications', '100 AI extractions/month', 'AI resume & cover letters', '100 documents/month'],
   },
   premium: {
     label: 'Premium',
     icon: Crown,
     blurb: 'Maximum AI power',
-    features: ['Everything in Pro', '500 AI extractions/month', '500 documents/month', 'Priority support'],
+    features: ['Everything in Pro', '300 AI extractions/month', '300 documents/month', 'Priority support'],
   },
 }
 
