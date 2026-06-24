@@ -104,6 +104,26 @@ export async function getTokenSummary(): Promise<TokenSummary> {
 }
 
 /**
+ * Zero out ALL existing token batches for a user (both types).
+ * Used when an admin changes a user's subscription tier so the user starts
+ * fresh at the new tier's limits with no leftover tokens from the old tier.
+ * Service-role only.
+ */
+export async function resetUserTokens(userId: string): Promise<{ error: Error | null }> {
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from('token_batches')
+    .update({ remaining: 0 })
+    .eq('user_id', userId)
+    .gt('remaining', 0)
+  if (error) {
+    console.error('[v0] Error resetting user tokens:', error.message)
+    return { error: new Error(error.message) }
+  }
+  return { error: null }
+}
+
+/**
  * Grant a batch of tokens to a user, valid for 60 days. Service-role only —
  * must ONLY be called from trusted server code after verifying entitlement
  * (e.g. a confirmed payment). Never expose to the client.

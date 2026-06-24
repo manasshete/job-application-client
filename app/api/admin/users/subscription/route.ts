@@ -3,7 +3,7 @@ import { verifyAdmin, logAdminAction } from '@/lib/admin/auth'
 import { createAdminClient } from '@/lib/admin/service-client'
 import { sendSubscriptionChangeEmail } from '@/lib/email/subscription-emails'
 import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
-import { grantTokens } from '@/lib/data/tokens'
+import { grantTokens, resetUserTokens } from '@/lib/data/tokens'
 
 export const dynamic = 'force-dynamic'
 
@@ -77,29 +77,35 @@ export async function POST(req: Request) {
       throw updateError
     }
 
-    // On an upgrade to a paid tier, grant that tier's tokens (valid 60 days),
-    // mirroring the payment flow. Downgrades grant nothing — the user keeps
-    // whatever unexpired tokens they already have.
-    if (tier !== 'free' && !isDowngrade(previousTier, tier)) {
+    // Always reset existing tokens first so the user starts fresh at the new
+    // tier — no leftover premium tokens on a downgrade, no stacked batches on
+    // an upgrade.
+    const resetResult = await resetUserTokens(userId)
+    if (resetResult.error) {
+      console.error('[v0] Admin tier change: failed to reset tokens:', resetResult.error.message)
+    }
+
+    // Grant fresh tokens for the new tier (free tier gets none).
+    if (tier !== 'free') {
       const limits = SUBSCRIPTION_LIMITS[tier as SubscriptionTier]
       if (limits) {
         const aiGrant = await grantTokens(userId, 'ai_extraction', limits.aiExtractionLimit, 'admin')
         if (aiGrant.error) {
-          console.error('[v0] Admin upgrade: failed to grant AI tokens:', aiGrant.error.message)
+          console.error('[v0] Admin tier change: failed to grant AI tokens:', aiGrant.error.message)
         }
         const docGrant = await grantTokens(userId, 'document_generation', limits.documentGenerationLimit, 'admin')
         if (docGrant.error) {
-          console.error('[v0] Admin upgrade: failed to grant document tokens:', docGrant.error.message)
+          console.error('[v0] Admin tier change: failed to grant document tokens:', docGrant.error.message)
         }
       }
     }
 
     // Audit log (best-effort)
+    const tierRank: Record<string, number> = { free: 0, pro: 1, premium: 2 }
+    const isDowngradeAction = (tierRank[tier] ?? 0) < (tierRank[previousTier ?? 'free'] ?? 0)
     await logAdminAction({
       adminId: check.user.id,
-      action: tier === 'free' || isDowngrade(previousTier, tier)
-        ? 'subscription_downgrade'
-        : 'subscription_upgrade',
+      action: isDowngradeAction ? 'subscription_downgrade' : 'subscription_upgrade',
       targetUserId: userId,
       details: {
         from: previousTier,
@@ -131,7 +137,4 @@ export async function POST(req: Request) {
   }
 }
 
-function isDowngrade(from: string | null, to: string): boolean {
-  const rank: Record<string, number> = { free: 0, pro: 1, premium: 2 }
-  return (rank[to] ?? 0) < (rank[from ?? 'free'] ?? 0)
-}
+
