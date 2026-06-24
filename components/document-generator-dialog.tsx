@@ -40,8 +40,8 @@ interface DocumentGeneratorDialogProps {
 
 const DOC_LIMITS: Record<string, number> = {
   free: 0,
-  pro: 200,
-  premium: 500,
+  pro: 100,
+  premium: 300,
 }
 
 type Step = 'prompt' | 'resume' | 'cover-letter' | 'results'
