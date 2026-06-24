@@ -5,24 +5,17 @@ import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
 
 export const dynamic = 'force-dynamic'
 
-/**
- * POST /api/admin/reset-tokens
- * One-time admin route to expire old token batches for all paid users
- * and re-grant them at the new limits (Pro: 100, Premium: 300).
- */
 export async function POST(req: Request) {
   const check = await verifyAdmin()
   if (!check.ok) {
     return NextResponse.json({ error: check.error }, { status: check.status })
   }
 
-  // Optional: scope to a specific tier, otherwise reset all paid users
   let body: { tier?: string } = {}
   try { body = await req.json() } catch { /* no body is fine */ }
 
   const admin = createAdminClient()
 
-  // 1. Fetch all pro and premium users
   const tierFilter = body.tier && ['pro', 'premium'].includes(body.tier)
     ? [body.tier]
     : ['pro', 'premium']
@@ -33,7 +26,7 @@ export async function POST(req: Request) {
     .in('subscription_tier', tierFilter)
 
   if (usersError || !users) {
-    console.error('[v0] reset-tokens: failed to fetch users', usersError?.message)
+    console.error('[reset-tokens] failed to fetch users:', usersError?.message)
     return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
   }
 
@@ -44,7 +37,7 @@ export async function POST(req: Request) {
     const limits = SUBSCRIPTION_LIMITS[tier]
     if (!limits) continue
 
-    // 2. Expire all existing token batches for this user
+    // Expire all existing token batches for this user
     const { error: expireError } = await admin
       .from('token_batches')
       .update({ remaining: 0 })
@@ -52,15 +45,15 @@ export async function POST(req: Request) {
       .gt('remaining', 0)
 
     if (expireError) {
-      console.error('[v0] reset-tokens: failed to expire tokens for', user.id, expireError.message)
+      console.error('[reset-tokens] failed to expire tokens for', user.id, expireError.message)
       results.failed++
       continue
     }
 
-    // 3. Grant fresh batches at new limits
+    // Grant fresh batches at new limits (valid 60 days from now)
     const expiresAt = new Date()
     expiresAt.setDate(expiresAt.getDate() + 60)
-    const expiresAtISO = expiresAt.toISOString()
+    const now = new Date().toISOString()
 
     const { error: grantError } = await admin
       .from('token_batches')
@@ -71,8 +64,8 @@ export async function POST(req: Request) {
           granted: limits.aiExtractionLimit,
           remaining: limits.aiExtractionLimit,
           source: 'admin_reset',
-          granted_at: new Date().toISOString(),
-          expires_at: expiresAtISO,
+          granted_at: now,
+          expires_at: expiresAt.toISOString(),
         },
         {
           user_id: user.id,
@@ -80,19 +73,19 @@ export async function POST(req: Request) {
           granted: limits.documentGenerationLimit,
           remaining: limits.documentGenerationLimit,
           source: 'admin_reset',
-          granted_at: new Date().toISOString(),
-          expires_at: expiresAtISO,
+          granted_at: now,
+          expires_at: expiresAt.toISOString(),
         },
       ])
 
     if (grantError) {
-      console.error('[v0] reset-tokens: failed to grant tokens for', user.id, grantError.message)
+      console.error('[reset-tokens] failed to grant tokens for', user.id, grantError.message)
       results.failed++
       continue
     }
 
     results.reset++
-    results.users.push(user.id)
+    results.users.push(`${user.id} (${tier})`)
   }
 
   return NextResponse.json({
