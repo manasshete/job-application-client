@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useTransition } from 'react'
+import { useState, useMemo, useTransition, useEffect } from 'react'
 import { JobBoard } from '@/components/job-board'
 import { AddJobDialog } from '@/components/add-job-dialog'
 import { Stats } from '@/components/stats'
@@ -44,6 +44,12 @@ export function DashboardClient({
   const [isPending, startTransition] = useTransition()
   const [localDocsUsed, setLocalDocsUsed] = useState(documentsUsedThisMonth)
   const router = useRouter()
+
+  // When the server re-renders with fresh token data (e.g. after payment or
+  // admin tier change), sync local state so the counter ceiling is correct.
+  useEffect(() => {
+    setLocalDocsUsed(documentsUsedThisMonth)
+  }, [documentsUsedThisMonth])
 
   const handleDocumentGenerated = () => {
     setLocalDocsUsed(prev => prev + 1)
