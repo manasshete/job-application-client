@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     }
 
     const { text } = await generateText({
-      model: 'openai/gpt-4o-mini',
+      model: 'openai/gpt-4o',
       messages: [
         {
           role: 'system',
