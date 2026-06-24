@@ -132,7 +132,7 @@ CV:
 ${userInput.slice(0, 15000)}`
 
     const { text } = await generateText({
-      model: 'openai/gpt-4o',
+      model: 'anthropic/claude-opus-4.6',
       messages: [
         {
           role: 'user',
@@ -149,10 +149,7 @@ ${userInput.slice(0, 15000)}`
     return Response.json({ coverLetter: text })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err)
-    const cause = err instanceof Error && (err as Error & { cause?: unknown }).cause
-    console.error('[v0] cover-letter error message:', message)
-    console.error('[v0] cover-letter error cause:', cause)
-    console.error('[v0] cover-letter error full:', err)
-    return Response.json({ error: `Failed to generate cover letter: ${message}` }, { status: 500 })
+    console.error('[cover-letter]', message)
+    return Response.json({ error: 'Failed to generate cover letter. Please try again.' }, { status: 500 })
   }
 }
