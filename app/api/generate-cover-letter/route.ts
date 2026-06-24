@@ -132,7 +132,7 @@ CV:
 ${userInput.slice(0, 15000)}`
 
     const { text } = await generateText({
-      model: 'anthropic/claude-opus-4.6',
+      model: 'openai/gpt-4o',
       messages: [
         {
           role: 'user',
