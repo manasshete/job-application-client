@@ -68,72 +68,59 @@ export async function POST(req: Request) {
       messages: [
         {
           role: 'system',
-          content: `You are an expert recruiter, ATS specialist, and hiring manager.
+          content: `You are an expert recruiter and ATS specialist tailoring a CV for a specific job.
 
-CRITICAL RULES:
-- Never fabricate, exaggerate, or invent experience, achievements, responsibilities, certifications, tools, industries, projects, or metrics.
-- Only use information explicitly present in the original CV.
-- Do not add skills the candidate has not listed.
-- Do not claim experience in industries or functions not supported by the CV.
-- Keep every metric (%, $, number, timeframe) EXACTLY as written. Never invent or change numbers.
-- If a requirement is missing, do not invent it.
+RULES — follow without exception:
+- Only use information explicitly in the original CV. Never add, invent, or imply anything not there.
+- Keep every number (%, £, $, metric, timeframe) EXACTLY as written in the CV. Never change or invent numbers.
+- Do not add skills, tools, companies, certifications, or achievements the candidate has not listed.
+- If the job requires something not in the CV, do not fabricate it — simply omit.
 
-OBJECTIVES:
+PROCESS (do this silently — do NOT include any of this analysis in your output):
+1. Read the job description and identify: core responsibilities, required skills, preferred skills, and ATS keywords.
+2. Map each job requirement to the closest matching CV evidence.
+3. Decide which experiences and skills are most relevant to surface first.
 
-1. Analyze the job description and identify:
-   - Core responsibilities
-   - Required skills
-   - Preferred skills
-   - ATS keywords
+OUTPUT — return ONLY a clean, complete, ready-to-send tailored CV. No analysis, no section labels like "Job Match Analysis" or "ATS Keywords", no commentary, no notes, no meta-text of any kind.
 
-2. Rewrite the CV to maximize relevance for the role by:
-   - Reordering content based on relevance (most relevant first).
-   - Rewriting existing bullet points using terminology from the job description where accurate.
-   - Highlighting transferable skills.
-   - Improving ATS keyword coverage.
-   - Emphasizing accomplishments most relevant to the role.
+The output must follow this structure exactly:
+[Candidate Name]
+[Contact details on one line]
 
-3. Improve:
-   - Professional Summary
-   - Skills Section
-   - Experience Bullet Points
+PROFESSIONAL SUMMARY
+[2–4 sentence summary rewritten for this specific role using only CV facts]
 
-4. Keep all claims interview-defensible.
+SKILLS
+[Grouped skills, ordered by relevance to this job]
 
-OUTPUT FORMAT:
+EXPERIENCE
+[Each role with company, dates, and bullet points — most relevant bullets first within each role, reworded naturally to match job terminology where accurate]
 
-SECTION 1: Job Match Analysis
-- Strong Matches
-- Partial Matches
-- Missing Requirements
+EDUCATION
+[Degree, institution, dates, relevant modules or dissertation if present]
 
-SECTION 2: Tailored Professional Summary
+CERTIFICATIONS
+[If present in the original CV]
 
-SECTION 3: Tailored Skills Section
-
-SECTION 4: Tailored Experience Section
-
-SECTION 5: ATS Keywords Included
-
-The final CV should be optimized for ATS and recruiter review while remaining 100% truthful to the original CV.`,
+LANGUAGES
+[If present in the original CV]`,
         },
         {
           role: 'user',
-          content: `JOB CONTEXT:
-Position: ${String(jobTitle ?? '').slice(0, 200)}
-Company: ${String(company ?? '').slice(0, 200)}
+          content: `ROLE: ${String(jobTitle ?? '').slice(0, 200)}
+COMPANY: ${String(company ?? '').slice(0, 200)}
 
 JOB DESCRIPTION:
 ${jobDescription.slice(0, 5000)}
 
 ---
 
-ORIGINAL RESUME:
+ORIGINAL CV:
 ${resumeText}
 
 ---
 
-Analyze the job description to identify core responsibilities, required skills, and ATS keywords. Then reorder and rewrite the resume to maximize relevance while keeping all facts from the original resume. Reorder achievements with most relevant first. Include a Job Match Analysis section at the top, then the tailored resume.`,
+Tailor this CV for the role above. Rewrite the professional summary, reorder skills and experience bullets by relevance, and naturally incorporate job-relevant terminology. Output only the clean tailored CV — no analysis, no section labels like "Job Match Analysis", no ATS keyword lists, no notes.`,
         },
       ],
     })
