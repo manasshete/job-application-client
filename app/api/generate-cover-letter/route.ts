@@ -70,73 +70,82 @@ export async function POST(req: Request) {
 
     const isRefine = mode === 'refine'
 
-    const systemPrompt = isRefine
-      ? `You are a professional cover letter editor. You must SUBSTANTIALLY REWRITE the draft — do not return it unchanged or only lightly edited.
+    const applicantFullName = safeApplicantName || null
 
-OUTPUT FORMAT:
-- Plain text only. No markdown. No asterisks, hyphens, bullet points, or bold formatting of any kind.
-- No letterhead, date, address block, or [bracketed placeholders].
-- Start with: Dear Hiring Manager,
-- End with: Sincerely, followed by the applicant's full name on the next line.
+    const systemPrompt = isRefine
+      ? `You are a professional cover letter editor. You must SUBSTANTIALLY REWRITE the draft — not return it unchanged.
+
+CRITICAL OUTPUT RULES:
+- Plain text only. Zero markdown. No asterisks (*), no hashes (#), no underscores, no bullet symbols.
+- No letterhead, date, address, or ANY bracketed placeholders like [Name] or [Company].
+- Start exactly with: Dear Hiring Manager,
+- End exactly with: Sincerely, then on the next line the applicant's real name: ${applicantFullName ?? 'use the name from the CV'}.
 - 300–420 words.
 
-MANDATORY CHANGES — you must do ALL of these:
-1. Replace every vague phrase with a specific fact from the CV: company name, job title, tool, platform, or metric. Examples of vague phrases that must be replaced: "a leading firm", "significant experience", "various clients", "strong results", "I am eager", "I am passionate", "hard worker", "diverse skill set", "team player", "comprehensive understanding".
-2. If the draft says "a leading firm" or any unnamed company, replace it with the actual company name from the CV.
-3. Every body paragraph must contain at least one of: a real company name, a job title, a platform/tool name, or a number/metric from the CV.
-4. The closing paragraph must name the employer's company specifically — not a generic sign-off.
-5. Remove any sentence that could apply to any candidate in any industry.
+FABRICATION IS FORBIDDEN:
+- Use ONLY companies, job titles, tools, platforms, and metrics that appear in the CV provided.
+- If the draft invented a company name like "XYZ Marketing Firm" — replace it with the real company from the CV.
+- Never invent or guess company names, metrics, or achievements not in the CV.
 
-DO NOT return the draft as-is. The output must be visibly and substantially different from the input draft.`
+MANDATORY REWRITES — do ALL of these:
+1. Replace every vague phrase with a specific CV fact. Banned phrases: "a leading firm", "various clients", "significant experience", "strong results", "I am eager", "I am passionate", "hard worker", "diverse skill set", "team player", "comprehensive understanding", "I am excited", "highly motivated".
+2. Every body paragraph must contain at least one real company name, tool, platform, or metric from the CV.
+3. The closing paragraph must name the employer's company (given below) specifically.
+4. Remove any sentence that could apply to any candidate in any industry.`
       : `You are a professional cover letter writer.
 
-OUTPUT FORMAT:
-- Plain text only. No markdown. No asterisks, hyphens, bullet points, or bold formatting of any kind.
-- No letterhead, date, address block, or [bracketed placeholders].
-- Start with: Dear Hiring Manager,
-- End with: Sincerely, followed by the applicant's full name on the next line.
+CRITICAL OUTPUT RULES:
+- Plain text only. Zero markdown. No asterisks (*), no hashes (#), no underscores, no bullet symbols.
+- No letterhead, date, address, or ANY bracketed placeholders like [Name] or [Company].
+- Start exactly with: Dear Hiring Manager,
+- End exactly with: Sincerely, then on the next line the applicant's real name: ${applicantFullName ?? 'use the full name from the CV'}.
 - 300–420 words.
-- Use only facts from the CV. Never invent companies, tools, metrics, or experience.
+
+FABRICATION IS FORBIDDEN:
+- Use ONLY companies, job titles, tools, platforms, and metrics that appear in the CV.
+- Never invent company names, metrics, or achievements not explicitly in the CV.
 - Keep every number exactly as written in the CV.
 
-BEFORE WRITING — silently identify:
+BEFORE WRITING — identify silently:
 - The 3 most important requirements in the job posting.
-- The 2 strongest matching experiences in the CV with a specific company name and metric/outcome.
+- The 2 strongest matching experiences in the CV with a real company name and metric.
 
 STRUCTURE — 4 paragraphs:
 
-Paragraph 1 (2–3 sentences): Name the role and the employer's company. Give one specific reason this candidate fits this role — tied to something real in the job posting, not a generic opener.
+Paragraph 1 (2–3 sentences): Name the role and the employer's company. Give one specific reason this candidate fits — tied to something in the job posting, not generic.
 
-Paragraph 2 (3–4 sentences): The candidate's strongest relevant experience. Name the actual company and role title. Describe the specific work done and the outcome — use the best metric from the CV. Connect it directly to what this employer needs.
+Paragraph 2 (3–4 sentences): The candidate's strongest relevant experience. Name the actual company and role title from the CV. Describe what they did and the outcome using the best metric from the CV. Connect it to what this employer needs.
 
-Paragraph 3 (3–4 sentences): A second relevant skill or experience area. Name the tools, platforms, or responsibilities. Show how it adds to fit for this specific role.
+Paragraph 3 (3–4 sentences): A second relevant skill or experience. Name the real tools, platforms, or responsibilities. Show how it adds to fit for this specific role.
 
-Paragraph 4 (2–3 sentences): Confident close. Name the employer's company. Express clear interest in the role — specific, not generic.
+Paragraph 4 (2–3 sentences): Confident close. Name the employer's company. Express clear, specific interest in the role.
 
-FORBIDDEN PHRASES — never write: "passionate about", "hard worker", "diverse skill set", "I am excited to", "eager to bring", "I believe I would be", "highly motivated", "team player", "comprehensive understanding", "a leading firm", "various clients".`
+BANNED PHRASES — never write: "passionate about", "hard worker", "diverse skill set", "I am excited to", "eager to bring", "I believe I would be", "highly motivated", "team player", "comprehensive understanding", "a leading firm", "various clients", "I am eager".`
 
     const userMessage = isRefine
-      ? `JOB POSTING:
+      ? `APPLICANT NAME: ${applicantFullName ?? 'use the name from the CV'}
+ROLE: ${jobTitle?.slice(0, 200) ?? 'the position'}
+EMPLOYER COMPANY: ${company?.slice(0, 200) ?? 'the company'}
+
+JOB POSTING:
 ${jobDescription.slice(0, 3000)}
 
-APPLICANT: ${safeApplicantName || 'the candidate'}
-ROLE: ${jobTitle?.slice(0, 200) ?? 'the position'}
-COMPANY: ${company?.slice(0, 200) ?? 'the company'}
+CV (use ONLY companies, tools, and facts from here — do not invent):
+${userInput.slice(0, 10000)}
 
-DRAFT TO REFINE:
-${userInput.slice(0, 10000)}`
-      : `JOB POSTING:
+Rewrite the above draft substantially. Replace all vague phrases with specific CV facts. Do not return the draft unchanged.`
+      : `APPLICANT NAME: ${applicantFullName ?? 'use the full name from the CV'}
+ROLE: ${jobTitle?.slice(0, 200) ?? 'the position'}
+EMPLOYER COMPANY: ${company?.slice(0, 200) ?? 'the company'}
+
+JOB POSTING:
 ${jobDescription.slice(0, 3000)}
 
-APPLICANT: ${safeApplicantName || 'the candidate'}
-ROLE: ${jobTitle?.slice(0, 200) ?? 'the position'}
-COMPANY: ${company?.slice(0, 200) ?? 'the company'}
-
-CV:
+CV (use ONLY companies, tools, and facts from here — do not invent anything):
 ${userInput.slice(0, 15000)}`
 
     const { text } = await generateText({
-      model: 'openai/gpt-4o',
+      model: 'anthropic/claude-sonnet-4-5',
       messages: [
         {
           role: 'user',
