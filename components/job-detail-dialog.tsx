@@ -39,6 +39,7 @@ interface JobDetailDialogProps {
   isPremium?: boolean
   subscriptionTier?: string
   documentsUsedThisMonth?: number
+  onDocumentGenerated?: () => void
 }
 
 const statusConfig: Record<JobStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -58,6 +59,7 @@ export function JobDetailDialog({
   subscriptionTier = 'free',
   documentsUsedThisMonth = 0,
   onDeleteJob,
+  onDocumentGenerated,
 }: JobDetailDialogProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
@@ -442,6 +444,7 @@ export function JobDetailDialog({
         isPremium={isPremium}
         subscriptionTier={subscriptionTier}
         documentsUsedThisMonth={documentsUsedThisMonth}
+        onDocumentGenerated={onDocumentGenerated}
       />
     </Dialog>
   )

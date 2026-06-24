@@ -36,6 +36,7 @@ interface AddJobDialogProps {
   isPremium?: boolean
   subscriptionTier?: string
   documentsUsedThisMonth?: number
+  onDocumentGenerated?: () => void
 }
 
 export function AddJobDialog({
@@ -45,6 +46,7 @@ export function AddJobDialog({
   isPremium = false,
   subscriptionTier = 'free',
   documentsUsedThisMonth = 0,
+  onDocumentGenerated,
 }: AddJobDialogProps) {
   const [jobUrl, setJobUrl] = useState('')
   const [isExtracting, setIsExtracting] = useState(false)
@@ -439,6 +441,7 @@ export function AddJobDialog({
         isPremium={isPremium}
         subscriptionTier={subscriptionTier}
         documentsUsedThisMonth={documentsUsedThisMonth}
+        onDocumentGenerated={onDocumentGenerated}
       />
     </Dialog>
   )

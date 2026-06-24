@@ -36,6 +36,7 @@ interface DocumentGeneratorDialogProps {
   isPremium: boolean
   subscriptionTier?: string
   documentsUsedThisMonth: number
+  onDocumentGenerated?: () => void
 }
 
 const DOC_LIMITS: Record<string, number> = {
@@ -55,6 +56,7 @@ export function DocumentGeneratorDialog({
   isPremium,
   subscriptionTier = 'free',
   documentsUsedThisMonth,
+  onDocumentGenerated,
 }: DocumentGeneratorDialogProps) {
   const [step, setStep] = useState<Step>('prompt')
   const [wantsResume, setWantsResume] = useState(true)
@@ -257,6 +259,11 @@ export function DocumentGeneratorDialog({
       }
 
       await Promise.all(promises)
+      // Notify parent to increment local token counter for each generated document
+      if (onDocumentGenerated) {
+        if (wantsResume) onDocumentGenerated()
+        if (wantsCoverLetter && coverLetterInput.trim()) onDocumentGenerated()
+      }
       setStep('results')
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Generation failed. Please try again.'

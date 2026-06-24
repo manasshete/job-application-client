@@ -42,7 +42,12 @@ export function DashboardClient({
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [localDocsUsed, setLocalDocsUsed] = useState(documentsUsedThisMonth)
   const router = useRouter()
+
+  const handleDocumentGenerated = () => {
+    setLocalDocsUsed(prev => prev + 1)
+  }
 
   const availableTags = useMemo(() => {
     const tags = new Set<string>()
@@ -359,7 +364,8 @@ export function DashboardClient({
           onAddJob={addJob}
           isPremium={isPremium}
           subscriptionTier={subscriptionTier}
-          documentsUsedThisMonth={documentsUsedThisMonth}
+          documentsUsedThisMonth={localDocsUsed}
+          onDocumentGenerated={handleDocumentGenerated}
         />
 
         {selectedJob && (
@@ -377,7 +383,8 @@ export function DashboardClient({
             }}
             isPremium={isPremium}
             subscriptionTier={subscriptionTier}
-            documentsUsedThisMonth={documentsUsedThisMonth}
+            documentsUsedThisMonth={localDocsUsed}
+            onDocumentGenerated={handleDocumentGenerated}
           />
         )}
 
