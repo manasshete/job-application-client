@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     }
 
     const { text } = await generateText({
-      model: 'anthropic/claude-sonnet-4-5',
+      model: 'google/gemini-2.5-flash',
       system: `You are an expert CV writer tailoring a candidate's CV for a specific job posting.
 
 STRICT OUTPUT FORMAT — plain text only:

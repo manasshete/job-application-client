@@ -145,7 +145,7 @@ CV (use ONLY companies, tools, and facts from here — do not invent anything):
 ${userInput.slice(0, 15000)}`
 
     const { text } = await generateText({
-      model: 'anthropic/claude-sonnet-4-5',
+      model: 'google/gemini-2.5-flash',
       messages: [
         {
           role: 'user',
