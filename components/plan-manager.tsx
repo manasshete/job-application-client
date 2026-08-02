@@ -35,7 +35,7 @@ const TIER_META: Record<
     label: 'Free',
     icon: Sparkles,
     blurb: 'Perfect for getting started',
-    features: ['Up to 10 job applications', '5 AI extractions/month', 'Basic application tracking'],
+    features: ['Up to 10 job applications', '5 AI extractions/month', '2 AI documents/month', 'Basic application tracking'],
   },
   pro: {
     label: 'Pro',
@@ -168,7 +168,7 @@ export function PlanManager({ currentTier }: PlanManagerProps) {
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingDowngrade === 'free'
-                ? 'You will lose access to unlimited jobs, AI resume tailoring, cover letter generation, and other paid features. This change takes effect immediately. You can top up again anytime.'
+                ? 'You will lose unlimited applications, higher AI limits, PDF downloads, and advanced analytics. The Free plan still includes 5 AI extractions and 2 AI documents per month. This change takes effect immediately, and you can upgrade again anytime.'
                 : 'Your plan limits will be reduced to match the lower tier. This change takes effect immediately. You can upgrade again anytime.'}
             </AlertDialogDescription>
           </AlertDialogHeader>

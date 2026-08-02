@@ -40,7 +40,7 @@ interface DocumentGeneratorDialogProps {
 }
 
 const DOC_LIMITS: Record<string, number> = {
-  free: 0,
+  free: 2,
   pro: 100,
   premium: 300,
 }
@@ -92,7 +92,8 @@ export function DocumentGeneratorDialog({
   const docLimit = DOC_LIMITS[subscriptionTier] ?? 0
   const remainingDocs = Math.max(0, docLimit - documentsUsedThisMonth)
   const isOverLimit = documentsUsedThisMonth >= docLimit && docLimit > 0
-  const hasDocGeneration = isPremium || subscriptionTier === 'pro'
+  // Access is granted whenever the tier has a document allotment (free now gets 2/month).
+  const hasDocGeneration = docLimit > 0
 
   // Load saved documents when dialog opens
   useEffect(() => {

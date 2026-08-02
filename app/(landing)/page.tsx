@@ -94,13 +94,13 @@ const FEATURES = [
     icon: FileText,
     title: 'AI Resume Tailoring',
     description: 'Your master CV, tailored for every role. AI rewrites the most relevant sections without fabricating experience.',
-    tag: 'Pro & Premium',
+    tag: '2 free / month',
   },
   {
     icon: Download,
     title: 'AI Cover Letters',
     description: 'Personalised cover letters generated in seconds. Give it your key points and it handles the rest. Download as PDF.',
-    tag: 'Pro & Premium',
+    tag: '2 free / month',
   },
   {
     icon: CalendarCheck,
@@ -126,11 +126,12 @@ const PRICING_TIERS = [
     features: [
       'Up to 10 applications',
       '5 AI extractions / month',
+      '2 AI resume tailors & cover letters / month',
       'Basic application tracking',
       'Status updates & notes',
       'Interview scheduling',
     ],
-    missing: ['AI Resume Tailoring', 'AI Cover Letters', 'PDF downloads', 'Advanced analytics'],
+    missing: ['Unlimited AI documents', 'Advanced analytics', 'Export to CSV'],
     cta: 'Get Started Free',
     href: '/auth/sign-up',
     highlighted: false,
@@ -203,7 +204,7 @@ const FAQS = [
   },
   {
     q: 'Is Pursuitz free to use?',
-    a: 'Yes. Pursuitz offers a free plan that includes up to 10 applications and 5 AI extractions per month so you can track job applications and try the core AI before upgrading. Paid Pro and Premium plans add AI resume tailoring, AI cover letters, PDF downloads, and higher monthly limits.',
+    a: 'Yes. Pursuitz offers a free plan that includes up to 10 applications, 5 AI extractions per month, and 2 AI-tailored resumes and cover letters every month — so you can track job applications and try the full AI workflow before upgrading. Paid Pro and Premium plans add unlimited applications, PDF downloads, advanced analytics, and much higher monthly document and extraction limits.',
   },
   {
     q: 'Is my resume data secure?',
