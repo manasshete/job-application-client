@@ -30,7 +30,24 @@ export default function Page() {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      // 1. Validate email and check rate limits
+      const validateRes = await fetch('/api/auth/validate-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      const validateData = await validateRes.json()
+      if (!validateData.valid) {
+        setError(validateData.error || 'Signup validation failed')
+        setIsLoading(false)
+        return
+      }
+
+      const clientIp = validateData.ip
+
+      // 2. Create auth user in Supabase
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -39,8 +56,28 @@ export default function Page() {
             `${window.location.origin}/auth/callback`,
         },
       })
-      if (error) throw error
-      router.push('/auth/sign-up-success')
+
+      if (authError) throw authError
+      if (!authData.user?.id) throw new Error('No user ID returned')
+
+      // 3. Log signup and prepare verification
+      const logRes = await fetch('/api/auth/log-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: authData.user.id,
+          email,
+          ip: clientIp,
+        }),
+      })
+
+      const logData = await logRes.json()
+      if (!logData.success) {
+        console.warn('[v0] Failed to log signup, but user was created')
+      }
+
+      // Redirect to verification pending page
+      router.push('/auth/sign-up-success?verify=pending')
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
