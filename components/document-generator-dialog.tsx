@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Loader2, FileText, Download, Upload, Sparkles, Lock, Star, Trash2, AlertCircle } from 'lucide-react'
 import { DocumentDisclaimer } from './disclaimers'
+import { DOC_LIMITS } from '@/lib/document-limits'
 
 interface SavedDocument {
   id: string
@@ -37,12 +38,6 @@ interface DocumentGeneratorDialogProps {
   subscriptionTier?: string
   documentsUsedThisMonth: number
   onDocumentGenerated?: () => void
-}
-
-const DOC_LIMITS: Record<string, number> = {
-  free: 2,
-  pro: 100,
-  premium: 300,
 }
 
 type Step = 'prompt' | 'resume' | 'cover-letter' | 'results'

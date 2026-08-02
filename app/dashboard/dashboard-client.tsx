@@ -17,6 +17,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import type { Job, JobStatus } from '@/lib/types'
+import { DOC_LIMITS } from '@/lib/document-limits'
 
 
 interface DashboardClientProps {
@@ -305,7 +306,11 @@ export function DashboardClient({
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {/* Stats + weekly summary */}
         <div className="animate-fade-up">
-          <Stats jobs={jobs} />
+          <Stats 
+            jobs={jobs} 
+            documentLimit={DOC_LIMITS[subscriptionTier]}
+            documentsUsed={localDocsUsed}
+          />
           <WeeklySummary jobs={jobs} />
         </div>
 

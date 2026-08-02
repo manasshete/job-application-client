@@ -2,17 +2,20 @@
 
 import type { Job } from '@/lib/types'
 import { Card, CardContent } from '@/components/ui/card'
-import { Briefcase, Clock, CheckCircle2, TrendingUp } from 'lucide-react'
+import { Briefcase, Clock, CheckCircle2, TrendingUp, FileText } from 'lucide-react'
 
 interface StatsProps {
   jobs: Job[]
+  documentLimit?: number
+  documentsUsed?: number
 }
 
-export function Stats({ jobs }: StatsProps) {
+export function Stats({ jobs, documentLimit = 0, documentsUsed = 0 }: StatsProps) {
   const offerCount = jobs.filter((j) => j.status === 'offer' || j.status === 'accepted').length
   const interviewRate = jobs.length > 0
     ? Math.round((jobs.filter((j) => j.status !== 'applied').length / jobs.length) * 100)
     : 0
+  const documentsRemaining = Math.max(0, documentLimit - documentsUsed)
 
   const stats = [
     {
@@ -36,6 +39,13 @@ export function Stats({ jobs }: StatsProps) {
       iconBg: 'bg-chart-2/10',
       iconColor: 'text-chart-2',
     },
+    ...(documentLimit > 0 ? [{
+      label: 'AI Documents',
+      value: `${documentsRemaining}/${documentLimit}`,
+      icon: FileText,
+      iconBg: 'bg-violet-500/10',
+      iconColor: 'text-violet-500',
+    }] : []),
     {
       label: 'Offers',
       value: offerCount,
