@@ -85,18 +85,16 @@ export async function POST(req: Request) {
       console.error('[v0] Admin tier change: failed to reset tokens:', resetResult.error.message)
     }
 
-    // Grant fresh tokens for the new tier (free tier gets none).
-    if (tier !== 'free') {
-      const limits = SUBSCRIPTION_LIMITS[tier as SubscriptionTier]
-      if (limits) {
-        const aiGrant = await grantTokens(userId, 'ai_extraction', limits.aiExtractionLimit, 'admin')
-        if (aiGrant.error) {
-          console.error('[v0] Admin tier change: failed to grant AI tokens:', aiGrant.error.message)
-        }
-        const docGrant = await grantTokens(userId, 'document_generation', limits.documentGenerationLimit, 'admin')
-        if (docGrant.error) {
-          console.error('[v0] Admin tier change: failed to grant document tokens:', docGrant.error.message)
-        }
+    // Grant fresh tokens for the new tier (including free tier which now has document generation).
+    const limits = SUBSCRIPTION_LIMITS[tier as SubscriptionTier]
+    if (limits) {
+      const aiGrant = await grantTokens(userId, 'ai_extraction', limits.aiExtractionLimit, 'admin')
+      if (aiGrant.error) {
+        console.error('[v0] Admin tier change: failed to grant AI tokens:', aiGrant.error.message)
+      }
+      const docGrant = await grantTokens(userId, 'document_generation', limits.documentGenerationLimit, 'admin')
+      if (docGrant.error) {
+        console.error('[v0] Admin tier change: failed to grant document tokens:', docGrant.error.message)
       }
     }
 
