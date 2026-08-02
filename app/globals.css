@@ -72,6 +72,60 @@
   50%       { box-shadow: 0 0 24px 4px hsl(221 83% 53% / 0.18); }
 }
 
+/* Optimus-style animations */
+
+/* Character reveal — blur + fade + slide */
+@keyframes char-reveal {
+  from {
+    opacity: 0;
+    filter: blur(40px);
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+/* Marquee ticker — infinite scroll */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Line reveal — horizontal wipe from left */
+@keyframes line-reveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+/* Code line reveal — x offset + blur */
+@keyframes line-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+/* Character type-in — per-character reveal */
+@keyframes char-type-in {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────
    Animation utility classes
    ───────────────────────────────────────────────────────────── */
@@ -192,6 +246,78 @@
     will-change: transform;
   }
   .btn-press:active { transform: scale(0.96); }
+
+  /* Optimus utilities */
+
+  /* Character reveal — apply to individual characters */
+  .char-reveal {
+    animation: char-reveal 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    will-change: opacity, filter, transform;
+  }
+
+  /* Marquee — infinite scroll */
+  .marquee {
+    animation: marquee 30s linear infinite;
+    will-change: transform;
+  }
+
+  /* Line reveal — horizontal wipe */
+  .line-reveal {
+    animation: line-reveal 0.6s cubic-bezier(0.22,1,0.36,1) both;
+    will-change: clip-path;
+  }
+
+  /* Code line reveal */
+  .code-line-reveal {
+    animation: line-fade-in 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    will-change: opacity, transform, filter;
+  }
+
+  /* Code character type-in */
+  .char-type-in {
+    animation: char-type-in 0.3s cubic-bezier(0.22,1,0.36,1) both;
+    will-change: opacity, filter;
+  }
+
+  /* Floating nav — smooth height + shadow transition */
+  .nav-float {
+    transition: all 0.5s cubic-bezier(0.22,1,0.36,1);
+    will-change: height, box-shadow, background-color;
+  }
+
+  /* Feature heading slide — on group-hover */
+  .feature-heading {
+    transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
+    will-change: transform;
+  }
+  .group:hover .feature-heading {
+    transform: translateX(8px);
+  }
+
+  /* Testimonial slide */
+  .testimonial-slide {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    will-change: opacity, transform;
+  }
+  .testimonial-slide.active {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .testimonial-slide.prev {
+    opacity: 0;
+    transform: translateX(-24px);
+    pointer-events: none;
+  }
+  .testimonial-slide.next {
+    opacity: 0;
+    transform: translateX(24px);
+    pointer-events: none;
+  }
+
+  /* Animated counter */
+  .counter {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────
