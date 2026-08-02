@@ -1,14 +1,70 @@
 /**
- * Disposable email domains blocklist — loaded locally at startup.
- * No database sync, no monthly costs.
- * 
- * Coverage: ~90 domains covering the most common disposable email services
- * Effectiveness: Blocks ~95% of typical abuse attempts
- * 
- * To add more domains: Simply add them to this array and redeploy.
- * Source reference: https://github.com/tompec/disposable-email-domains
+ * Disposable email domain blocklist.
+ *
+ * Strategy: fetch the full 60,000+ domain list from GitHub on first use,
+ * cache it in Node.js module memory for the lifetime of the server instance.
+ * No database writes, no cron jobs, no monthly cost — just one HTTP GET.
+ *
+ * Source: https://github.com/tompec/disposable-email-domains
+ *
+ * The ~90 domain hardcoded set below is the fallback used when:
+ *   - The GitHub fetch fails (network error, rate limit, etc.)
+ *   - The server is in local development without internet access
  */
-export const DISPOSABLE_DOMAINS_SET = new Set([
+
+const GITHUB_URL =
+  'https://raw.githubusercontent.com/tompec/disposable-email-domains/main/index.json'
+
+// Module-level cache — shared across all requests on the same server instance
+let cachedSet: Set<string> | null = null
+let fetchPromise: Promise<Set<string>> | null = null
+
+async function fetchRemoteList(): Promise<Set<string>> {
+  try {
+    const res = await fetch(GITHUB_URL, {
+      next: { revalidate: 86400 }, // Next.js cache: refresh at most once per day
+    })
+    if (!res.ok) throw new Error(`GitHub responded ${res.status}`)
+    const domains: string[] = await res.json()
+    const set = new Set([...domains.map((d) => d.toLowerCase()), ...FALLBACK_DOMAINS])
+    console.log(`[v0] Disposable domain list loaded: ${set.size} domains`)
+    return set
+  } catch (err) {
+    console.warn('[v0] Failed to fetch remote disposable list, using fallback:', err)
+    return new Set(FALLBACK_DOMAINS)
+  }
+}
+
+/** Returns the cached Set, fetching from GitHub if not yet loaded. */
+async function getDisposableSet(): Promise<Set<string>> {
+  if (cachedSet) return cachedSet
+
+  // Deduplicate concurrent requests — only one fetch in flight at a time
+  if (!fetchPromise) {
+    fetchPromise = fetchRemoteList().then((set) => {
+      cachedSet = set
+      fetchPromise = null
+      return set
+    })
+  }
+
+  return fetchPromise
+}
+
+/**
+ * Check if an email is from a known disposable domain.
+ * Async — waits for the remote list on first call, instant thereafter.
+ */
+export async function isDisposableEmail(email: string): Promise<boolean> {
+  const domain = email.toLowerCase().split('@')[1]
+  if (!domain) return false
+  const set = await getDisposableSet()
+  return set.has(domain)
+}
+
+// ─── Fallback hardcoded list (~90 domains) ────────────────────────────────────
+
+const FALLBACK_DOMAINS = [
   // 10 Minute Mail variants
   '10minutemail.com',
   '10minemail.com',
@@ -123,13 +179,4 @@ export const DISPOSABLE_DOMAINS_SET = new Set([
   'test.com',
   'localhost',
   '0.0.0.0',
-])
-
-/**
- * Check if an email domain is in the disposable list.
- * O(1) lookup time.
- */
-export function isDisposableEmail(email: string): boolean {
-  const domain = email.toLowerCase().split('@')[1]
-  return domain ? DISPOSABLE_DOMAINS_SET.has(domain) : false
-}
+]

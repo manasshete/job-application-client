@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
       request.headers.get('x-real-ip') ||
       'unknown'
 
-    // 1. Check if email domain is in local disposable blocklist
-    if (isDisposableEmail(email)) {
+    // 1. Check against disposable blocklist (60k domains from GitHub, cached in memory)
+    if (await isDisposableEmail(email)) {
       console.warn('[v0] Rejected disposable email:', email)
       return NextResponse.json(
         {
