@@ -30,33 +30,8 @@ create index if not exists idx_ip_signup_log_ip_time on public.ip_signup_log(ip_
 -- Auto-delete records older than 30 days (optional, uses pg_cron if available)
 -- For manual cleanup: DELETE FROM ip_signup_log WHERE created_at < NOW() - INTERVAL '30 days';
 
--- ─── Create disposable email domain blocklist table ──────────────────────
-
-create table if not exists public.disposable_email_domains (
-  id bigserial primary key,
-  domain text not null unique,
-  source text default 'github_disposable_domains',
-  synced_at timestamp with time zone default now(),
-  created_at timestamp with time zone default now()
-);
-
--- Index for fast lookups during signup
-create index if not exists idx_disposable_email_domains_domain on public.disposable_email_domains(domain);
-create index if not exists idx_disposable_email_domains_synced_at on public.disposable_email_domains(synced_at);
-
--- Function to check if an email domain is blocklisted
-create or replace function public.is_disposable_email(p_email text)
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $function$
-  select exists(
-    select 1 from public.disposable_email_domains
-    where domain = lower(substring(p_email from '@' || '(.*)$'))
-  );
-$function$;
+-- Note: Disposable email domains are checked locally in /lib/disposable-domains.ts
+-- No database table needed — local O(1) lookup costs $0/month
 
 -- ─── Function to verify email and mark user as verified ──────────────────
 
@@ -118,12 +93,8 @@ grant execute on function public.log_signup_by_ip(text, uuid) to anon;
 
 -- ─── RLS policies ──────────────────────────────────────────────────────────
 
--- No need to expose IP logs or disposable domains to users
+-- No need to expose IP logs to users
 alter table public.ip_signup_log enable row level security;
-alter table public.disposable_email_domains enable row level security;
 
 create policy "Admins only" on public.ip_signup_log for all
-  using (public.is_admin());
-
-create policy "Admins only" on public.disposable_email_domains for all
   using (public.is_admin());
