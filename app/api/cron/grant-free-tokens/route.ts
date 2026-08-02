@@ -26,7 +26,8 @@ export async function GET(req: Request) {
   }
 
   const admin = createAdminClient()
-  const freeAllotment = SUBSCRIPTION_LIMITS.free.aiExtractionLimit
+  const aiExtractionAllotment = SUBSCRIPTION_LIMITS.free.aiExtractionLimit
+  const documentGenerationAllotment = SUBSCRIPTION_LIMITS.free.documentGenerationLimit
 
   // Free-tier users.
   const { data: profiles, error: profilesError } = await admin
@@ -57,16 +58,28 @@ export async function GET(req: Request) {
 
   let granted = 0
   for (const profile of targets) {
-    const { error } = await admin.rpc('grant_tokens', {
+    // Grant ai_extraction tokens
+    const { error: aiError } = await admin.rpc('grant_tokens', {
       p_user_id: profile.id,
       p_token_type: 'ai_extraction',
-      p_amount: freeAllotment,
+      p_amount: aiExtractionAllotment,
       p_source: 'free_monthly',
     })
-    if (error) {
-      console.error('[v0] Cron: failed to grant free tokens to', profile.id, error.message)
+    if (aiError) {
+      console.error('[v0] Cron: failed to grant ai_extraction tokens to', profile.id, aiError.message)
     } else {
       granted += 1
+    }
+
+    // Grant document_generation tokens
+    const { error: docError } = await admin.rpc('grant_tokens', {
+      p_user_id: profile.id,
+      p_token_type: 'document_generation',
+      p_amount: documentGenerationAllotment,
+      p_source: 'free_monthly',
+    })
+    if (docError) {
+      console.error('[v0] Cron: failed to grant document_generation tokens to', profile.id, docError.message)
     }
   }
 
