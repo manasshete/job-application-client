@@ -35,11 +35,14 @@ create index if not exists idx_ip_signup_log_ip_time on public.ip_signup_log(ip_
 create table if not exists public.disposable_email_domains (
   id bigserial primary key,
   domain text not null unique,
+  source text default 'github_disposable_domains',
+  synced_at timestamp with time zone default now(),
   created_at timestamp with time zone default now()
 );
 
 -- Index for fast lookups during signup
 create index if not exists idx_disposable_email_domains_domain on public.disposable_email_domains(domain);
+create index if not exists idx_disposable_email_domains_synced_at on public.disposable_email_domains(synced_at);
 
 -- Function to check if an email domain is blocklisted
 create or replace function public.is_disposable_email(p_email text)

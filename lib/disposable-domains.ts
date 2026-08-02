@@ -1,10 +1,17 @@
 /**
- * Common disposable email domain list
- * Source: https://github.com/ivolo/disposable-email-domains
+ * Fallback disposable email domains for local development and edge cases.
  * 
- * This is a curated list of the most common disposable/temporary email services.
- * In production, consider using the full blocklist from the source above
- * or a service like mailchecker that updates regularly.
+ * PRODUCTION: The authoritative list is synced from GitHub daily:
+ * - Source: https://github.com/tompec/disposable-email-domains
+ * - Sync endpoint: POST /api/admin/sync-disposable-domains (manual)
+ * - Auto-sync cron: GET /api/cron/sync-disposable-domains (daily at 2 AM UTC)
+ * - Storage: disposable_email_domains table in Supabase
+ * - Coverage: 60,000+ domains updated regularly
+ * 
+ * This fallback list (~90 domains) is used only if:
+ * - Database queries fail (soft-fail in validation logic)
+ * - Local development without database connection
+ * - Emergency fallback if sync fails
  */
 export const DISPOSABLE_DOMAINS = [
   // 10 Minute Mail variants
