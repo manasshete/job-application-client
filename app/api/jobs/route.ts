@@ -83,13 +83,22 @@ export async function POST(request: Request) {
     const dateApplied = (typeof job.dateApplied === 'string' && job.dateApplied) || new Date().toISOString().split('T')[0]
     const deadline = (typeof job.deadline === 'string' && job.deadline) || null
 
+    // Normalize status to a value allowed by the DB CHECK constraint
+    // (jobs.status must be one of: applied, interview, offer, rejected).
+    const ALLOWED_STATUSES = ['applied', 'interview', 'offer', 'rejected']
+    const requestedStatus =
+      typeof job.status === 'string' ? job.status.trim().toLowerCase() : 'applied'
+    const normalizedStatus = ALLOWED_STATUSES.includes(requestedStatus)
+      ? requestedStatus
+      : 'applied'
+
     const { data, error } = await supabase
       .from('jobs')
       .insert({
         user_id: user.id,
         company: sanitizeInput(job.company as string),
         position: sanitizeInput(job.position as string),
-        status: typeof job.status === 'string' ? sanitizeInput(job.status) : 'Applied',
+        status: normalizedStatus,
         date_applied: dateApplied,
         salary: clean(job.salary),
         location: clean(job.location),
@@ -113,7 +122,7 @@ export async function POST(request: Request) {
       job_id: data.id,
       user_id: user.id,
       action: 'Created',
-      new_value: 'Applied',
+      new_value: normalizedStatus,
     })
 
     return NextResponse.json({

@@ -15,10 +15,9 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Loader2, FileText, Download, Upload, Sparkles, Lock, Star, Trash2, AlertCircle, Mail } from 'lucide-react'
+import { Loader2, FileText, Download, Upload, Sparkles, Lock, Star, Trash2, AlertCircle } from 'lucide-react'
 import { DocumentDisclaimer } from './disclaimers'
 import { DOC_LIMITS } from '@/lib/document-limits'
-import { createClient } from '@/lib/supabase/client'
 
 interface SavedDocument {
   id: string
@@ -57,8 +56,6 @@ export function DocumentGeneratorDialog({
   const [step, setStep] = useState<Step>('prompt')
   const [wantsResume, setWantsResume] = useState(true)
   const [wantsCoverLetter, setWantsCoverLetter] = useState(true)
-  const [isEmailVerified, setIsEmailVerified] = useState(true)
-  const [userEmail, setUserEmail] = useState('')
 
   // Saved documents
   const [savedCVs, setSavedCVs] = useState<SavedDocument[]>([])
@@ -92,47 +89,6 @@ export function DocumentGeneratorDialog({
   const isOverLimit = documentsUsedThisMonth >= docLimit && docLimit > 0
   // Access is granted whenever the tier has a document allotment (free now gets 2/month).
   const hasDocGeneration = docLimit > 0
-
-  // Check email verification when dialog opens (free tier only)
-  useEffect(() => {
-    if (!open || subscriptionTier !== 'free') {
-      setIsEmailVerified(true)
-      return
-    }
-
-    const checkEmailVerification = async () => {
-      try {
-        const supabase = createClient()
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
-
-        if (userError || !user) {
-          console.warn('[v0] Failed to fetch user:', userError?.message)
-          return
-        }
-
-        setUserEmail(user.email || '')
-
-        // Fetch email_verified status from profiles
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('email_verified')
-          .eq('id', user.id)
-          .single()
-
-        if (profileError) {
-          console.warn('[v0] Failed to fetch profile:', profileError.message)
-          return
-        }
-
-        setIsEmailVerified(profile?.email_verified ?? false)
-      } catch (err) {
-        console.error('[v0] Email verification check error:', err)
-        setIsEmailVerified(true) // Soft fail — allow access
-      }
-    }
-
-    checkEmailVerification()
-  }, [open, subscriptionTier])
 
   // Load saved documents when dialog opens
   useEffect(() => {
@@ -377,42 +333,6 @@ export function DocumentGeneratorDialog({
   const handleOpenChange = (val: boolean) => {
     if (!val) resetDialog()
     onOpenChange(val)
-  }
-
-  // Gate for unverified free-tier users
-  if (hasDocGeneration && subscriptionTier === 'free' && !isEmailVerified) {
-    return (
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-amber-600" />
-              Verify Your Email
-            </DialogTitle>
-            <DialogDescription>
-              Please verify your email address to use AI document generation.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-              <p className="text-sm text-amber-900">
-                We sent a verification link to <strong>{userEmail}</strong>. Check your inbox and click the link to verify your email.
-              </p>
-              <p className="mt-3 text-xs text-amber-800">
-                Didn&apos;t receive it? Check your spam folder or create a new account with a different email.
-              </p>
-            </div>
-          </div>
-          <Button
-            onClick={() => handleOpenChange(false)}
-            className="w-full"
-            variant="outline"
-          >
-            Close
-          </Button>
-        </DialogContent>
-      </Dialog>
-    )
   }
 
   if (!hasDocGeneration) {

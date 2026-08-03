@@ -60,24 +60,22 @@ export default function Page() {
       if (authError) throw authError
       if (!authData.user?.id) throw new Error('No user ID returned')
 
-      // 3. Log signup and prepare verification
-      const logRes = await fetch('/api/auth/log-signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: authData.user.id,
-          email,
-          ip: clientIp,
-        }),
-      })
-
-      const logData = await logRes.json()
-      if (!logData.success) {
-        console.warn('[v0] Failed to log signup, but user was created')
+      // 3. Log signup IP for abuse detection (fire-and-forget; never blocks signup)
+      try {
+        await fetch('/api/auth/log-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: authData.user.id,
+            ip: clientIp,
+          }),
+        })
+      } catch {
+        console.warn('[v0] Failed to log signup IP, but user was created')
       }
 
-      // Redirect to verification pending page
-      router.push('/auth/sign-up-success?verify=pending')
+      // Supabase sends a native confirmation email; user must confirm before login.
+      router.push('/auth/sign-up-success')
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {

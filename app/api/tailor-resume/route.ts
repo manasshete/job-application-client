@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 
     if (!profile || !limits?.hasDocumentGeneration) {
       return Response.json(
-        { error: 'Document generation requires a Pro (₹299/month) or Premium (₹499/month) plan.' },
+        { error: 'Document generation is not available on your current plan.' },
         { status: 403 }
       )
     }
