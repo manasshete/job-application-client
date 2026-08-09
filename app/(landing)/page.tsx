@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { AnimateIn } from '@/components/landing/animate-in'
+import { FreeToolsMenu } from '@/components/landing/free-tools-menu'
 import {
   ArrowRight,
   Check,
@@ -229,6 +230,7 @@ function NavBar() {
           <span className="text-lg font-bold tracking-tight text-slate-900">Pursuitz</span>
         </div>
         <nav className="hidden items-center gap-8 md:flex">
+          <FreeToolsMenu />
           <a href="#features" className="text-sm text-slate-600 transition-colors hover:text-slate-900">Features</a>
           <a href="#how-it-works" className="text-sm text-slate-600 transition-colors hover:text-slate-900">How it works</a>
           <a href="#pricing" className="text-sm text-slate-600 transition-colors hover:text-slate-900">Pricing</a>
