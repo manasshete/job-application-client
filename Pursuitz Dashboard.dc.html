@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #08090c; }
+  * { box-sizing: border-box; }
+  a { color: hsl(221 83% 66%); text-decoration: none; }
+  a:hover { color: hsl(221 83% 76%); }
+  input, button, textarea { font: inherit; color: inherit; }
+  input:focus, textarea:focus { outline: none; }
+  ::selection { background: hsl(221 83% 60% / 0.35); }
+  ::-webkit-scrollbar { height: 9px; width: 9px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 9px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  @keyframes om-rise { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+  @keyframes om-fade { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes om-slide { from { opacity: 0; transform: translateX(34px) } to { opacity: 1; transform: none } }
+  @keyframes om-pop { from { opacity: 0; transform: translateY(10px) scale(.985) } to { opacity: 1; transform: none } }
+  @keyframes om-spin { to { transform: rotate(360deg) } }
+  @keyframes om-glow { 0%,100% { opacity: .4 } 50% { opacity: 1 } }
+  @keyframes om-caret { 0%,49% { opacity: 1 } 50%,100% { opacity: 0 } }
+  @keyframes om-scan { 0% { transform: translateY(-100%) } 100% { transform: translateY(900%) } }
+  @keyframes om-bar { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+  @keyframes om-col { from { transform: scaleY(0) } to { transform: scaleY(1) } }
+  @keyframes om-stagger { from { opacity: 0; transform: translateY(9px) } to { opacity: 1; transform: none } }
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;background:#08090c;color:#f3f4f6;font-family:'Geist',Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased">
+
+  <!-- ══ SIDEBAR ══ -->
+  <div style="width:246px;flex:0 0 246px;border-right:1px solid rgba(255,255,255,.07);background:#0a0b0f;display:flex;flex-direction:column;position:sticky;top:0;height:100vh">
+    <div style="padding:18px 18px 14px;display:flex;align-items:center;gap:10px">
+      <div style="width:26px;height:26px;border-radius:8px;background:hsl(221 83% 60%);display:flex;align-items:center;justify-content:center">
+        <div style="width:9px;height:9px;background:#08090c;transform:rotate(45deg);border-radius:1px"></div>
+      </div>
+      <span style="font-size:16.5px;font-weight:600;letter-spacing:-0.02em">Pursuitz</span>
+      <span style="margin-left:auto;font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.06em;padding:3px 7px;border-radius:99px;background:hsl(221 83% 60% / .16);color:hsl(221 83% 76%)">{{ tierLabel }}</span>
+    </div>
+
+    <div style="padding:8px 10px;display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="5">
+        <div onClick="{{ item.onClick }}" style="position:relative;display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:8px;cursor:pointer;font-size:14px;color:{{ item.color }};background:{{ item.bg }}" style-hover="background:rgba(255,255,255,.05)">
+          <span style="width:16px;text-align:center;font-size:13px;opacity:.9">{{ item.icon }}</span>
+          <span style="font-weight:{{ item.weight }}">{{ item.label }}</span>
+          <sc-if value="{{ item.badge }}" hint-placeholder-val="{{ false }}">
+            <span style="margin-left:auto;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;padding:2px 6px;border-radius:99px;background:rgba(255,255,255,.07);color:#9aa0ac">{{ item.badge }}</span>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top:auto;padding:14px">
+      <div style="border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.022);padding:13px">
+        <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.07em;color:#6f7684">TOKENS · 60-DAY</div>
+        <div style="margin-top:11px;display:flex;justify-content:space-between;gap:8px;white-space:nowrap;font-size:11.5px">
+          <span style="color:#c8ccd4">Extraction</span>
+          <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:{{ extColor }}">{{ extLabel }}</span>
+        </div>
+        <div style="margin-top:5px;height:5px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden">
+          <div style="height:100%;border-radius:99px;background:{{ extColor }};width:{{ extPct }}%;transform-origin:left;animation:om-bar .9s cubic-bezier(.3,0,.2,1) both"></div>
+        </div>
+        <div style="margin-top:11px;display:flex;justify-content:space-between;gap:8px;white-space:nowrap;font-size:11.5px">
+          <span style="color:#c8ccd4">Documents</span>
+          <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:{{ docColor }}">{{ docLabel }}</span>
+        </div>
+        <div style="margin-top:5px;height:5px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden">
+          <div style="height:100%;border-radius:99px;background:{{ docColor }};width:{{ docPct }}%;transform-origin:left;animation:om-bar .9s cubic-bezier(.3,0,.2,1) .12s both"></div>
+        </div>
+        <div style="margin-top:11px;font-size:10.5px;color:#6f7684;line-height:1.45">Next batch expires {{ expiryLabel }}</div>
+        <div onClick="{{ goSettings }}" style="margin-top:11px;text-align:center;font-size:12.5px;font-weight:600;padding:8px;border-radius:9px;background:rgba(255,255,255,.06);cursor:pointer" style-hover="background:rgba(255,255,255,.11)">Top up</div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;align-items:center;gap:10px;padding:8px 4px">
+        <div style="width:28px;height:28px;border-radius:99px;background:hsl(221 83% 60% / .18);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:hsl(221 83% 76%)">A</div>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Aashray</div>
+          <div style="font-size:11px;color:#6f7684;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">ash@pursuitz.co</div>
+        </div>
+        <span style="font-size:13px;color:#6f7684;cursor:pointer">⏻</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MAIN ══ -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+
+    <!-- topbar -->
+    <div style="position:sticky;top:0;z-index:20;background:rgba(8,9,12,.82);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.07);padding:13px 24px;display:flex;align-items:center;gap:14px">
+      <div style="min-width:0">
+        <div style="font-size:16px;font-weight:600;letter-spacing:-0.02em">{{ viewTitle }}</div>
+        <div style="font-size:12px;color:#6f7684;margin-top:1px">{{ viewSub }}</div>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);padding:8px 12px;width:250px">
+          <span style="font-size:12px;color:#6f7684">⌕</span>
+          <input value="{{ search }}" onChange="{{ onSearch }}" placeholder="Search company, role, location" style="flex:1;min-width:0;background:transparent;border:0;font-size:13px" />
+        </div>
+        <div onClick="{{ openAdd }}" style="display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:#08090c;background:hsl(221 83% 70%);padding:9px 15px;border-radius:8px;cursor:pointer;white-space:nowrap" style-hover="background:hsl(221 83% 78%)">
+          <span style="font-size:15px;line-height:1">+</span> Add via link
+        </div>
+      </div>
+    </div>
+
+    <!-- low-token warning -->
+    <sc-if value="{{ showLowWarning }}" hint-placeholder-val="{{ false }}">
+      <div style="margin:16px 24px 0;display:flex;align-items:center;gap:13px;border:1px solid hsl(43 90% 66% / .38);border-radius:10px;background:hsl(43 90% 66% / .09);padding:13px 16px;animation:om-rise .5s cubic-bezier(.2,.7,.2,1) both">
+        <span style="width:8px;height:8px;border-radius:99px;background:hsl(43 90% 70%);animation:om-glow 1.8s ease-in-out infinite"></span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13.5px;font-weight:600;color:hsl(43 90% 80%)">{{ lowWarnTitle }}</div>
+          <div style="font-size:12.5px;color:#c8ccd4;margin-top:2px">Extraction and document tokens are spent oldest-first and expire 60 days after they land. Top up to keep tailoring.</div>
+        </div>
+        <div onClick="{{ goSettings }}" style="font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:9px;background:hsl(43 90% 70%);color:#1a1204;cursor:pointer;white-space:nowrap">Top up</div>
+        <span onClick="{{ dismissWarning }}" style="font-size:14px;color:#9aa0ac;cursor:pointer;padding:0 2px">✕</span>
+      </div>
+    </sc-if>
+
+    <!-- ══ EMPTY / FIRST RUN ══ -->
+    <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Empty state" style="flex:1;display:flex;align-items:center;justify-content:center;padding:48px 24px;animation:om-rise .6s cubic-bezier(.2,.7,.2,1) both">
+        <div style="max-width:560px;text-align:center">
+          <div style="position:relative;width:120px;height:120px;margin:0 auto;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(180deg,#12141b,#0c0e13);display:flex;align-items:center;justify-content:center;overflow:hidden">
+            <div style="position:absolute;left:0;right:0;top:0;height:38px;background:linear-gradient(180deg,hsl(221 83% 60% / .3),transparent);animation:om-scan 4.5s cubic-bezier(.5,0,.5,1) infinite"></div>
+            <span style="position:relative;font-size:30px;color:hsl(221 83% 70%)">↗</span>
+          </div>
+          <h2 style="margin:26px 0 0;font-size:30px;font-weight:600;letter-spacing:-0.03em">Your board starts with one link</h2>
+          <p style="margin:12px 0 0;font-size:15.5px;line-height:1.6;color:#9aa0ac">Paste a job URL from LinkedIn, Indeed, Greenhouse or a company careers page. We read the posting and fill the card in for you — company, role, salary, requirements, deadline.</p>
+          <div style="display:flex;gap:11px;justify-content:center;margin-top:26px">
+            <div onClick="{{ openAdd }}" style="font-size:14.5px;font-weight:600;color:#08090c;background:hsl(221 83% 70%);padding:13px 22px;border-radius:8px;cursor:pointer">Paste your first link</div>
+            <div onClick="{{ loadDemo }}" style="font-size:14.5px;font-weight:500;border:1px solid rgba(255,255,255,.14);padding:13px 20px;border-radius:8px;cursor:pointer" style-hover="background:rgba(255,255,255,.06)">Load a sample board</div>
+          </div>
+          <div style="margin-top:22px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.06em;color:#6f7684;text-transform:uppercase">Free plan · 10 applications · 5 extractions / month</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ══ BOARD ══ -->
+    <sc-if value="{{ isBoard }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="Board" style="padding:18px 24px 32px;animation:om-rise .5s cubic-bezier(.2,.7,.2,1) both">
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:11px">
+          <sc-for list="{{ statCards }}" as="s" hint-placeholder-count="5">
+            <div style="border:1px solid {{ s.border }};border-radius:10px;background:{{ s.bg }};padding:13px 15px">
+              <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:#6f7684">{{ s.label }}</div>
+              <div data-count="{{ s.value }}" data-suffix="{{ s.suffix }}" style="font-size:26px;font-weight:600;letter-spacing:-0.025em;margin-top:5px;color:{{ s.color }}">{{ s.display }}</div>
+              <div style="font-size:11.5px;color:#6f7684;margin-top:2px">{{ s.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:9px;margin:20px 0 14px;flex-wrap:wrap">
+          <sc-for list="{{ filterChips }}" as="c" hint-placeholder-count="6">
+            <div onClick="{{ c.onClick }}" style="font-size:12.5px;padding:6px 12px;border-radius:99px;cursor:pointer;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.color }}">{{ c.label }}</div>
+          </sc-for>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:7px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.06em;color:#6f7684;text-transform:uppercase">
+            <span style="width:6px;height:6px;border-radius:99px;background:hsl(142 65% 60%)"></span> Drag cards between columns
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:10px">
+          <sc-for list="{{ columns }}" as="col" hint-placeholder-count="5">
+            <div onDragOver="{{ col.onDragOver }}" onDragLeave="{{ col.onDragLeave }}" onDrop="{{ col.onDrop }}" style="position:relative;flex:1 0 232px;min-width:232px;display:flex;flex-direction:column;gap:10px;border-radius:12px;padding:4px">
+              <sc-if value="{{ col.isOver }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;inset:0;border:1.5px dashed hsl(221 83% 60% / .6);border-radius:12px;background:hsl(221 83% 60% / .07);pointer-events:none;animation:om-fade .18s ease both"></div>
+              </sc-if>
+
+              <div style="position:relative;display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,.028);border-left:3px solid {{ col.accent }}">
+                <span style="width:7px;height:7px;border-radius:99px;background:{{ col.accent }}"></span>
+                <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:#c8ccd4">{{ col.label }}</span>
+                <span style="margin-left:auto;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:#6f7684">{{ col.count }}</span>
+              </div>
+
+              <sc-for list="{{ col.jobs }}" as="job" hint-placeholder-count="2">
+                <div draggable="true" onDragStart="{{ job.onDragStart }}" onDragEnd="{{ job.onDragEnd }}" onClick="{{ job.onClick }}" style="position:relative;border:1px solid {{ job.cardBorder }};border-radius:10px;background:{{ job.cardBg }};padding:13px;cursor:pointer;opacity:{{ job.opacity }};animation:om-stagger .45s cubic-bezier(.2,.7,.2,1) both;transition:transform .16s ease,border-color .16s ease" style-hover="transform:translateY(-2px);border-color:hsl(221 83% 60% / .5)">
+                  <div style="display:flex;align-items:flex-start;gap:10px">
+                    <div style="width:28px;height:28px;flex:0 0 28px;border-radius:8px;background:{{ job.avatarBg }};display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;color:{{ job.accent }}">{{ job.initial }}</div>
+                    <div style="min-width:0;flex:1">
+                      <div style="font-size:13.5px;font-weight:600;letter-spacing:-0.01em;line-height:1.3">{{ job.position }}</div>
+                      <div style="font-size:12px;color:{{ job.accent }};margin-top:2px;font-weight:500">{{ job.company }}</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:4px;margin-top:11px;font-size:11.5px;color:#9aa0ac">
+                    <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Applied {{ job.dateApplied }}</div>
+                    <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ job.location }}</div>
+                    <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ job.salary }}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap">
+                    <sc-for list="{{ job.tags }}" as="tag" hint-placeholder-count="2">
+                      <span style="font-size:10.5px;padding:3px 8px;border-radius:6px;white-space:nowrap;border:1px solid rgba(255,255,255,.12);color:#9aa0ac">{{ tag }}</span>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ job.deadlineWarning }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:center;gap:7px;margin-top:10px;padding:6px 9px;border-radius:6px;white-space:nowrap;background:hsl(43 96% 56% / .1);font-size:11px;color:hsl(43 90% 72%)">
+                      <span>!</span> Deadline {{ job.deadlineWarning }}
+                    </div>
+                  </sc-if>
+                  <div style="display:flex;align-items:center;gap:7px;margin-top:11px;padding-top:10px;border-top:1px solid rgba(255,255,255,.07);flex-wrap:wrap">
+                    <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.05em;padding:3px 7px;border-radius:6px;white-space:nowrap;background:{{ job.chipBg }};color:{{ job.accent }}">{{ job.chip }}</span>
+                    <sc-if value="{{ job.hasInterviews }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;padding:3px 7px;border-radius:6px;white-space:nowrap;background:rgba(255,255,255,.06);color:#9aa0ac">{{ job.interviewsLabel }}</span>
+                    </sc-if>
+                    <sc-if value="{{ job.hasDocs }}" hint-placeholder-val="{{ true }}">
+                      <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;padding:3px 7px;border-radius:6px;white-space:nowrap;background:rgba(255,255,255,.06);color:#9aa0ac">{{ job.docsLabel }}</span>
+                    </sc-if>
+                    <div style="margin-left:auto;display:flex;gap:4px">
+                      <sc-if value="{{ job.canLeft }}" hint-placeholder-val="{{ false }}">
+                        <span onClick="{{ job.moveLeft }}" title="Move back" style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:rgba(255,255,255,.06);font-size:11px;color:#c8ccd4;cursor:pointer" style-hover="background:rgba(255,255,255,.14)">‹</span>
+                      </sc-if>
+                      <sc-if value="{{ job.canRight }}" hint-placeholder-val="{{ false }}">
+                        <span onClick="{{ job.moveRight }}" title="Move forward" style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:rgba(255,255,255,.06);font-size:11px;color:#c8ccd4;cursor:pointer" style-hover="background:rgba(255,255,255,.14)">›</span>
+                      </sc-if>
+                    </div>
+                  </div>
+                  <sc-if value="{{ job.nextLabel }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:9px;font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.05em;color:{{ job.accent }}">{{ job.nextLabel }}</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+
+              <sc-if value="{{ col.isEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="height:78px;border:1px dashed rgba(255,255,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#5c626e">Drop a card here</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ══ INTERVIEWS ══ -->
+    <sc-if value="{{ isInterviews }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Interviews" style="padding:22px 24px 40px;animation:om-rise .5s cubic-bezier(.2,.7,.2,1) both;display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;align-items:start">
+        <div style="border:1px solid rgba(255,255,255,.08);border-radius:12px;background:linear-gradient(180deg,#12141b,#0c0e13);padding:22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#6f7684">Upcoming</div>
+            <div style="font-size:12px;color:#9aa0ac">{{ upcomingCount }} scheduled</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+            <sc-for list="{{ upcoming }}" as="iv" hint-placeholder-count="4">
+              <div onClick="{{ iv.onClick }}" style="display:flex;gap:13px;padding:13px;border-radius:10px;border:1px solid {{ iv.border }};background:{{ iv.bg }};cursor:pointer;animation:om-stagger .45s cubic-bezier(.2,.7,.2,1) both" style-hover="border-color:hsl(221 83% 60% / .5)">
+                <div style="text-align:center;flex:0 0 44px">
+                  <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;letter-spacing:.06em;color:{{ iv.accent }}">{{ iv.day }}</div>
+                  <div style="font-size:19px;font-weight:600;letter-spacing:-0.02em;margin-top:1px">{{ iv.date }}</div>
+                </div>
+                <div style="width:1px;background:rgba(255,255,255,.08)"></div>
+                <div style="min-width:0;flex:1">
+                  <div style="font-size:13.5px;font-weight:600">{{ iv.company }}</div>
+                  <div style="font-size:12px;color:#9aa0ac;margin-top:2px">{{ iv.round }} · {{ iv.time }}</div>
+                  <div style="display:flex;align-items:center;gap:7px;margin-top:9px">
+                    <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;padding:3px 7px;border-radius:6px;background:{{ iv.chipBg }};color:{{ iv.accent }}">{{ iv.status }}</span>
+                    <span style="font-size:11.5px;color:#6f7684">{{ iv.reminder }}</span>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="border:1px solid rgba(255,255,255,.08);border-radius:12px;background:linear-gradient(180deg,#12141b,#0c0e13);padding:22px">
+            <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#6f7684">Open tasks</div>
+            <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px">
+              <sc-for list="{{ openTasks }}" as="ot" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;background:rgba(255,255,255,.02)">
+                  <span style="width:7px;height:7px;flex:0 0 7px;border-radius:99px;background:{{ ot.dot }}"></span>
+                  <div style="min-width:0;flex:1">
+                    <div style="font-size:13px;color:#e6e8ec;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ ot.title }}</div>
+                    <div style="font-size:11.5px;color:#6f7684;margin-top:2px">{{ ot.company }} · {{ ot.status }}</div>
+                  </div>
+                  <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:#6f7684;white-space:nowrap">{{ ot.due }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="border:1px solid rgba(255,255,255,.08);border-radius:12px;background:linear-gradient(180deg,#12141b,#0c0e13);padding:22px">
+            <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#6f7684">Completed</div>
+            <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px">
+              <sc-for list="{{ pastInterviews }}" as="p" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:8px;background:rgba(255,255,255,.02)">
+                  <span style="width:7px;height:7px;border-radius:99px;background:{{ p.dot }}"></span>
+                  <div style="min-width:0;flex:1;font-size:13px;color:#c8ccd4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.text }}</div>
+                  <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:#6f7684;white-space:nowrap">{{ p.when }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ══ ANALYTICS ══ -->
+    <sc-if value="{{ isAnalytics }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Analytics" style="padding:22px 24px 40px;animation:om-rise .5s cubic-bezier(.2,.7,.2,1) both">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+            <div style="border:1px solid rgba(255,255,255,.08);border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));padding:20px">
+              <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:#6f7684">{{ k.label }}</div>
+              <div data-count="{{ k.value }}" data-suffix="{{ k.suffix }}" style="font-size:34px;font-weight:600;letter-spacing:-0.03em;margin-top:7px">{{ k.display }}</div>
+              <div style="font-size:12px;color:{{ k.deltaColor }};margin-top:4px">{{ k.delta }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:16px">
+          <div style="border:1px solid rgba(255,255,255,.08);border-radius:12px;background:linear-gradient(180deg,#12141b,#0c0e13);padding:22px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+              <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#6f7684">Applications per week</div>
+              <div style="font-size:12px;color:#6f7684">Last 8 weeks</div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:9px;height:150px;margin-top:20px">
+              <sc-for list="{{ weekBars }}" as="b" hint-placeholder-count="8">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end">
+                  <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:#9aa0ac">{{ b.value }}</div>
+                  <div style="width:100%;height:{{ b.height }}%;border-radius:6px 6px 0 0;background:{{ b.fill }};transform-origin:bottom;animation:om-col .8s cubic-bezier(.3,0,.2,1) both;animation-delay:{{ b.delay }}"></div>
+                  <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;color:#5c626e">{{ b.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="border:1px solid rgba(255,255,255,.08);border-radius:12px;background:linear-gradient(180deg,#12141b,#0c0e13);padding:22px">
+            <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#6f7684">Funnel</div>
+            <div style="display:flex;flex-direction:column;gap:14px;margin-top:20px">
+              <sc-for list="{{ funnel }}" as="f" hint-placeholder-count="5">
+                <div>
+                  <div style="display:flex;justify-content:space-between;gap:8px;white-space:nowrap;font-size:12.5px;margin-bottom:7px">
+                    <span style="color:#c8ccd4">{{ f.label }}</span>
+                    <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;color:#9aa0ac">{{ f.value }} · {{ f.pctLabel }}</span>
+                  </div>
+                  <div style="height:9px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden">
+                    <div style="height:100%;border-radius:99px;width:{{ f.pct }}%;background:{{ f.fill }};transform-origin:left;animation:om-bar .9s cubic-bezier(.3,0,.2,1) both;animation-delay:{{ f.delay }}"></div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:16px">
+          <div style="border:1px solid rgba(255,255,255,.08);border-radius:12px;background:linear-gradient(180deg,#12141b,#0c0e13);padding:22px">
+            <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#6f7684">Where they came from</div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:18px">
+              <sc-for list="{{ sources }}" as="s" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:88px;flex:0 0 88px;font-size:12.5px;color:#c8ccd4">{{ s.label }}</div>
+                  <div style="flex:1;height:8px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden">
+                    <div style="height:100%;border-radius:99px;width:{{ s.pct }}%;background:{{ s.fill }};transform-origin:left;animation:om-bar .9s cubic-bezier(.3,0,.2,1) both;animation-delay:{{ s.delay }}"></div>
+                  </div>
+                  <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:#9aa0ac;width:44px;text-align:right">{{ s.value }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="border:1px solid hsl(221 83% 60% / .3);border-radius:12px;background:linear-gradient(150deg,hsl(221 83% 60% / .14),rgba(255,255,255,.02));padding:22px">
+            <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:hsl(221 83% 74%)">What the data says</div>
+            <div style="display:flex;flex-direction:column;gap:13px;margin-top:18px">
+              <sc-for list="{{ insights }}" as="i" hint-placeholder-count="3">
+                <div style="display:flex;gap:11px">
+                  <span style="color:hsl(221 83% 74%);font-size:13px;line-height:1.5">→</span>
+                  <div style="font-size:13.5px;line-height:1.55;color:#e6e8ec">{{ i.text }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ══ DOCUMENTS ══ -->
+    <sc-if value="{{ isDocuments }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Documents" style="padding:22px 24px 40px;animation:om-rise .5s cubic-bezier(.2,.7,.2,1) both">
+        <div style="display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:16px">
+          <sc-for list="{{ docFilters }}" as="d" hint-placeholder-count="3">
+            <div onClick="{{ d.onClick }}" style="font-size:12.5px;padding:6px 13px;border-radius:99px;cursor:pointer;border:1px solid {{ d.border }};background:{{ d.bg }};color:{{ d.color }}">{{ d.label }}</div>
+          </sc-for>
+          <div style="margin-left:auto;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:#6f7684">{{ docLabel }} DOCUMENT TOKENS LEFT</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:13px">
+          <sc-for list="{{ documents }}" as="doc" hint-placeholder-count="6">
+            <div style="border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.022);padding:16px;animation:om-stagger .45s cubic-bezier(.2,.7,.2,1) both" style-hover="background:rgba(255,255,255,.05);border-color:hsl(221 83% 60% / .35)">
+              <div style="display:flex;gap:12px">
+                <div style="width:30px;height:38px;flex:0 0 30px;border-radius:5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;font-family:'Geist Mono',ui-monospace,monospace;font-size:7.5px;color:#9aa0ac">{{ doc.ext }}</div>
+                <div style="min-width:0;flex:1">
+                  <div style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ doc.name }}</div>
+                  <div style="font-size:12px;color:#9aa0ac;margin-top:2px">{{ doc.role }}</div>
+                  <div style="display:flex;align-items:center;gap:7px;margin-top:10px">
+                    <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;padding:3px 7px;border-radius:6px;background:{{ doc.chipBg }};color:{{ doc.chipColor }}">{{ doc.kind }}</span>
+                    <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;color:#6f7684">{{ doc.when }}</span>
+                  </div>
+                </div>
+                <span style="font-size:14px;color:hsl(142 65% 72%);cursor:pointer">↓</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ══ SETTINGS ══ -->
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Settings" style="padding:22px 24px 40px;animation:om-rise .5s cubic-bezier(.2,.7,.2,1) both;max-width:900px">
+        <div style="border:1px solid rgba(255,255,255,.08);border-radius:12px;background:linear-gradient(180deg,#12141b,#0c0e13);padding:24px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div>
+              <div style="font-size:17px;font-weight:600;letter-spacing:-0.02em">{{ tierLabel }} plan</div>
+              <div style="font-size:13px;color:#9aa0ac;margin-top:3px">ash@pursuitz.co · {{ priceLabel }}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:9px">
+              <span style="font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:99px;background:hsl(142 65% 60% / .16);color:hsl(142 65% 74%)">Active</span>
+              <span style="font-size:11.5px;padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.07);color:#c8ccd4">{{ jobsLimitLabel }}</span>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin-top:22px">
+            <div style="border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px;background:rgba(255,255,255,.02)">
+              <div style="display:flex;justify-content:space-between;gap:8px;white-space:nowrap;font-size:12.5px">
+                <span style="color:#c8ccd4">AI extraction</span>
+                <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;color:{{ extColor }}">{{ extLabel }}</span>
+              </div>
+              <div style="margin-top:9px;height:7px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden">
+                <div style="height:100%;border-radius:99px;background:{{ extColor }};width:{{ extPct }}%;transform-origin:left;animation:om-bar .9s cubic-bezier(.3,0,.2,1) both"></div>
+              </div>
+              <div style="margin-top:9px;font-size:11.5px;color:#6f7684">Spent oldest-first · expires {{ expiryLabel }}</div>
+            </div>
+            <div style="border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px;background:rgba(255,255,255,.02)">
+              <div style="display:flex;justify-content:space-between;gap:8px;white-space:nowrap;font-size:12.5px">
+                <span style="color:#c8ccd4">Document generation</span>
+                <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;color:{{ docColor }}">{{ docLabel }}</span>
+              </div>
+              <div style="margin-top:9px;height:7px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden">
+                <div style="height:100%;border-radius:99px;background:{{ docColor }};width:{{ docPct }}%;transform-origin:left;animation:om-bar .9s cubic-bezier(.3,0,.2,1) .1s both"></div>
+              </div>
+              <div style="margin-top:9px;font-size:11.5px;color:#6f7684">Unused tokens roll over on top of new ones</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#6f7684;margin:26px 0 14px">Change plan</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:13px">
+          <sc-for list="{{ plans }}" as="p" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;border:1px solid {{ p.border }};border-radius:12px;padding:20px;background:{{ p.bg }};animation:om-stagger .45s cubic-bezier(.2,.7,.2,1) both">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:14px;color:{{ p.iconColor }}">{{ p.icon }}</span>
+                  <span style="font-size:14.5px;font-weight:600">{{ p.name }}</span>
+                </div>
+                <sc-if value="{{ p.showBadge }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:99px;background:hsl(221 83% 53%);color:#fff">Current</span>
+                </sc-if>
+              </div>
+              <div style="display:flex;align-items:baseline;gap:5px;margin-top:12px">
+                <span style="font-size:26px;font-weight:700;letter-spacing:-0.03em">{{ p.price }}</span>
+                <span style="font-size:12.5px;color:#6f7684">{{ p.per }}</span>
+              </div>
+              <div style="font-size:11.5px;color:#6f7684;margin-top:4px">{{ p.blurb }}</div>
+              <div style="display:flex;flex-direction:column;gap:9px;margin-top:18px">
+                <sc-for list="{{ p.features }}" as="feat" hint-placeholder-count="4">
+                  <div style="display:flex;gap:9px;font-size:13px;color:#9aa0ac;line-height:1.4">
+                    <span style="color:hsl(142 71% 55%);flex:0 0 auto">✓</span>
+                    <span>{{ feat }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div onClick="{{ p.onClick }}" style="margin-top:auto;padding-top:20px">
+                <div style="text-align:center;font-size:13px;font-weight:600;padding:10px;border-radius:8px;background:{{ p.ctaBg }};color:{{ p.ctaColor }};border:1px solid {{ p.ctaBorder }};cursor:pointer">{{ p.cta }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:26px;display:flex;flex-wrap:wrap;gap:11px">
+          <div style="font-size:13px;font-weight:500;padding:11px 17px;border-radius:8px;border:1px solid rgba(255,255,255,.14);cursor:pointer" style-hover="background:rgba(255,255,255,.06)">Export all applications (CSV)</div>
+          <div style="font-size:13px;font-weight:500;padding:11px 17px;border-radius:8px;border:1px solid rgba(255,255,255,.14);cursor:pointer" style-hover="background:rgba(255,255,255,.06)">Replace master resume</div>
+          <div style="font-size:13px;font-weight:500;padding:11px 17px;border-radius:8px;border:1px solid hsl(0 78% 50% / .4);color:hsl(0 78% 66%);cursor:pointer" style-hover="background:hsl(0 78% 50% / .12)">Delete account</div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- ══ DETAIL SLIDE-OVER ══ -->
+  <sc-if value="{{ hasSelection }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end">
+      <div onClick="{{ closeDetail }}" style="position:absolute;inset:0;background:rgba(4,5,8,.66);backdrop-filter:blur(3px);animation:om-fade .22s ease both"></div>
+      <div style="position:relative;width:min(520px,100%);height:100%;overflow-y:auto;background:#0b0d12;border-left:1px solid rgba(255,255,255,.1);box-shadow:-40px 0 80px -30px rgba(0,0,0,.8);animation:om-slide .3s cubic-bezier(.2,.7,.2,1) both">
+
+        <div style="position:sticky;top:0;z-index:2;background:rgba(11,13,18,.94);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07);padding:18px 22px">
+          <div style="display:flex;align-items:flex-start;gap:13px">
+            <div style="width:40px;height:40px;flex:0 0 40px;border-radius:8px;background:{{ sel.avatarBg }};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:{{ sel.accent }}">{{ sel.initial }}</div>
+            <div style="min-width:0;flex:1">
+              <div style="font-size:17px;font-weight:600;letter-spacing:-0.02em;line-height:1.25">{{ sel.position }}</div>
+              <div style="font-size:13px;color:#9aa0ac;margin-top:2px">{{ sel.company }} · {{ sel.location }}</div>
+            </div>
+            <span onClick="{{ closeDetail }}" style="font-size:15px;color:#9aa0ac;cursor:pointer;padding:2px 4px">✕</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:15px;flex-wrap:wrap">
+            <sc-for list="{{ statusSteps }}" as="st" hint-placeholder-count="5">
+              <div onClick="{{ st.onClick }}" style="font-size:11.5px;font-weight:500;padding:6px 11px;border-radius:99px;cursor:pointer;border:1px solid {{ st.border }};background:{{ st.bg }};color:{{ st.color }}">{{ st.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:4px;padding:14px 22px 0">
+          <sc-for list="{{ detailTabs }}" as="t" hint-placeholder-count="4">
+            <div onClick="{{ t.onClick }}" style="font-size:13px;font-weight:{{ t.weight }};padding:8px 13px;border-radius:9px;cursor:pointer;color:{{ t.color }};background:{{ t.bg }}">{{ t.label }}</div>
+          </sc-for>
+        </div>
+
+        <!-- overview -->
+        <sc-if value="{{ tabOverview }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:18px 22px 32px;animation:om-pop .3s cubic-bezier(.2,.7,.2,1) both">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
+              <sc-for list="{{ sel.facts }}" as="f" hint-placeholder-count="6">
+                <div style="border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:13px 14px;background:rgba(255,255,255,.02)">
+                  <div style="font-size:11.5px;color:#6f7684">{{ f.label }}</div>
+                  <div style="font-size:14px;margin-top:4px;line-height:1.35">{{ f.value }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ sel.jobUrl }}" hint-placeholder-val="{{ false }}">
+              <a href="#" style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:11px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);font-size:13px;white-space:nowrap">
+                <span style="flex:0 0 auto">View original posting</span>
+                <span style="font-size:11px;flex:0 0 auto">↗</span>
+                <span style="margin-left:auto;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:#6f7684;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px">{{ sel.jobUrl }}</span>
+              </a>
+            </sc-if>
+
+            <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px">
+              <sc-for list="{{ sel.tags }}" as="tg" hint-placeholder-count="2">
+                <span style="font-size:11.5px;padding:4px 10px;border-radius:6px;white-space:nowrap;background:rgba(255,255,255,.06);color:#c8ccd4">{{ tg }}</span>
+              </sc-for>
+            </div>
+
+            <div style="margin-top:18px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.02);padding:16px">
+              <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:#6f7684">Requirements pulled from the posting</div>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px">
+                <sc-for list="{{ sel.skills }}" as="sk" hint-placeholder-count="6">
+                  <span style="font-size:12px;padding:5px 10px;border-radius:8px;background:{{ sk.bg }};color:{{ sk.color }}">{{ sk.label }}</span>
+                </sc-for>
+              </div>
+              <div style="margin-top:14px;display:flex;align-items:center;gap:10px">
+                <div style="flex:1;height:7px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden">
+                  <div style="height:100%;border-radius:99px;width:{{ sel.matchPct }}%;background:hsl(142 65% 60%);transform-origin:left;animation:om-bar 1s cubic-bezier(.3,0,.2,1) both"></div>
+                </div>
+                <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:hsl(142 65% 74%);white-space:nowrap">{{ sel.matchLabel }}</span>
+              </div>
+            </div>
+
+            <div style="margin-top:18px">
+              <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:#6f7684">Notes</div>
+              <textarea value="{{ sel.notes }}" onChange="{{ onNotes }}" style="margin-top:10px;width:100%;min-height:82px;resize:vertical;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(255,255,255,.02);padding:12px 13px;font-size:13.5px;line-height:1.55;color:#e6e8ec"></textarea>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:9px;margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.07);flex-wrap:wrap">
+              <div style="font-size:13px;font-weight:500;padding:9px 14px;border-radius:8px;border:1px solid hsl(0 78% 58% / .4);color:hsl(0 70% 70%);cursor:pointer" style-hover="background:hsl(0 84% 60% / .12)">Delete</div>
+              <div onClick="{{ goDocsTab }}" style="margin-left:auto;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;padding:9px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.14);cursor:pointer" style-hover="background:rgba(255,255,255,.06)">
+                <span style="color:hsl(221 83% 66%)">✦</span> Generate Documents
+              </div>
+              <div style="font-size:13px;font-weight:600;padding:9px 16px;border-radius:8px;background:hsl(221 83% 53%);color:#fff;cursor:pointer">Edit</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- interviews tab -->
+        <sc-if value="{{ tabInterviews }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:18px 22px 32px;animation:om-pop .3s cubic-bezier(.2,.7,.2,1) both">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
+              <div style="font-size:13.5px;font-weight:600">Interview Rounds</div>
+              <div onClick="{{ addInterview }}" style="display:flex;align-items:center;gap:5px;font-size:12.5px;color:#9aa0ac;padding:5px 9px;border-radius:7px;cursor:pointer" style-hover="background:rgba(255,255,255,.06);color:#e6e8ec">+ Add Round</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:11px">
+              <sc-for list="{{ sel.interviews }}" as="iv" hint-placeholder-count="3">
+                <div style="border:1px solid {{ iv.border }};border-radius:10px;background:{{ iv.bg }};padding:14px">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <span style="width:8px;height:8px;border-radius:99px;background:{{ iv.dot }}"></span>
+                    <div style="font-size:13.5px;font-weight:600">{{ iv.round }}</div>
+                    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.14);color:{{ iv.dot }};white-space:nowrap">{{ iv.status }}</div>
+                  </div>
+                  <div style="font-size:12.5px;color:#9aa0ac;margin-top:7px">{{ iv.when }}</div>
+                  <sc-if value="{{ iv.notes }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:13px;color:#c8ccd4;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.07);line-height:1.5">{{ iv.notes }}</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+              <sc-if value="{{ sel.noInterviews }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:13px;color:#767d8b;padding:4px 0">No interview rounds yet</div>
+              </sc-if>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:24px 0 12px">
+              <div style="font-size:13.5px;font-weight:600">Tasks &amp; Assignments</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:12.5px;color:#9aa0ac;padding:5px 9px;border-radius:7px;cursor:pointer" style-hover="background:rgba(255,255,255,.06);color:#e6e8ec">+ Add Task</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ sel.tasks }}" as="tk" hint-placeholder-count="2">
+                <div style="border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.02);padding:13px">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <span style="width:8px;height:8px;flex:0 0 8px;border-radius:99px;background:{{ tk.dot }}"></span>
+                    <div style="font-size:13.5px;font-weight:500;min-width:0;flex:1">{{ tk.title }}</div>
+                    <div style="font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.14);color:{{ tk.dot }};white-space:nowrap;flex:0 0 auto">{{ tk.status }}</div>
+                  </div>
+                  <div style="font-size:12px;color:#6f7684;margin-top:7px">{{ tk.due }}</div>
+                  <sc-if value="{{ tk.notes }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:12.5px;color:#9aa0ac;margin-top:6px;line-height:1.5">{{ tk.notes }}</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+              <sc-if value="{{ sel.noTasks }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:13px;color:#767d8b;padding:4px 0">No tasks yet</div>
+              </sc-if>
+            </div>
+
+          </div>
+        </sc-if>
+
+        <!-- documents / tailoring tab -->
+        <sc-if value="{{ tabDocs }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:18px 22px 32px;animation:om-pop .3s cubic-bezier(.2,.7,.2,1) both">
+            <sc-if value="{{ tailorIdle }}" hint-placeholder-val="{{ true }}">
+              <div style="border:1px solid hsl(221 83% 60% / .3);border-radius:12px;background:linear-gradient(150deg,hsl(221 83% 60% / .12),rgba(255,255,255,.02));padding:18px">
+                <div style="font-size:14.5px;font-weight:600">Tailor to this posting</div>
+                <div style="font-size:13px;color:#c8ccd4;margin-top:7px;line-height:1.55">Your master resume gets re-weighted to the {{ sel.position }} description — emphasis only, nothing invented. Costs 1 document token.</div>
+                <div onClick="{{ startTailor }}" style="margin-top:15px;text-align:center;font-size:13.5px;font-weight:600;padding:11px;border-radius:8px;background:hsl(221 83% 70%);color:#08090c;cursor:pointer">Tailor resume + cover letter</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ tailorRunning }}" hint-placeholder-val="{{ false }}">
+              <div style="position:relative;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:#0d0f14;padding:18px;overflow:hidden">
+                <div style="position:absolute;left:0;right:0;top:0;height:40px;background:linear-gradient(180deg,hsl(221 83% 60% / .22),transparent);animation:om-scan 3.4s cubic-bezier(.5,0,.5,1) infinite"></div>
+                <div style="position:relative;display:flex;align-items:center;gap:10px">
+                  <span style="width:13px;height:13px;border-radius:99px;border:2px solid rgba(255,255,255,.14);border-top-color:hsl(221 83% 70%);animation:om-spin 1s linear infinite"></span>
+                  <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.05em;color:#c8ccd4">{{ tailorStatus }}</span>
+                </div>
+                <div style="position:relative;display:flex;flex-direction:column;gap:12px;margin-top:18px">
+                  <sc-for list="{{ tailorSteps }}" as="ts" hint-placeholder-count="4">
+                    <div>
+                      <div style="display:flex;justify-content:space-between;gap:8px;white-space:nowrap;font-size:12.5px;margin-bottom:6px">
+                        <span style="color:{{ ts.labelColor }}">{{ ts.label }}</span>
+                        <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:{{ ts.stateColor }}">{{ ts.state }}</span>
+                      </div>
+                      <div style="height:6px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden">
+                        <div style="height:100%;border-radius:99px;width:{{ ts.pct }}%;background:{{ ts.fill }};transition:width .5s cubic-bezier(.3,0,.2,1)"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ tailorDone }}" hint-placeholder-val="{{ false }}">
+              <div style="animation:om-pop .35s cubic-bezier(.2,.7,.2,1) both">
+                <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:hsl(142 65% 60% / .1);border:1px solid hsl(142 65% 60% / .3)">
+                  <span style="color:hsl(142 65% 74%);font-size:14px">✓</span>
+                  <div style="font-size:13px;color:hsl(142 65% 78%)">Tailored in 38 seconds · 1 token used</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;margin-top:13px">
+                  <sc-for list="{{ tailoredFiles }}" as="tf" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:13px;background:rgba(255,255,255,.025)">
+                      <div style="width:28px;height:34px;flex:0 0 28px;border-radius:5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;font-family:'Geist Mono',ui-monospace,monospace;font-size:7px;color:#9aa0ac">PDF</div>
+                      <div style="min-width:0;flex:1">
+                        <div style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tf.name }}</div>
+                        <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;color:#6f7684;margin-top:2px">{{ tf.meta }}</div>
+                      </div>
+                      <span style="font-size:14px;color:hsl(142 65% 72%);cursor:pointer">↓</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div onClick="{{ resetTailor }}" style="margin-top:13px;text-align:center;font-size:13px;font-weight:500;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);cursor:pointer" style-hover="background:rgba(255,255,255,.06)">Regenerate</div>
+              </div>
+            </sc-if>
+
+            <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:#6f7684;margin:22px 0 11px">Sent for this role</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ sel.documents }}" as="d" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:13px;background:rgba(255,255,255,.02)">
+                  <div style="width:28px;height:34px;flex:0 0 28px;border-radius:5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;font-family:'Geist Mono',ui-monospace,monospace;font-size:7px;color:#9aa0ac">{{ d.ext }}</div>
+                  <div style="min-width:0;flex:1">
+                    <div style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</div>
+                    <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;color:#6f7684;margin-top:2px">{{ d.meta }}</div>
+                  </div>
+                  <span style="font-size:14px;color:#9aa0ac;cursor:pointer">↓</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- activity -->
+        <sc-if value="{{ tabActivity }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:18px 22px 32px;animation:om-pop .3s cubic-bezier(.2,.7,.2,1) both">
+            <div style="display:flex;flex-direction:column;gap:0">
+              <sc-for list="{{ sel.activity }}" as="a" hint-placeholder-count="5">
+                <div style="display:flex;gap:14px">
+                  <div style="display:flex;flex-direction:column;align-items:center;flex:0 0 10px">
+                    <span style="width:9px;height:9px;border-radius:99px;background:{{ a.dot }};margin-top:5px"></span>
+                    <span style="flex:1;width:1px;background:rgba(255,255,255,.09)"></span>
+                  </div>
+                  <div style="padding-bottom:18px;min-width:0">
+                    <div style="font-size:13.5px;color:#e6e8ec;line-height:1.45">{{ a.text }}</div>
+                    <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:#6f7684;margin-top:4px">{{ a.when }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══ DOWNGRADE CONFIRM ══ -->
+  <sc-if value="{{ pendingTier }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:24px">
+      <div onClick="{{ cancelDowngrade }}" style="position:absolute;inset:0;background:rgba(4,5,8,.72);backdrop-filter:blur(4px);animation:om-fade .2s ease both"></div>
+      <div style="position:relative;width:min(460px,100%);border:1px solid rgba(255,255,255,.11);border-radius:14px;background:#0f1116;box-shadow:0 50px 90px -40px rgba(0,0,0,.9);padding:24px;animation:om-pop .28s cubic-bezier(.2,.7,.2,1) both">
+        <div style="font-size:16.5px;font-weight:600;letter-spacing:-0.015em;line-height:1.35">{{ downgradeTitle }}</div>
+        <div style="font-size:13.5px;line-height:1.6;color:#9aa0ac;margin-top:11px">{{ downgradeBody }}</div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px">
+          <div onClick="{{ cancelDowngrade }}" style="font-size:13.5px;font-weight:500;padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.14);cursor:pointer" style-hover="background:rgba(255,255,255,.06)">Keep current plan</div>
+          <div onClick="{{ cancelDowngrade }}" style="font-size:13.5px;font-weight:600;padding:10px 16px;border-radius:8px;background:hsl(221 83% 53%);color:#fff;cursor:pointer">Confirm change</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══ ADD VIA LINK ══ -->
+  <sc-if value="{{ addOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:24px">
+      <div onClick="{{ closeAdd }}" style="position:absolute;inset:0;background:rgba(4,5,8,.7);backdrop-filter:blur(4px);animation:om-fade .2s ease both"></div>
+      <div style="position:relative;width:min(560px,100%);border:1px solid rgba(255,255,255,.11);border-radius:14px;background:linear-gradient(180deg,#12141b,#0c0e13);box-shadow:0 50px 90px -40px rgba(0,0,0,.9);padding:24px;animation:om-pop .3s cubic-bezier(.2,.7,.2,1) both">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:17px;font-weight:600;letter-spacing:-0.02em">Add an application</div>
+          <span style="margin-left:auto;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:#6f7684">{{ extLabel }} EXTRACTIONS LEFT</span>
+          <span onClick="{{ closeAdd }}" style="font-size:15px;color:#9aa0ac;cursor:pointer">✕</span>
+        </div>
+
+        <sc-if value="{{ addStep1 }}" hint-placeholder-val="{{ true }}">
+          <div style="animation:om-pop .25s ease both">
+            <div style="font-size:13.5px;color:#9aa0ac;margin-top:9px;line-height:1.55">Paste a job URL. We read the posting and fill the card for you — you can edit anything before it lands on the board.</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:16px;border:1px solid hsl(221 83% 60% / .4);border-radius:8px;background:rgba(255,255,255,.03);padding:12px 14px">
+              <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:#6f7684">URL</span>
+              <input value="{{ url }}" onChange="{{ onUrl }}" placeholder="https://jobs.company.com/role" style="flex:1;min-width:0;background:transparent;border:0;font-family:'Geist Mono',ui-monospace,monospace;font-size:12.5px" />
+            </div>
+            <div style="font-size:11.5px;color:#6f7684;margin-top:9px;line-height:1.5">AI-generated content may be inaccurate — review extracted details before saving.</div>
+            <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px">
+              <sc-for list="{{ sampleUrls }}" as="s" hint-placeholder-count="3">
+                <div onClick="{{ s.onClick }}" style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;padding:5px 10px;border-radius:8px;background:rgba(255,255,255,.05);color:#9aa0ac;cursor:pointer" style-hover="background:rgba(255,255,255,.1);color:#e6e8ec">{{ s.label }}</div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:20px">
+              <div onClick="{{ runExtract }}" style="flex:1;text-align:center;font-size:14px;font-weight:600;padding:12px;border-radius:8px;background:hsl(221 83% 70%);color:#08090c;cursor:pointer">Extract details</div>
+              <div onClick="{{ manualAdd }}" style="text-align:center;font-size:14px;font-weight:500;padding:12px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.14);cursor:pointer" style-hover="background:rgba(255,255,255,.06)">Enter manually</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ addStep2 }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative;margin-top:16px;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:#0b0d12;padding:18px;overflow:hidden">
+            <div style="position:absolute;left:0;right:0;top:0;height:44px;background:linear-gradient(180deg,hsl(221 83% 60% / .24),transparent);animation:om-scan 3s cubic-bezier(.5,0,.5,1) infinite"></div>
+            <div style="position:relative;display:flex;align-items:center;gap:10px">
+              <span style="width:13px;height:13px;border-radius:99px;border:2px solid rgba(255,255,255,.14);border-top-color:hsl(221 83% 70%);animation:om-spin 1s linear infinite"></span>
+              <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.05em;color:#c8ccd4">READING THE POSTING</span>
+            </div>
+            <div style="position:relative;display:flex;flex-direction:column;gap:11px;margin-top:18px">
+              <sc-for list="{{ extractFields }}" as="ef" hint-placeholder-count="5">
+                <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;min-height:18px">
+                  <span style="font-size:12px;color:#6f7684;white-space:nowrap">{{ ef.label }}</span>
+                  <sc-if value="{{ ef.done }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:12.5px;color:#e6e8ec;text-align:right;animation:om-pop .3s ease both">{{ ef.value }}</span>
+                  </sc-if>
+                  <sc-if value="{{ ef.pending }}" hint-placeholder-val="{{ true }}">
+                    <span style="width:120px;height:8px;border-radius:99px;background:rgba(255,255,255,.07)"></span>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ addStep3 }}" hint-placeholder-val="{{ false }}">
+          <div style="animation:om-pop .3s cubic-bezier(.2,.7,.2,1) both">
+            <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:11px 13px;border-radius:8px;background:hsl(142 65% 60% / .1);border:1px solid hsl(142 65% 60% / .3)">
+              <span style="color:hsl(142 65% 74%);font-size:13px">✓</span>
+              <div style="font-size:12.5px;color:hsl(142 65% 78%)">Read in 2.4 seconds · review and drop it on the board</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+              <sc-for list="{{ reviewFields }}" as="rf" hint-placeholder-count="6">
+                <div style="border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:11px 13px;background:rgba(255,255,255,.02);grid-column:{{ rf.span }}">
+                  <div style="font-size:11px;color:#6f7684">{{ rf.label }}</div>
+                  <div style="font-size:13.5px;margin-top:4px;line-height:1.35">{{ rf.value }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:20px">
+              <div onClick="{{ confirmAdd }}" style="flex:1;text-align:center;font-size:14px;font-weight:600;padding:12px;border-radius:8px;background:hsl(221 83% 70%);color:#08090c;cursor:pointer">Add to Applied</div>
+              <div onClick="{{ backToUrl }}" style="text-align:center;font-size:14px;font-weight:500;padding:12px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.14);cursor:pointer" style-hover="background:rgba(255,255,255,.06)">Try another link</div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;tier&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;free&quot;,&quot;pro&quot;,&quot;premium&quot;],&quot;default&quot;:&quot;pro&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Account&quot;},&quot;lowTokens&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Account&quot;},&quot;emptyState&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;State&quot;},&quot;startView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;board&quot;,&quot;interviews&quot;,&quot;analytics&quot;,&quot;documents&quot;,&quot;settings&quot;],&quot;default&quot;:&quot;board&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;State&quot;},&quot;animate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;}}">
+// Status → chart token, exactly as components/job-board.tsx maps them:
+// applied chart-3 · interview chart-2 · offer chart-1 · rejected chart-5.
+// accepted follows settings-client.tsx (green-500). Lightened for a dark surface.
+const ACC = {
+  applied:   { c: "hsl(262 83% 70%)", soft: "hsl(262 83% 58% / .16)" },
+  interview: { c: "hsl(199 89% 60%)", soft: "hsl(199 89% 48% / .16)" },
+  offer:     { c: "hsl(221 83% 66%)", soft: "hsl(221 83% 53% / .18)" },
+  accepted:  { c: "hsl(142 71% 58%)", soft: "hsl(142 71% 45% / .16)" },
+  rejected:  { c: "hsl(0 60% 66%)",   soft: "hsl(0 84% 60% / .13)" },
+};
+const COLS = [
+  ["applied", "Applied"], ["interview", "Interview"], ["offer", "Offer"],
+  ["accepted", "Accepted"], ["rejected", "Rejected"],
+];
+// TIER_META mirrors components/plan-manager.tsx verbatim; prices are SUBSCRIPTION_PRICING.
+const TIER_META = {
+  free: { label: "Free", icon: "✦", price: 0, blurb: "Perfect for getting started",
+    features: ["Up to 10 job applications", "5 AI extractions/month", "2 AI documents/month", "Basic application tracking"] },
+  pro: { label: "Pro", icon: "⚡", price: 299, blurb: "For active job seekers",
+    features: ["Unlimited applications", "100 AI extractions/month", "AI resume & cover letters", "100 documents/month"] },
+  premium: { label: "Premium", icon: "♛", price: 499, blurb: "Maximum AI power",
+    features: ["Everything in Pro", "300 AI extractions/month", "300 documents/month", "Priority support"] },
+};
+
+const LIMITS = {
+  free:    { jobs: 10, ext: 5,   doc: 2,   price: "₹0",   per: "forever" },
+  pro:     { jobs: -1, ext: 100, doc: 100, price: "₹299", per: "/ month" },
+  premium: { jobs: -1, ext: 300, doc: 300, price: "₹499", per: "/ month" },
+};
+
+const SEED = [
+  { id: "j1", company: "Stripe", position: "Senior Software Engineer", status: "interview",
+    location: "Bengaluru · Hybrid", salary: "₹18,00,000 – ₹28,00,000", dateApplied: "12 Jun 2026",
+    next: "TECH SCREEN · MON 10:00", docs: 2, tags: ["Fintech", "Hybrid"], deadlineSoon: "05 Jul", jobUrl: "jobs.stripe.com/senior-engineer", recruiter: "Priya Menon · priya@stripe.com", match: 82, source: "Company site",
+    notes: "Recruiter flagged payments infra experience as the deciding factor. Mention the ledger migration.",
+    skills: [["Go", 1], ["Distributed systems", 1], ["Payments", 1], ["Kubernetes", 0], ["gRPC", 1], ["Terraform", 0]],
+    tasks: [
+      { title: "Take-home: ledger reconciliation", dueDate: "20 Jun 2026", status: "submitted", notes: "Submitted 2 days early." },
+      { title: "Prep systems design for payments", dueDate: "21 Jun 2026", status: "in-progress", notes: "" },
+    ], interviews: [
+      { round: "Recruiter screen", status: "completed", when: "14 Jun · 30 min · Priya M.", notes: "Went well — asked about payments infra and on-call load." },
+      { round: "Technical screen", status: "scheduled", when: "Mon 22 Jun · 10:00 · 60 min", notes: "" },
+    ],
+    documents: [["stripe-senior-engineer-cv.pdf", "PDF", "ATS-SAFE · 1 PAGE · SENT 12 JUN"], ["stripe-cover-letter.pdf", "PDF", "MATCHED TO JD · SENT 12 JUN"]],
+    activity: [
+      ["Status changed to Interview", "16 Jun · 09:12"],
+      ["Recruiter screen logged", "14 Jun · 16:40"],
+      ["Tailored resume generated", "12 Jun · 11:02"],
+      ["Application created from link", "12 Jun · 10:58"],
+    ] },
+  { id: "j2", company: "Linear", position: "Frontend Engineer", status: "interview",
+    location: "Remote · IN", salary: "₹22,00,000 – ₹30,00,000", dateApplied: "09 Jun 2026",
+    next: "FINAL ROUND · WED 14:30", docs: 1, tags: ["Remote", "Product-led"], jobUrl: "linear.app/careers/frontend", recruiter: "Sam Whitfield · sam@linear.app", match: 76, source: "LinkedIn",
+    notes: "Design-heavy role. Bring the design-system case study.",
+    skills: [["TypeScript", 1], ["React", 1], ["Animation", 1], ["Rust", 0], ["Design systems", 1], ["WebGL", 0]],
+    tasks: [
+      { title: "Design-system case study deck", dueDate: "23 Jun 2026", status: "in-progress", notes: "3 of 8 slides done." },
+    ], interviews: [{ round: "Hiring manager", status: "completed", when: "17 Jun · 45 min", notes: "Strong signal on craft." }, { round: "Final round", status: "scheduled", when: "Wed 24 Jun · 14:30", notes: "" }],
+    documents: [["linear-frontend-cv.pdf", "PDF", "ATS-SAFE · 1 PAGE · SENT 09 JUN"]],
+    activity: [["Status changed to Interview", "17 Jun · 18:20"], ["Application created from link", "09 Jun · 08:15"]] },
+  { id: "j3", company: "Notion", position: "Product Designer", status: "applied",
+    location: "Bengaluru · Onsite", salary: "₹16,00,000 – ₹24,00,000", dateApplied: "21 Jun 2026",
+    next: "", docs: 1, tags: ["Design", "Onsite"], jobUrl: "boards.greenhouse.io/notion/design", match: 64, source: "Greenhouse",
+    notes: "",
+    skills: [["Figma", 1], ["Prototyping", 1], ["Design systems", 1], ["Motion", 0], ["Research", 1], ["Front-end", 0]],
+    tasks: [], interviews: [],
+    documents: [["notion-product-designer-cv.pdf", "PDF", "ATS-SAFE · 1 PAGE · SENT 21 JUN"]],
+    activity: [["Application created from link", "21 Jun · 12:04"]] },
+  { id: "j4", company: "Razorpay", position: "SDE II — Platform", status: "applied",
+    location: "Bengaluru · Hybrid", salary: "₹20,00,000 – ₹26,00,000", dateApplied: "23 Jun 2026",
+    next: "FOLLOW UP · 30 JUN", docs: 0, tags: ["Fintech", "Platform"], deadlineSoon: "30 Jun", jobUrl: "razorpay.com/jobs/sde-2-platform", match: 71, source: "Naukri",
+    notes: "",
+    skills: [["Java", 1], ["Kafka", 1], ["AWS", 1], ["Scala", 0], ["Microservices", 1], ["Redis", 1]],
+    tasks: [{ title: "Follow up with recruiter", dueDate: "30 Jun 2026", status: "pending", notes: "" }],
+    interviews: [{ round: "Recruiter screen", status: "pending", when: "Awaiting a slot from the recruiter", notes: "" }], documents: [],
+    activity: [["Application created from link", "23 Jun · 19:41"]] },
+  { id: "j5", company: "Postman", position: "Platform Engineer", status: "applied",
+    location: "Bengaluru · Remote", salary: "₹19,00,000 – ₹25,00,000", dateApplied: "24 Jun 2026",
+    next: "", docs: 1, tags: ["DevTools", "Remote"], jobUrl: "jobs.lever.co/postman/platform", match: 68, source: "Lever",
+    notes: "",
+    skills: [["Node", 1], ["Docker", 1], ["CI/CD", 1], ["Go", 0], ["Observability", 1], ["Postgres", 1]],
+    tasks: [], interviews: [], documents: [["postman-platform-cv.pdf", "PDF", "ATS-SAFE · 1 PAGE · SENT 24 JUN"]],
+    activity: [["Application created from link", "24 Jun · 09:30"]] },
+  { id: "j6", company: "Loom", position: "Full Stack Developer", status: "offer",
+    location: "Remote", salary: "₹24,00,000 + equity", dateApplied: "02 Jun 2026",
+    next: "OFFER EXPIRES 02 JUL", docs: 2, tags: ["Remote", "Equity"], jobUrl: "loom.com/careers/fullstack", recruiter: "Dana Okoye · dana@loom.com", match: 88, source: "LinkedIn",
+    notes: "Offer verbal on 20 Jun, written on 21 Jun. Negotiating base.",
+    skills: [["React", 1], ["Node", 1], ["Postgres", 1], ["GraphQL", 1], ["AWS", 1], ["Testing", 1]],
+    tasks: [
+      { title: "Reference check details", dueDate: "24 Jun 2026", status: "completed", notes: "" },
+      { title: "Compare offer vs Atlassian", dueDate: "28 Jun 2026", status: "pending", notes: "" },
+    ], interviews: [{ round: "Final round", status: "completed", when: "18 Jun · 90 min", notes: "System design + culture. Positive." }],
+    documents: [["loom-fullstack-cv.pdf", "PDF", "ATS-SAFE · 1 PAGE · SENT 02 JUN"], ["loom-cover-letter.pdf", "PDF", "MATCHED TO JD · SENT 02 JUN"]],
+    activity: [["Status changed to Offer", "21 Jun · 11:00"], ["Final round completed", "18 Jun · 17:30"], ["Application created from link", "02 Jun · 07:45"]] },
+  { id: "j7", company: "Atlassian", position: "Senior Frontend Engineer", status: "accepted",
+    location: "Bengaluru · Hybrid", salary: "₹27,00,000", dateApplied: "18 May 2026",
+    next: "START DATE 14 JUL", docs: 2, tags: ["Enterprise", "Accepted"], jobUrl: "atlassian.com/company/careers/senior-fe", recruiter: "Ravi Sethi · ravi@atlassian.com", match: 91, source: "Company site",
+    notes: "Accepted 22 Jun. Notice period 30 days.",
+    skills: [["TypeScript", 1], ["React", 1], ["Accessibility", 1], ["Micro-frontends", 1], ["Jest", 1], ["Node", 1]],
+    tasks: [
+      { title: "Sign and return offer letter", dueDate: "23 Jun 2026", status: "completed", notes: "" },
+    ], interviews: [{ round: "Onsite loop", status: "completed", when: "10 Jun · 4 rounds", notes: "Cleared all four." }],
+    documents: [["atlassian-senior-fe-cv.pdf", "PDF", "ATS-SAFE · 1 PAGE"], ["atlassian-cover-letter.pdf", "PDF", "MATCHED TO JD"]],
+    activity: [["Offer accepted", "22 Jun · 10:15"], ["Status changed to Offer", "19 Jun · 14:02"], ["Application created manually", "18 May · 21:10"]] },
+  { id: "j8", company: "Zerodha", position: "Backend Engineer", status: "rejected",
+    location: "Bengaluru · Onsite", salary: "₹18,00,000", dateApplied: "28 May 2026",
+    next: "", docs: 1, tags: ["Fintech", "Closed"], jobUrl: "zerodha.com/careers/backend", match: 58, source: "Company site",
+    notes: "Rejected after tech screen — wanted deeper Go experience.",
+    skills: [["Go", 0], ["Postgres", 1], ["Redis", 1], ["Kafka", 0], ["Linux", 1], ["Systems", 1]],
+    tasks: [], interviews: [{ round: "Technical screen", status: "completed", when: "05 Jun · 60 min", notes: "Struggled on concurrency questions." }],
+    documents: [["zerodha-backend-cv.pdf", "PDF", "ATS-SAFE · 1 PAGE"]],
+    activity: [["Status changed to Rejected", "08 Jun · 12:30"], ["Application created from link", "28 May · 20:05"]] },
+];
+
+// Board holds the live 8; ARCHIVED is everything closed out earlier.
+// Every rate on every screen is derived from TOTALS so no two screens disagree.
+const ARCHIVED = { applied: 18, interview: 1, offer: 0, accepted: 0, rejected: 7 };
+
+// interviewStatusConfig / taskStatusConfig from components/interview-task-section.tsx.
+const IV_STATUS = {
+  pending:   { label: "Pending",   dot: "hsl(43 96% 60%)" },
+  scheduled: { label: "Scheduled", dot: "hsl(221 83% 66%)" },
+  completed: { label: "Completed", dot: "hsl(142 71% 55%)" },
+  cancelled: { label: "Cancelled", dot: "#767d8b" },
+};
+const TASK_STATUS = {
+  pending:       { label: "Pending",     dot: "#8b919d" },
+  "in-progress": { label: "In Progress", dot: "hsl(221 83% 66%)" },
+  completed:     { label: "Completed",   dot: "hsl(142 71% 55%)" },
+  submitted:     { label: "Submitted",   dot: "hsl(262 83% 70%)" },
+};
+
+const SAMPLES = [
+  ["jobs.stripe.com/senior-engineer", { company: "Stripe", position: "Senior Software Engineer", location: "Bengaluru · Hybrid", salary: "₹18L – ₹28L", description: "Payments infrastructure team. Go, distributed systems, on-call rotation.", source: "Company site" }],
+  ["linkedin.com/jobs/view/canva-designer", { company: "Canva", position: "Senior Product Designer", location: "Remote · IN", salary: "₹26L – ₹34L", description: "Own end-to-end flows for the editor. Systems thinking, strong craft bar.", source: "LinkedIn" }],
+  ["boards.greenhouse.io/vercel/dx-eng", { company: "Vercel", position: "DX Engineer", location: "Remote", salary: "$110k – $150k", description: "Docs, examples and framework integrations. TypeScript and Next.js depth.", source: "Greenhouse" }],
+];
+
+class Component extends DCLogic {
+  state = {
+    view: "board",
+    jobs: SEED,
+    selectedId: null,
+    detailTab: "overview",
+    dragId: null,
+    overStatus: null,
+    search: "",
+    statusFilter: "all",
+    addOpen: false,
+    addStep: 1,
+    url: "",
+    extractIdx: 0,
+    sampleIdx: 0,
+    tailor: "idle",
+    tailorTick: 0,
+    docFilter: "All",
+    pendingTier: null,
+    docPromptSkipped: false,
+    warnDismissed: false,
+    demoLoaded: false,
+  };
+
+  componentDidMount() {
+    this.setState({ view: this.props.startView ?? "board" });
+    this.count();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.view !== this.state.view) this.count();
+  }
+
+  componentWillUnmount() { clearInterval(this._ex); clearInterval(this._tl); }
+
+  count() {
+    if ((this.props.animate ?? true) === false) return;
+    const els = Array.from(document.querySelectorAll("[data-count]"));
+    if (!els.length) return;
+    const t0 = performance.now(), dur = 900;
+    const tick = (now) => {
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      els.forEach((el) => {
+        const v = parseFloat(el.getAttribute("data-count")) || 0;
+        el.textContent = Math.round(v * e) + (el.getAttribute("data-suffix") || "");
+      });
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  tier() { return this.props.tier ?? "pro"; }
+  limits() { return LIMITS[this.tier()]; }
+
+  usage() {
+    const l = this.limits();
+    const low = this.props.lowTokens ?? true;
+    const extLeft = this.tier() === "free" ? (low ? 1 : 4) : low ? Math.round(l.ext * 0.07) : Math.round(l.ext * 0.62);
+    const docLeft = this.tier() === "free" ? (low ? 0 : 2) : low ? Math.round(l.doc * 0.12) : Math.round(l.doc * 0.55);
+    return { extLeft, docLeft, ext: l.ext, doc: l.doc };
+  }
+
+  visible() {
+    const q = this.state.search.trim().toLowerCase();
+    return this.state.jobs.filter((j) => {
+      if (this.state.statusFilter !== "all" && j.status !== this.state.statusFilter) return false;
+      if (!q) return true;
+      return (j.company + " " + j.position + " " + j.location).toLowerCase().includes(q);
+    });
+  }
+
+  move(id, status) {
+    this.setState((s) => ({
+      jobs: s.jobs.map((j) => (j.id === id ? Object.assign({}, j, { status }) : j)),
+      dragId: null, overStatus: null,
+    }));
+  }
+
+  runExtract = () => {
+    clearInterval(this._ex);
+    this.setState({ addStep: 2, extractIdx: 0 });
+    this._ex = setInterval(() => {
+      const n = this.state.extractIdx + 1;
+      if (n >= 5) { clearInterval(this._ex); this.setState({ addStep: 3, extractIdx: 5 }); }
+      else this.setState({ extractIdx: n });
+    }, 420);
+  };
+
+  startTailor = () => {
+    clearInterval(this._tl);
+    this.setState({ tailor: "running", tailorTick: 0 });
+    this._tl = setInterval(() => {
+      const n = this.state.tailorTick + 1;
+      if (n >= 8) { clearInterval(this._tl); this.setState({ tailor: "done", tailorTick: 8 }); }
+      else this.setState({ tailorTick: n });
+    }, 330);
+  };
+
+  renderVals() {
+    const S = this.state, jobs = S.jobs, u = this.usage(), l = this.limits();
+    const tier = this.tier();
+    const isEmpty = (this.props.emptyState ?? false) && !S.demoLoaded;
+    const vis = this.visible();
+
+    const navDefs = [
+      ["board", "▦", "Board", jobs.length],
+      ["interviews", "◷", "Interviews", 3],
+      ["analytics", "◈", "Analytics", 0],
+      ["documents", "▤", "Documents", 9],
+      ["settings", "⚙", "Settings", 0],
+    ];
+    const navItems = navDefs.map(([id, icon, label, badge]) => ({
+      id, icon, label,
+      badge: badge ? String(badge) : false,
+      color: S.view === id ? "#f3f4f6" : "#9aa0ac",
+      bg: S.view === id ? "rgba(255,255,255,.07)" : "transparent",
+      weight: S.view === id ? "600" : "400",
+      onClick: () => this.setState({ view: id }),
+    }));
+
+    const order = COLS.map((c) => c[0]);
+    const decorate = (j) => {
+      const a = ACC[j.status];
+      const i = order.indexOf(j.status);
+      return {
+        id: j.id, company: j.company, position: j.position, initial: j.company[0],
+        dateApplied: j.dateApplied, location: j.location, salary: j.salary,
+        tags: j.tags || [],
+        deadlineWarning: j.deadlineSoon || false,
+        hasInterviews: (j.interviews || []).length > 0,
+        interviewsLabel: (j.interviews || []).length + (j.interviews && j.interviews.length === 1 ? " ROUND" : " ROUNDS"),
+        canLeft: i > 0, canRight: i < order.length - 1,
+        moveLeft: (e) => { e.stopPropagation(); this.move(j.id, order[i - 1]); },
+        moveRight: (e) => { e.stopPropagation(); this.move(j.id, order[i + 1]); },
+        accent: a.c, avatarBg: a.soft, chipBg: a.soft,
+        cardBorder: S.dragId === j.id ? "hsl(221 83% 60% / .6)" : "rgba(255,255,255,.08)",
+        cardBg: "rgba(255,255,255,.028)",
+        opacity: S.dragId === j.id ? "0.45" : "1",
+        chip: j.status === "applied" ? "APPLIED · " + j.dateApplied.slice(0, 6).toUpperCase()
+            : j.status === "interview" ? "INTERVIEWING"
+            : j.status === "offer" ? "OFFER" : j.status === "accepted" ? "ACCEPTED" : "CLOSED",
+        hasDocs: j.docs > 0,
+        docsLabel: j.docs + (j.docs === 1 ? " DOC" : " DOCS"),
+        nextLabel: j.next || false,
+        onClick: () => this.setState({ selectedId: j.id, detailTab: "overview", tailor: "idle" }),
+        onDragStart: (e) => { if (e.dataTransfer) e.dataTransfer.effectAllowed = "move"; this.setState({ dragId: j.id }); },
+        onDragEnd: () => this.setState({ dragId: null, overStatus: null }),
+      };
+    };
+
+    const columns = COLS.map(([status, label]) => {
+      const list = vis.filter((j) => j.status === status);
+      return {
+        status, label, accent: ACC[status].c, count: String(list.length),
+        jobs: list.map(decorate),
+        isEmpty: list.length === 0,
+        isOver: S.overStatus === status,
+        onDragOver: (e) => { e.preventDefault(); if (S.overStatus !== status) this.setState({ overStatus: status }); },
+        onDragLeave: () => { if (S.overStatus === status) this.setState({ overStatus: null }); },
+        onDrop: (e) => { e.preventDefault(); if (S.dragId) this.move(S.dragId, status); },
+      };
+    });
+
+    const n = (st) => jobs.filter((j) => j.status === st).length;
+    const active = n("applied") + n("interview") + n("offer");
+    const T = {
+      applied: n("applied") + ARCHIVED.applied,
+      interview: n("interview") + ARCHIVED.interview,
+      offer: n("offer") + ARCHIVED.offer,
+      accepted: n("accepted") + ARCHIVED.accepted,
+      rejected: n("rejected") + ARCHIVED.rejected,
+    };
+    T.total = T.applied + T.interview + T.offer + T.accepted + T.rejected;
+    T.replied = T.total - T.applied;
+    T.interviewed = T.interview + T.offer + T.accepted;
+    const respRate = Math.round((T.replied / T.total) * 100);
+    const ivRate = Math.round((T.interviewed / T.total) * 100);
+    const statCards = [
+      { label: "On board", value: jobs.length, display: String(jobs.length), suffix: "", note: l.jobs === -1 ? "unlimited" : "of " + l.jobs, color: "#f3f4f6", border: "rgba(255,255,255,.08)", bg: "rgba(255,255,255,.022)" },
+      { label: "Active", value: active, display: String(active), suffix: "", note: "in play", color: "#f3f4f6", border: "rgba(255,255,255,.08)", bg: "rgba(255,255,255,.022)" },
+      { label: "Interviewing", value: n("interview"), display: String(n("interview")), suffix: "", note: "3 rounds booked", color: ACC.interview.c, border: "hsl(43 90% 70% / .3)", bg: "hsl(43 90% 70% / .07)" },
+      { label: "Offers", value: n("offer") + n("accepted"), display: String(n("offer") + n("accepted")), suffix: "", note: "1 accepted", color: ACC.accepted.c, border: "hsl(142 65% 70% / .3)", bg: "hsl(142 65% 70% / .07)" },
+      { label: "Response rate", value: respRate, display: respRate + "%", suffix: "%", note: "all-time · " + T.total + " applications", color: "#f3f4f6", border: "rgba(255,255,255,.08)", bg: "rgba(255,255,255,.022)" },
+    ];
+
+    const chipDefs = [["all", "All"], ["applied", "Applied"], ["interview", "Interview"], ["offer", "Offer"], ["accepted", "Accepted"], ["rejected", "Rejected"]];
+    const filterChips = chipDefs.map(([k, label]) => {
+      const on = S.statusFilter === k;
+      return {
+        label, onClick: () => this.setState({ statusFilter: k }),
+        border: on ? "hsl(221 83% 60% / .5)" : "rgba(255,255,255,.1)",
+        bg: on ? "hsl(221 83% 60% / .14)" : "rgba(255,255,255,.022)",
+        color: on ? "hsl(221 83% 78%)" : "#9aa0ac",
+      };
+    });
+
+    const sel = jobs.find((j) => j.id === S.selectedId);
+    let selVals = {};
+    if (sel) {
+      const a = ACC[sel.status];
+      selVals = {
+        initial: sel.company[0], company: sel.company, position: sel.position,
+        location: sel.location, accent: a.c, avatarBg: a.soft, notes: sel.notes,
+        deadlineSoon: sel.deadlineSoon, recruiter: sel.recruiter, jobUrl: sel.jobUrl, tags: sel.tags,
+        matchPct: sel.match, matchLabel: sel.match + "% KEYWORD MATCH",
+        facts: [
+          { label: "Applied on", value: sel.dateApplied },
+          { label: "Location", value: sel.location },
+          { label: "Salary", value: sel.salary },
+          { label: "Response deadline", value: sel.deadlineSoon ? sel.deadlineSoon + " 2026" : "Not set" },
+          { label: "Recruiter", value: sel.recruiter || "Not recorded" },
+          { label: "Documents", value: sel.docs ? sel.docs + " generated" : "None yet" },
+        ],
+        jobUrl: sel.jobUrl || false,
+        tags: sel.tags || [],
+        skills: sel.skills.map(([label, hit]) => ({
+          label,
+          bg: hit ? "hsl(142 65% 60% / .14)" : "rgba(255,255,255,.05)",
+          color: hit ? "hsl(142 65% 76%)" : "#767d8b",
+        })),
+        interviews: sel.interviews.map((iv) => {
+          const cfg = IV_STATUS[iv.status] || IV_STATUS.pending;
+          const live = iv.status === "scheduled";
+          return {
+            round: iv.round, when: iv.when, notes: iv.notes || false,
+            status: cfg.label, dot: cfg.dot,
+            border: live ? "hsl(221 83% 53% / .35)" : "rgba(255,255,255,.08)",
+            bg: live ? "hsl(221 83% 53% / .07)" : "rgba(255,255,255,.02)",
+          };
+        }),
+        noInterviews: (sel.interviews || []).length === 0,
+        tasks: (sel.tasks || []).map((t) => {
+          const cfg = TASK_STATUS[t.status] || TASK_STATUS.pending;
+          return {
+            title: t.title, notes: t.notes || false,
+            due: t.dueDate ? "Due " + t.dueDate : "",
+            status: cfg.label, dot: cfg.dot,
+          };
+        }),
+        noTasks: (sel.tasks || []).length === 0,
+        documents: sel.documents.map(([name, ext, meta]) => ({ name, ext, meta })),
+        activity: sel.activity.map(([text, when], i) => ({ text, when, dot: i === 0 ? ACC[sel.status].c : "rgba(255,255,255,.18)" })),
+      };
+    }
+
+    const statusSteps = COLS.map(([status, label]) => {
+      const on = sel && sel.status === status;
+      return {
+        label, onClick: () => sel && this.move(sel.id, status),
+        border: on ? ACC[status].c : "rgba(255,255,255,.1)",
+        bg: on ? ACC[status].soft : "transparent",
+        color: on ? ACC[status].c : "#9aa0ac",
+      };
+    });
+
+    const ivCount = sel ? (sel.interviews || []).length + (sel.tasks || []).length : 0;
+    const acCount = sel ? (sel.activity || []).length : 0;
+    const tabDefs = [
+      ["overview", "Details"],
+      ["interviews", ivCount ? "Progress (" + ivCount + ")" : "Progress"],
+      ["docs", "Documents"],
+      ["activity", acCount ? "Activity (" + acCount + ")" : "Activity"],
+    ];
+    const detailTabs = tabDefs.map(([k, label]) => ({
+      label, onClick: () => this.setState({ detailTab: k }),
+      color: S.detailTab === k ? "#f3f4f6" : "#9aa0ac",
+      bg: S.detailTab === k ? "rgba(255,255,255,.08)" : "transparent",
+      weight: S.detailTab === k ? "600" : "400",
+    }));
+
+    const tSteps = [
+      ["Parsing job description", 1], ["Re-weighting experience", 3],
+      ["Matching skills language", 5], ["Writing cover letter", 7],
+    ];
+    const tailorSteps = tSteps.map(([label, at]) => {
+      const done = S.tailorTick > at;
+      const running = S.tailorTick >= at - 1 && !done;
+      return {
+        label, pct: done ? 100 : running ? 55 : 6,
+        state: done ? "DONE" : running ? "RUNNING" : "QUEUED",
+        stateColor: done ? "hsl(142 65% 74%)" : running ? "hsl(221 83% 74%)" : "#6f7684",
+        labelColor: done || running ? "#c8ccd4" : "#767d8b",
+        fill: done ? "hsl(142 65% 60%)" : "hsl(221 83% 60%)",
+      };
+    });
+
+    const sample = SAMPLES[S.sampleIdx][1];
+    // Field list mirrors the jobDetailsSchema in app/api/extract-job/route.ts —
+    // company, position, location, salary, description (any may come back null).
+    const efDefs = [["Company", sample.company], ["Position", sample.position], ["Location", sample.location], ["Salary", sample.salary], ["Description", sample.description]];
+    const extractFields = efDefs.map(([label, value], i) => ({
+      label, value, done: S.extractIdx > i, pending: S.extractIdx <= i,
+    }));
+    const reviewFields = efDefs.map(([label, value]) => ({ label, value, span: label === "Description" ? "1 / -1" : "auto" }));
+
+    const upDefs = [
+      ["MON", "22", "Stripe", "Technical screen", "10:00 – 11:00", "SCHEDULED", "Prep reminder set", "j1"],
+      ["WED", "24", "Linear", "Final round", "14:30 – 16:00", "SCHEDULED", "Prep reminder set", "j2"],
+      ["FRI", "26", "Stripe", "HR call", "09:00 – 09:30", "PENDING", "Awaiting confirmation", "j1"],
+    ];
+    const upcoming = upDefs.map(([day, date, company, round, time, status, reminder, jid]) => {
+      const soon = status === "SCHEDULED";
+      return {
+        day, date, company, round, time, status, reminder,
+        accent: soon ? "hsl(221 83% 66%)" : "hsl(43 90% 70%)",
+        chipBg: soon ? "hsl(221 83% 60% / .14)" : "hsl(43 90% 70% / .14)",
+        border: "rgba(255,255,255,.08)", bg: "rgba(255,255,255,.026)",
+        onClick: () => this.setState({ selectedId: jid, detailTab: "interviews", view: "board" }),
+      };
+    });
+
+    const pastInterviews = [
+      { text: "Linear · Hiring manager — strong signal on craft", when: "17 JUN", dot: "hsl(142 65% 70%)" },
+      { text: "Loom · Final round — system design + culture", when: "18 JUN", dot: "hsl(142 65% 70%)" },
+      { text: "Zerodha · Technical screen — concurrency gaps", when: "05 JUN", dot: "#8b919d" },
+    ];
+
+    const kpis = [
+      { label: "Applications", value: T.total, display: String(T.total), suffix: "", delta: jobs.length + " on board · " + (T.total - jobs.length) + " archived", deltaColor: "#6f7684" },
+      { label: "Response rate", value: respRate, display: respRate + "%", suffix: "%", delta: T.replied + " of " + T.total + " replied", deltaColor: "hsl(142 71% 62%)" },
+      { label: "Interview rate", value: ivRate, display: ivRate + "%", suffix: "%", delta: T.interviewed + " reached interview", deltaColor: "#6f7684" },
+      { label: "Avg days to reply", value: 6, display: "6", suffix: "", delta: "↓ 2 days vs last month", deltaColor: "hsl(142 71% 62%)" },
+    ];
+
+    const wk = [2, 3, 4, 5, 4, 6, 4, 6];
+    const weekBars = wk.map((v, i) => ({
+      value: String(v), label: "W" + (i + 1), height: Math.round((v / 7) * 100),
+      fill: i === wk.length - 1 ? "hsl(142 65% 60%)" : i >= wk.length - 3 ? "hsl(221 83% 60%)" : "rgba(255,255,255,.1)",
+      delay: i * 60 + "ms",
+    }));
+
+    const fDefs = [
+      ["Applied", T.total, "hsl(221 83% 53% / .5)"],
+      ["Replied", T.replied, "hsl(221 83% 60% / .75)"],
+      ["Interviewed", T.interviewed, "hsl(199 89% 60%)"],
+      ["Offers", T.offer + T.accepted, "hsl(262 83% 66%)"],
+      ["Accepted", T.accepted, "hsl(142 71% 55%)"],
+    ];
+    const funnel = fDefs.map(([label, value, fill], i) => ({
+      label, value: String(value), pct: Math.round((value / T.total) * 100),
+      pctLabel: Math.round((value / T.total) * 100) + "%", fill, delay: i * 80 + "ms",
+    }));
+
+    const sDefs = [["LinkedIn", 14, "hsl(221 83% 60%)"], ["Company sites", 9, "hsl(262 83% 66%)"], ["Greenhouse", 6, "hsl(199 89% 60%)"], ["Naukri", 5, "rgba(255,255,255,.22)"]];
+    const sources = sDefs.map(([label, value, fill], i) => ({
+      label, value: String(value), pct: Math.round((value / 14) * 100), fill, delay: i * 70 + "ms",
+    }));
+
+    const insights = [
+      { text: "Tailored applications reply 2.4× more often than untailored ones — 41% vs 17% across all " + T.total + "." },
+      { text: "Roles you applied to within 48 hours of posting produced " + (T.interviewed - 2) + " of your " + T.interviewed + " interviews." },
+      { text: "Company career pages convert best for you; Naukri has produced no replies in 8 weeks." },
+    ];
+
+    const allDocs = [
+      ["stripe-senior-engineer-cv.pdf", "Senior Software Engineer · Stripe", "Resume", "12 JUN", "PDF"],
+      ["stripe-cover-letter.pdf", "Senior Software Engineer · Stripe", "Cover letter", "12 JUN", "PDF"],
+      ["loom-fullstack-cv.pdf", "Full Stack Developer · Loom", "Resume", "02 JUN", "PDF"],
+      ["loom-cover-letter.pdf", "Full Stack Developer · Loom", "Cover letter", "02 JUN", "PDF"],
+      ["linear-frontend-cv.pdf", "Frontend Engineer · Linear", "Resume", "09 JUN", "PDF"],
+      ["atlassian-senior-fe-cv.pdf", "Senior Frontend Engineer · Atlassian", "Resume", "18 MAY", "PDF"],
+      ["notion-product-designer-cv.pdf", "Product Designer · Notion", "Resume", "21 JUN", "PDF"],
+      ["master-resume.txt", "Master profile", "Master", "01 MAY", "TXT"],
+      ["postman-platform-cv.pdf", "Platform Engineer · Postman", "Resume", "24 JUN", "PDF"],
+    ];
+    const documents = allDocs
+      .filter(([, , kind]) => S.docFilter === "All" || kind === S.docFilter)
+      .map(([name, role, kind, when, ext]) => ({
+        name, role, kind: kind.toUpperCase(), when, ext,
+        chipBg: kind === "Resume" ? "hsl(221 83% 60% / .14)" : kind === "Cover letter" ? "hsl(262 75% 66% / .14)" : "rgba(255,255,255,.06)",
+        chipColor: kind === "Resume" ? "hsl(221 83% 76%)" : kind === "Cover letter" ? "hsl(262 75% 73%)" : "#9aa0ac",
+      }));
+    const docFilters = ["All", "Resume", "Cover letter", "Master"].map((label) => {
+      const on = S.docFilter === label;
+      return {
+        label, onClick: () => this.setState({ docFilter: label }),
+        border: on ? "hsl(221 83% 60% / .5)" : "rgba(255,255,255,.1)",
+        bg: on ? "hsl(221 83% 60% / .14)" : "rgba(255,255,255,.022)",
+        color: on ? "hsl(221 83% 78%)" : "#9aa0ac",
+      };
+    });
+
+    const plans = ["free", "pro", "premium"].map((k) => {
+      const on = k === tier;
+      const L = LIMITS[k];
+      return {
+        name: k[0].toUpperCase() + k.slice(1),
+        price: L.price, per: L.per,
+        badge: on ? "CURRENT" : k === "pro" ? "POPULAR" : "UPGRADE",
+        badgeBg: on ? "hsl(142 65% 60% / .18)" : k === "pro" ? "hsl(221 83% 70%)" : "rgba(255,255,255,.07)",
+        badgeColor: on ? "hsl(142 65% 76%)" : k === "pro" ? "#08090c" : "#9aa0ac",
+        l1: L.jobs === -1 ? "Unlimited applications" : "Up to " + L.jobs + " applications",
+        l2: L.ext + " extraction tokens / month",
+        l3: L.doc + " document tokens / month",
+        cta: on ? "Current plan" : "Switch to " + k,
+        ctaBg: on ? "rgba(255,255,255,.06)" : "hsl(221 83% 70%)",
+        ctaColor: on ? "#c8ccd4" : "#08090c",
+        border: on ? "hsl(142 65% 60% / .35)" : "rgba(255,255,255,.08)",
+        bg: on ? "hsl(142 65% 60% / .06)" : "rgba(255,255,255,.022)",
+        onClick: () => {},
+      };
+    });
+
+    const extPct = Math.round((u.extLeft / u.ext) * 100);
+    const docPct = Math.round((u.docLeft / u.doc) * 100);
+    const lowExt = extPct <= 15, lowDoc = docPct <= 15;
+
+    const titles = {
+      board: ["Board", vis.length + " of " + jobs.length + " applications shown"],
+      interviews: ["Interviews", "3 rounds scheduled this week"],
+      analytics: ["Analytics", "All time · " + T.total + " applications"],
+      documents: ["Documents", documents.length + " generated files"],
+      settings: ["Account", "Plan, tokens and data"],
+    };
+    const t = titles[S.view] || titles.board;
+
+    return {
+      navItems, columns, statCards, filterChips,
+      view: S.view, viewTitle: isEmpty ? "Board" : t[0], viewSub: isEmpty ? "No applications yet" : t[1],
+      isEmpty,
+      isBoard: !isEmpty && S.view === "board",
+      isInterviews: !isEmpty && S.view === "interviews",
+      isAnalytics: !isEmpty && S.view === "analytics",
+      isDocuments: !isEmpty && S.view === "documents",
+      isSettings: !isEmpty && S.view === "settings",
+      search: S.search, onSearch: (e) => this.setState({ search: e.target.value }),
+      loadDemo: () => this.setState({ demoLoaded: true }),
+      goSettings: () => this.setState({ view: "settings" }),
+
+      tierLabel: tier[0].toUpperCase() + tier.slice(1),
+      priceLabel: l.price === "₹0" ? "Free forever" : l.price + " / month",
+      jobsLimitLabel: l.jobs === -1 ? "Unlimited applications" : "Up to " + l.jobs + " applications",
+      extLabel: u.extLeft + " / " + u.ext, docLabel: u.docLeft + " / " + u.doc,
+      extPct, docPct,
+      extColor: lowExt ? "hsl(43 90% 70%)" : "hsl(221 83% 66%)",
+      docColor: lowDoc ? "hsl(43 90% 70%)" : "hsl(142 65% 60%)",
+      expiryLabel: "12 Oct 2026",
+      showLowWarning: (lowExt || lowDoc) && !S.warnDismissed && !isEmpty,
+      lowWarnTitle: lowExt && lowDoc ? "Extraction and document tokens are nearly out"
+        : lowExt ? u.extLeft + " extraction tokens left" : u.docLeft + " document tokens left",
+      dismissWarning: () => this.setState({ warnDismissed: true }),
+
+      hasSelection: !!sel, sel: selVals, statusSteps, detailTabs,
+      closeDetail: () => this.setState({ selectedId: null, tailor: "idle" }),
+      tabOverview: S.detailTab === "overview",
+      tabInterviews: S.detailTab === "interviews",
+      tabDocs: S.detailTab === "docs",
+      tabActivity: S.detailTab === "activity",
+      onNotes: (e) => {
+        const v = e.target.value;
+        this.setState((s) => ({ jobs: s.jobs.map((j) => (j.id === s.selectedId ? Object.assign({}, j, { notes: v }) : j)) }));
+      },
+      addInterview: () => this.setState({ view: "interviews", selectedId: null }),
+      goDocsTab: () => this.setState({ detailTab: "docs" }),
+
+      tailorIdle: S.tailor === "idle", tailorRunning: S.tailor === "running", tailorDone: S.tailor === "done",
+      tailorStatus: "MATCHING " + (sel ? Math.round(sel.match / 2) : 20) + " KEYWORDS",
+      tailorSteps, startTailor: this.startTailor,
+      resetTailor: () => this.setState({ tailor: "idle", tailorTick: 0 }),
+      tailoredFiles: sel ? [
+        { name: sel.company.toLowerCase() + "-tailored-cv.pdf", meta: "ATS-SAFE · 1 PAGE · " + sel.match + "% MATCH" },
+        { name: sel.company.toLowerCase() + "-cover-letter.pdf", meta: "MATCHED TO JD · 240 WORDS" },
+      ] : [],
+
+      addOpen: S.addOpen, addStep1: S.addStep === 1, addStep2: S.addStep === 2, addStep3: S.addStep === 3,
+      openAdd: () => this.setState({ addOpen: true, addStep: 1, url: "", extractIdx: 0, docPromptSkipped: false }),
+      closeAdd: () => { clearInterval(this._ex); this.setState({ addOpen: false }); },
+      url: S.url, onUrl: (e) => this.setState({ url: e.target.value }),
+      sampleUrls: SAMPLES.map(([label], i) => ({
+        label, onClick: () => this.setState({ url: label, sampleIdx: i }),
+      })),
+      runExtract: this.runExtract,
+      manualAdd: () => this.setState({ addStep: 3 }),
+      backToUrl: () => this.setState({ addStep: 1, extractIdx: 0 }),
+      extractFields, reviewFields,
+      showDocPrompt: S.addStep === 3 && !S.docPromptSkipped,
+      docPromptSub: "Generate a tailored resume and cover letter using AI." +
+        (tier === "free" ? " Free plans include 2 per month — upgrade for more." : ""),
+      skipDocPrompt: () => this.setState({ docPromptSkipped: true }),
+      confirmAdd: () => {
+        const s = SAMPLES[S.sampleIdx][1];
+        const nj = {
+          id: "n" + Date.now(), company: s.company, position: s.position, status: "applied",
+          location: s.location, salary: s.salary, dateApplied: "28 Jun 2026", next: "", docs: 0,
+          match: 70, source: s.source, notes: s.description || "", tags: ["New"],
+          skills: [["Relevant", 1], ["From posting", 1], ["Keywords", 1], ["Pending review", 0], ["Match", 1], ["Draft", 0]],
+          interviews: [], documents: [],
+          activity: [["Application created from link", "28 Jun · now"]],
+        };
+        this.setState((st) => ({ jobs: st.jobs.concat([nj]), addOpen: false, addStep: 1, view: "board", demoLoaded: true }));
+      },
+
+      openTasks: jobs.flatMap((j) => (j.tasks || [])
+        .filter((t) => t.status !== "completed" && t.status !== "submitted")
+        .map((t) => ({
+          title: t.title, company: j.company,
+          status: (TASK_STATUS[t.status] || TASK_STATUS.pending).label,
+          dot: (TASK_STATUS[t.status] || TASK_STATUS.pending).dot,
+          due: t.dueDate ? t.dueDate.replace(" 2026", "").toUpperCase() : "—",
+        }))),
+      upcoming, upcomingCount: String(upcoming.length), pastInterviews,
+      kpis, weekBars, funnel, sources, insights,
+      documents, docFilters, plans,
+      pendingTier: !!S.pendingTier,
+      downgradeTitle: S.pendingTier === "free" ? "Downgrade to the Free plan?"
+        : "Switch to the " + (S.pendingTier ? TIER_META[S.pendingTier].label : "") + " plan?",
+      downgradeBody: S.pendingTier === "free"
+        ? "You will lose unlimited applications, higher AI limits, PDF downloads, and advanced analytics. The Free plan still includes 5 AI extractions and 2 AI documents per month. This change takes effect immediately, and you can upgrade again anytime."
+        : "Your plan limits will be reduced to match the lower tier. This change takes effect immediately. You can upgrade again anytime.",
+      cancelDowngrade: () => this.setState({ pendingTier: null }),
+    };
+  }
+}
+</script>
+</body>
+</html>
