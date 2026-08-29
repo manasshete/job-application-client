@@ -6,7 +6,6 @@ import { AddJobDialog } from '@/components/add-job-dialog'
 import { Stats } from '@/components/stats'
 import { FilterToolbar } from '@/components/filter-toolbar'
 import { QuickActionsMenu } from '@/components/quick-actions-menu'
-import { WeeklySummary } from '@/components/weekly-summary'
 import { TimelineView } from '@/components/timeline-view'
 import { JobDetailDialog } from '@/components/job-detail-dialog'
 import { Plus, Search, LayoutGrid, Baseline as Timeline, LogOut, Settings, Menu, X } from 'lucide-react'
@@ -26,6 +25,7 @@ interface DashboardClientProps {
   subscriptionTier?: string
   isPremium?: boolean
   documentsUsedThisMonth?: number
+  userName?: string
 }
 
 export function DashboardClient({ 
@@ -33,6 +33,7 @@ export function DashboardClient({
   subscriptionTier = 'free',
   isPremium = false,
   documentsUsedThisMonth = 0,
+  userName,
 }: DashboardClientProps) {
   const [jobs, setJobs] = useState<Job[]>(initialJobs)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -43,7 +44,7 @@ export function DashboardClient({
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
   const [localDocsUsed, setLocalDocsUsed] = useState(documentsUsedThisMonth)
   const router = useRouter()
 
@@ -210,10 +211,11 @@ export function DashboardClient({
       <div className="claude-grid pointer-events-none absolute inset-x-0 top-0 h-[34rem] opacity-25" aria-hidden="true" />
       {/* ── Top navigation bar ── */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-4 lg:px-8">
           {/* Brand + tier badge */}
-          <div className="flex items-center gap-2.5">
-            <BrandLogo wordmarkClassName="text-xl sm:text-2xl" />
+          <div className="flex items-center gap-3">
+            <BrandLogo markClassName="h-9 w-9 rounded-xl" wordmarkClassName="text-lg" />
+            <span className="hidden text-xs text-muted-foreground md:inline">Job search workspace</span>
             <Badge
               variant={subscriptionTier === 'premium' ? 'default' : subscriptionTier === 'pro' ? 'secondary' : 'outline'}
               className={
@@ -303,19 +305,38 @@ export function DashboardClient({
       </header>
 
       {/* ── Main content ── */}
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        {/* Stats + weekly summary */}
-        <div className="animate-fade-up">
-          <Stats 
-            jobs={jobs} 
+      <main className="relative mx-auto max-w-[1500px] px-5 py-8 lg:px-8">
+        <section className="animate-fade-up flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-sm font-medium text-primary">
+              {new Intl.DateTimeFormat('en', { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date())}
+            </p>
+            <h1 className="mt-1 text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+              Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}{userName ? `, ${userName}` : ''}.
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+              {jobs.filter((job) => job.status === 'interview').length > 0
+                ? `Your search is moving. You have ${jobs.filter((job) => job.status === 'interview').length} active interview${jobs.filter((job) => job.status === 'interview').length === 1 ? '' : 's'}.`
+                : 'Keep your search moving by adding and updating applications.'}
+            </p>
+          </div>
+          <Button variant="outline" onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add an application
+          </Button>
+        </section>
+
+        <div className="mt-8 animate-fade-up">
+          <Stats
+            jobs={jobs}
             documentLimit={DOC_LIMITS[subscriptionTier]}
             documentsUsed={localDocsUsed}
           />
-          <WeeklySummary jobs={jobs} />
         </div>
 
+        <div className="mb-5 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
         {/* Search + view toggle row */}
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -341,7 +362,7 @@ export function DashboardClient({
         </div>
 
         {/* Filter toolbar */}
-        <div className="mb-5">
+        <div className="mt-4 border-t border-border pt-4">
           <FilterToolbar
             hiddenStatuses={hiddenStatuses}
             onToggleStatus={(status) =>
@@ -359,6 +380,7 @@ export function DashboardClient({
               )
             }
           />
+        </div>
         </div>
 
         {/* Board / timeline */}

@@ -1,8 +1,6 @@
-'use client'
-
 import type { Job } from '@/lib/types'
 import { Card, CardContent } from '@/components/ui/card'
-import { Briefcase, Clock, CheckCircle2, TrendingUp, FileText } from 'lucide-react'
+import { BriefcaseBusiness, CircleCheckBig, FileText, Users } from 'lucide-react'
 
 interface StatsProps {
   jobs: Job[]
@@ -11,70 +9,60 @@ interface StatsProps {
 }
 
 export function Stats({ jobs, documentLimit = 0, documentsUsed = 0 }: StatsProps) {
-  const offerCount = jobs.filter((j) => j.status === 'offer' || j.status === 'accepted').length
-  const interviewRate = jobs.length > 0
-    ? Math.round((jobs.filter((j) => j.status !== 'applied').length / jobs.length) * 100)
-    : 0
+  const activeCount = jobs.filter((job) => job.status !== 'rejected' && job.status !== 'accepted').length
+  const interviewCount = jobs.filter((job) => job.status === 'interview').length
+  const offerCount = jobs.filter((job) => job.status === 'offer' || job.status === 'accepted').length
   const documentsRemaining = Math.max(0, documentLimit - documentsUsed)
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  const weeklyCount = jobs.filter((job) => new Date(job.dateApplied) >= weekAgo).length
+  const upcomingInterviews = jobs.reduce(
+    (count, job) => count + (job.interviews?.filter((interview) => interview.status === 'scheduled').length ?? 0),
+    0
+  )
 
   const stats = [
     {
-      label: 'Total Applications',
-      value: jobs.length,
-      icon: Briefcase,
-      iconBg: 'bg-primary/10',
-      iconColor: 'text-primary',
-    },
-    {
-      label: 'Applied',
-      value: jobs.filter((j) => j.status === 'applied').length,
-      icon: Clock,
-      iconBg: 'bg-chart-3/10',
-      iconColor: 'text-chart-3',
+      label: 'Active applications',
+      value: activeCount,
+      note: weeklyCount > 0 ? `+${weeklyCount} this week` : 'Keep your pipeline moving',
+      icon: BriefcaseBusiness,
     },
     {
       label: 'Interviews',
-      value: jobs.filter((j) => j.status === 'interview').length,
-      icon: CheckCircle2,
-      iconBg: 'bg-chart-2/10',
-      iconColor: 'text-chart-2',
+      value: interviewCount,
+      note: upcomingInterviews > 0 ? `${upcomingInterviews} upcoming` : 'No interviews scheduled',
+      icon: Users,
     },
-    ...(documentLimit > 0 ? [{
-      label: 'AI Documents',
-      value: `${documentsRemaining}/${documentLimit}`,
-      icon: FileText,
-      iconBg: 'bg-violet-500/10',
-      iconColor: 'text-violet-500',
-    }] : []),
     {
       label: 'Offers',
       value: offerCount,
-      icon: TrendingUp,
-      iconBg: 'bg-chart-1/10',
-      iconColor: 'text-chart-1',
+      note: offerCount > 0 ? 'Review your next step' : 'Keep building momentum',
+      icon: CircleCheckBig,
+    },
+    {
+      label: 'AI documents',
+      value: documentsUsed,
+      note: documentLimit > 0 ? `${documentsRemaining} tokens left` : 'Upgrade to generate',
+      icon: FileText,
     },
   ]
 
   return (
-    <div className="mb-6 grid grid-cols-2 gap-3 stagger-children sm:gap-4 md:grid-cols-4">
+    <section aria-label="Application summary" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat) => (
-        <Card
-          key={stat.label}
-          className="animate-fade-up card-hover overflow-hidden shadow-sm"
-        >
-          <CardContent className="flex items-center gap-3 p-4">
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${stat.iconBg}`}>
-              <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+        <Card key={stat.label} className="animate-fade-up overflow-hidden shadow-sm">
+          <CardContent className="flex items-start justify-between p-5">
+            <div>
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
+              <p className="mt-2 text-3xl font-bold tabular-nums text-card-foreground">{stat.value}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{stat.note}</p>
             </div>
-            <div className="min-w-0">
-              <p className="text-2xl font-bold tabular-nums text-card-foreground">
-                {stat.value}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">{stat.label}</p>
+            <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
+              <stat.icon className="h-5 w-5" aria-hidden="true" />
             </div>
           </CardContent>
         </Card>
       ))}
-    </div>
+    </section>
   )
 }
