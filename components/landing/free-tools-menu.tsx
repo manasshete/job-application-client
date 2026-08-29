@@ -20,32 +20,36 @@ import { ToolIcon } from '@/components/tools/tool-icon'
 export function FreeToolsMenu() {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-1 text-sm text-slate-600 outline-none transition-colors hover:text-slate-900 data-[state=open]:text-slate-900">
-        Free Tools
-        <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" aria-hidden="true" />
+      <DropdownMenuTrigger className="flex items-center gap-1.5 text-sm text-[#9aa0ac] outline-none transition-colors hover:text-white data-[state=open]:text-white">
+        Free tools
+        <ChevronDown className="h-3.5 w-3.5 transition-transform data-[state=open]:rotate-180" style={{ color: 'oklch(0.78 0.14 250)' }} aria-hidden="true" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-80 rounded-xl p-2">
-        <DropdownMenuLabel className="px-3 py-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
+      <DropdownMenuContent
+        align="start"
+        className="w-80 rounded-2xl border-white/10 p-2 text-[#f3f4f6] backdrop-blur-xl"
+        style={{ background: 'rgba(14,16,21,.97)', boxShadow: '0 34px 70px -30px rgba(0,0,0,.9)' }}
+      >
+        <DropdownMenuLabel className="px-3 py-2 font-mono text-[10.5px] font-normal uppercase tracking-[0.06em] text-[#767d8b]">
           Free · No sign-up needed
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-white/10" />
         {FREE_TOOLS.map((tool) => (
-          <DropdownMenuItem key={tool.slug} asChild className="rounded-lg p-0">
+          <DropdownMenuItem key={tool.slug} asChild className="rounded-xl p-0 focus:bg-white/10">
             <Link href={`/tools/${tool.slug}`} className="flex items-start gap-3 px-3 py-2.5">
-              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: 'oklch(0.72 0.16 250 / .14)', color: 'oklch(0.86 0.1 250)' }}>
                 <ToolIcon name={tool.icon} className="h-4.5 w-4.5" />
               </span>
               <span className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium text-slate-900">{tool.title}</span>
-                <span className="text-xs leading-snug text-slate-500">{tool.description}</span>
+                <span className="text-[13.5px] font-semibold text-[#f3f4f6]">{tool.title}</span>
+                <span className="text-xs leading-snug text-[#767d8b]">{tool.description}</span>
               </span>
             </Link>
           </DropdownMenuItem>
         ))}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild className="rounded-lg">
-          <Link href="/tools" className="px-3 py-2 text-sm font-medium text-blue-600">
-            View all free tools
+        <DropdownMenuSeparator className="bg-white/10" />
+        <DropdownMenuItem asChild className="rounded-xl focus:bg-white/10">
+          <Link href="/tools" className="px-3 py-2 font-mono text-[10.5px] uppercase tracking-[0.06em]" style={{ color: 'oklch(0.78 0.14 250)' }}>
+            All free tools →
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
