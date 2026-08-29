@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Briefcase, AlertCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
+
+const BG = '#08090c'
 
 export default async function Page({
   searchParams,
@@ -10,32 +13,61 @@ export default async function Page({
   const params = await searchParams
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/40 p-6">
-      <div className="w-full max-w-md text-center">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-100">
-          <AlertCircle className="h-8 w-8 text-red-600" />
+    <div
+      className="dark relative flex min-h-svh w-full items-center justify-center overflow-hidden p-6 font-sans"
+      style={{ background: BG, color: '#f3f4f6' }}
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px)',
+          backgroundSize: '52px 52px',
+          maskImage: 'radial-gradient(circle at 50% 30%, black, transparent 72%)',
+          WebkitMaskImage: 'radial-gradient(circle at 50% 30%, black, transparent 72%)',
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-[-8rem] h-[30rem] w-[30rem] -translate-x-1/2 rounded-full blur-3xl"
+        style={{ background: 'radial-gradient(circle, rgba(239,68,68,.16), transparent 65%)' }}
+      />
+
+      <div className="anim-rise relative z-10 w-full max-w-md text-center">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-red-500/25 bg-red-500/10 text-red-400">
+          <AlertCircle className="h-8 w-8" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900">Something went wrong</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-white">Something went wrong</h1>
         {params?.error ? (
-          <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <p className="mt-3 rounded-lg border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-300">
             Error: {params.error}
           </p>
         ) : (
-          <p className="mt-3 text-slate-500">An unspecified error occurred. Please try again.</p>
+          <p className="mt-3 text-[15px] leading-relaxed" style={{ color: '#9aa0ac' }}>
+            An unspecified error occurred. Please try again.
+          </p>
         )}
         <div className="mt-8 flex justify-center gap-3">
           <Link href="/auth/login">
-            <Button className="rounded-full bg-blue-600 px-6 hover:bg-blue-700">Back to Login</Button>
+            <Button
+              className="rounded-full px-6 font-semibold text-[#08090c] hover:opacity-90"
+              style={{ background: 'oklch(0.72 0.16 250)' }}
+            >
+              Back to Login
+            </Button>
           </Link>
           <Link href="/">
-            <Button variant="outline" className="rounded-full px-6 border-slate-200">Home</Button>
+            <Button
+              variant="outline"
+              className="rounded-full border-white/15 bg-transparent px-6 text-[#c7cbd4] hover:bg-white/5 hover:text-white"
+            >
+              Home
+            </Button>
           </Link>
         </div>
-        <div className="mt-6 flex items-center justify-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600">
-            <Briefcase className="h-3.5 w-3.5 text-white" />
-          </div>
-          <span className="text-sm font-semibold text-slate-700">Pursuitz</span>
+        <div className="mt-8 flex justify-center">
+          <BrandLogo markClassName="h-7 w-7" wordmarkClassName="text-sm text-[#c7cbd4]" />
         </div>
       </div>
     </div>

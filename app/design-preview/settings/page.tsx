@@ -7,10 +7,12 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { DashboardTheme } from '@/app/dashboard/dashboard-theme'
 
 export default function SettingsDesignPreview() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="dark min-h-screen bg-background text-foreground">
+      <DashboardTheme />
       <header className="border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
           <Button asChild variant="ghost"><Link href="/design-preview"><ArrowLeft className="mr-2 h-4 w-4" />Dashboard</Link></Button>

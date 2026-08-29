@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { ShieldCheck, ArrowLeft } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
 import { AccountManager } from './account-manager'
 import {
   UsersTab,
@@ -29,16 +30,15 @@ const TABS = [
 
 export function AdminDashboard({ adminEmail }: { adminEmail: string }) {
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="border-b bg-background">
+    <div className="dark min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <ShieldCheck className="h-5 w-5" />
-            </span>
+            <BrandLogo markClassName="h-9 w-9" wordmarkClassName="text-lg" />
             <div>
-              <h1 className="text-lg font-bold tracking-tight">Pursuitz Admin</h1>
-              <p className="text-xs text-muted-foreground">{adminEmail}</p>
+              <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5" /> Admin · {adminEmail}
+              </p>
             </div>
           </div>
           <Button variant="outline" size="sm" asChild>

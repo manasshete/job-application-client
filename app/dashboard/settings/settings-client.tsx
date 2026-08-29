@@ -57,8 +57,9 @@ export function SettingsClient({ profile, stats, tokenSummary }: SettingsClientP
     : `₹${SUBSCRIPTION_PRICING[profile.subscription_tier]}/month`
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen overflow-hidden bg-background">
+      <div className="claude-grid pointer-events-none absolute inset-x-0 top-0 h-[30rem] opacity-25" aria-hidden="true" />
+      <div className="relative mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <Button onClick={() => router.back()} variant="ghost" size="sm" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
