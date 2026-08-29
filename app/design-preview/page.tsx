@@ -17,10 +17,10 @@ import {
   Search,
   Settings,
   Sparkles,
-  TrendingUp,
   Users,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { BrandLogo } from '@/components/brand-logo'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -68,8 +68,8 @@ export default function DashboardDesignPreview() {
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-4 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><TrendingUp className="h-5 w-5" /></div>
-            <div><p className="text-lg font-bold tracking-tight">Pursuitz</p><p className="text-xs text-muted-foreground">Job search workspace</p></div>
+            <BrandLogo markClassName="h-9 w-9 rounded-xl" wordmarkClassName="text-lg" />
+            <p className="text-xs text-muted-foreground">Job search workspace</p>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="hidden sm:inline-flex">Pro plan</Badge>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ArrowRight, Check, Sparkles, type LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FreeToolsMenu } from '@/components/landing/free-tools-menu'
+import { BrandLogo } from '@/components/brand-logo'
 
 /**
  * ToolsNav — top navigation for all /tools pages.
@@ -12,11 +13,8 @@ export function ToolsNav() {
     <header className="sticky top-0 z-40 border-b border-slate-100 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">
-              P
-            </span>
-            <span className="text-lg font-bold tracking-tight text-slate-900">Pursuitz</span>
+          <Link href="/" aria-label="Pursuitz home">
+            <BrandLogo markClassName="h-8 w-8" wordmarkClassName="text-lg text-slate-900" />
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
             <FreeToolsMenu />
@@ -123,11 +121,8 @@ export function ToolsFooter() {
   return (
     <footer className="border-t border-slate-100 bg-white">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600 text-xs font-bold text-white">
-            P
-          </span>
-          <span className="text-sm font-semibold text-slate-900">Pursuitz</span>
+        <Link href="/" aria-label="Pursuitz home">
+          <BrandLogo markClassName="h-7 w-7 rounded-md" wordmarkClassName="text-sm text-slate-900" />
         </Link>
         <p className="text-xs text-slate-400">
           Free job-search tools · Built by Pursuitz

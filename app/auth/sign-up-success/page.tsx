@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { TrendingUp, MailCheck } from 'lucide-react'
+import { MailCheck } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
 
 const BG = '#08090c'
 
@@ -48,14 +49,8 @@ export default function Page() {
             </Button>
           </Link>
         </div>
-        <div className="mt-8 flex items-center justify-center gap-2">
-          <span
-            className="flex h-7 w-7 items-center justify-center rounded-lg"
-            style={{ background: 'oklch(0.72 0.16 250)', color: BG }}
-          >
-            <TrendingUp className="h-3.5 w-3.5" />
-          </span>
-          <span className="text-sm font-semibold text-[#c7cbd4]">Pursuitz</span>
+        <div className="mt-8 flex justify-center">
+          <BrandLogo markClassName="h-7 w-7" wordmarkClassName="text-sm text-[#c7cbd4]" />
         </div>
       </div>
     </div>

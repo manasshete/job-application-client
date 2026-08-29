@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createClient } from '@/lib/supabase/client'
+import { BrandLogo } from '@/components/brand-logo'
 import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import type { Job, JobStatus } from '@/lib/types'
@@ -211,9 +212,7 @@ export function DashboardClient({
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           {/* Brand + tier badge */}
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-              Pursuitz
-            </h1>
+            <BrandLogo wordmarkClassName="text-xl sm:text-2xl" />
             <Badge
               variant={subscriptionTier === 'premium' ? 'default' : subscriptionTier === 'pro' ? 'secondary' : 'outline'}
               className={

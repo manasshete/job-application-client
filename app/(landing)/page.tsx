@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { AnimateIn } from '@/components/landing/animate-in'
 import { FreeToolsMenu } from '@/components/landing/free-tools-menu'
+import { BrandLogo } from '@/components/brand-logo'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -164,14 +165,7 @@ function Kicker({ children }: { children: React.ReactNode }) {
 }
 
 function Logo() {
-  return (
-    <div className="flex items-center gap-2.5">
-      <div className="flex h-[26px] w-[26px] items-center justify-center rounded-lg" style={{ background: ACCENT }}>
-        <div className="h-[9px] w-[9px] rotate-45 rounded-[1px]" style={{ background: '#08090c' }} />
-      </div>
-      <span className="text-[17px] font-semibold tracking-tight">Pursuitz</span>
-    </div>
-  )
+  return <BrandLogo />
 }
 
 // ─── Sections ────────────────────────────────────────────────────────────────

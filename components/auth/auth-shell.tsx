@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { TrendingUp } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
 
 const BG = '#08090c'
 const TEXT = '#f3f4f6'
@@ -47,14 +47,8 @@ export function AuthShell({
 
       {/* Left branding panel */}
       <aside className="relative z-10 hidden w-1/2 flex-col justify-between p-12 lg:flex">
-        <Link href="/" className="inline-flex items-center gap-2.5">
-          <span
-            className="flex h-9 w-9 items-center justify-center rounded-xl"
-            style={{ background: 'oklch(0.72 0.16 250)', color: BG }}
-          >
-            <TrendingUp className="h-5 w-5" />
-          </span>
-          <span className="text-lg font-semibold tracking-tight">Pursuitz</span>
+        <Link href="/" aria-label="Pursuitz home">
+          <BrandLogo markClassName="h-9 w-9 rounded-xl" wordmarkClassName="text-lg" />
         </Link>
 
         <div className="max-w-md">
@@ -95,14 +89,8 @@ export function AuthShell({
       <main className="relative z-10 flex w-full items-center justify-center p-6 sm:p-8 lg:w-1/2">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
-          <Link href="/" className="mb-8 flex items-center justify-center gap-2 lg:hidden">
-            <span
-              className="flex h-9 w-9 items-center justify-center rounded-xl"
-              style={{ background: 'oklch(0.72 0.16 250)', color: BG }}
-            >
-              <TrendingUp className="h-5 w-5" />
-            </span>
-            <span className="text-2xl font-semibold tracking-tight">Pursuitz</span>
+          <Link href="/" className="mb-8 flex justify-center lg:hidden" aria-label="Pursuitz home">
+            <BrandLogo markClassName="h-9 w-9 rounded-xl" wordmarkClassName="text-2xl" />
           </Link>
           {children}
         </div>
