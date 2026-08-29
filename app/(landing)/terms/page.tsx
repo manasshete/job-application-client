@@ -6,19 +6,21 @@ import { ArrowLeft } from 'lucide-react'
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50/60 via-white to-white">
-      <div className="container mx-auto max-w-3xl px-4 py-12">
+    <div className="relative min-h-screen overflow-hidden bg-[#08090c] text-[#f4f5f7]">
+      <div className="claude-grid pointer-events-none absolute inset-0 opacity-40" aria-hidden="true" />
+      <div className="relative container mx-auto max-w-3xl px-6 py-12 sm:py-20">
         <Link href="/">
-          <Button variant="ghost" className="mb-8 text-blue-600 hover:bg-blue-50 hover:text-blue-700">
+          <Button variant="ghost" className="mb-10 rounded-full text-[#9aafff] hover:bg-white/[0.06] hover:text-white">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Button>
         </Link>
 
-        <h1 className="mb-8 text-4xl font-bold text-slate-900">Terms of Service</h1>
-        <p className="mb-6 text-slate-500">Last updated: January 2024</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#7894f8]">Legal</p>
+        <h1 className="mt-4 text-balance text-5xl font-semibold tracking-[-0.04em] text-[#f4f5f7]">Terms of Service</h1>
+        <p className="mb-12 mt-4 font-mono text-xs uppercase tracking-[0.14em] text-[#59606d]">Last updated · January 2024</p>
 
-        <div className="space-y-8 text-slate-700">
+        <div className="claude-legal flex flex-col gap-10 border-t border-white/[0.08] pt-10 text-[#a2a7b2]">
           <section>
             <h2 className="mb-4 text-2xl font-semibold text-slate-900">1. Acceptance of Terms</h2>
             <p>

@@ -452,3 +452,78 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* Shared Claude editorial treatment for legacy utility workflows. */
+.claude-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, black, transparent 92%);
+}
+
+.claude-tool-content {
+  color: #f4f5f7;
+}
+
+.claude-tool-content :is(.bg-white, .bg-slate-50, .bg-slate-50\/50) {
+  background-color: #101217 !important;
+}
+
+.claude-tool-content :is(.bg-slate-100, .bg-blue-50) {
+  background-color: rgba(255,255,255,.05) !important;
+}
+
+.claude-tool-content :is(.text-slate-900, .text-slate-800, .text-slate-700) {
+  color: #f4f5f7 !important;
+}
+
+.claude-tool-content :is(.text-slate-600, .text-slate-500, .text-slate-400) {
+  color: #8b919e !important;
+}
+
+.claude-tool-content :is(.border-slate-100, .border-slate-200, .border-slate-300) {
+  border-color: rgba(255,255,255,.09) !important;
+}
+
+.claude-tool-content :is(input, textarea, select) {
+  background-color: rgba(255,255,255,.035) !important;
+  color: #f4f5f7 !important;
+  border-color: rgba(255,255,255,.12) !important;
+}
+
+.claude-tool-content :is(input, textarea)::placeholder {
+  color: #59606d !important;
+}
+
+.claude-tool-content .bg-blue-600 {
+  background-color: #7894f8 !important;
+  color: #08090c !important;
+}
+
+.claude-tool-content .text-blue-600 {
+  color: #8fa7ff !important;
+}
+
+.claude-legal section {
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  padding-bottom: 2.5rem;
+}
+
+.claude-legal section:last-child {
+  border-bottom: 0;
+}
+
+.claude-legal h2 {
+  color: #f4f5f7 !important;
+  letter-spacing: -.025em;
+}
+
+.claude-legal p,
+.claude-legal li {
+  line-height: 1.75;
+}
+
+.claude-legal li::marker {
+  color: #7894f8;
+}

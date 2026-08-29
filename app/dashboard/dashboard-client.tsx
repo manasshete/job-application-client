@@ -206,9 +206,10 @@ export function DashboardClient({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen overflow-hidden bg-background">
+      <div className="claude-grid pointer-events-none absolute inset-x-0 top-0 h-[34rem] opacity-25" aria-hidden="true" />
       {/* ── Top navigation bar ── */}
-      <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           {/* Brand + tier badge */}
           <div className="flex items-center gap-2.5">

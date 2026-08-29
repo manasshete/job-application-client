@@ -30,8 +30,8 @@ const TABS = [
 
 export function AdminDashboard({ adminEmail }: { adminEmail: string }) {
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="border-b bg-background">
+    <div className="dark min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex items-center gap-3">
             <BrandLogo markClassName="h-9 w-9" wordmarkClassName="text-lg" />

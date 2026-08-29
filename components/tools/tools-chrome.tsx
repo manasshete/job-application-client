@@ -4,36 +4,23 @@ import { Button } from '@/components/ui/button'
 import { FreeToolsMenu } from '@/components/landing/free-tools-menu'
 import { BrandLogo } from '@/components/brand-logo'
 
-/**
- * ToolsNav — top navigation for all /tools pages.
- * Mirrors the landing nav styling (light, slate, blue-600 accent).
- */
 export function ToolsNav() {
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-100 bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-white/[0.07] bg-[#08090c]/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <div className="flex items-center gap-8">
           <Link href="/" aria-label="Pursuitz home">
-            <BrandLogo markClassName="h-8 w-8" wordmarkClassName="text-lg text-slate-900" />
+            <BrandLogo markClassName="size-8" wordmarkClassName="text-lg text-[#f4f5f7]" />
           </Link>
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-8 md:flex" aria-label="Tools navigation">
             <FreeToolsMenu />
-            <Link href="/#features" className="text-sm text-slate-600 transition-colors hover:text-slate-900">
-              Features
-            </Link>
-            <Link href="/#pricing" className="text-sm text-slate-600 transition-colors hover:text-slate-900">
-              Pricing
-            </Link>
+            <Link href="/#features" className="text-sm text-[#8b919e] transition-colors hover:text-[#f4f5f7]">Features</Link>
+            <Link href="/#pricing" className="text-sm text-[#8b919e] transition-colors hover:text-[#f4f5f7]">Pricing</Link>
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            href="/auth/login"
-            className="hidden text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 sm:block"
-          >
-            Log in
-          </Link>
-          <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700">
+          <Link href="/auth/login" className="hidden text-sm font-medium text-[#8b919e] transition-colors hover:text-[#f4f5f7] sm:block">Log in</Link>
+          <Button asChild size="sm" className="rounded-full bg-[#7894f8] text-[#08090c] hover:bg-[#8fa7ff]">
             <Link href="/auth/sign-up">Get started free</Link>
           </Button>
         </div>
@@ -42,91 +29,50 @@ export function ToolsNav() {
   )
 }
 
-/**
- * ToolHero — consistent page header for each free tool.
- */
-export function ToolHero({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: LucideIcon
-  title: string
-  description: string
-}) {
+export function ToolHero({ icon: Icon, title, description }: { icon: LucideIcon; title: string; description: string }) {
   return (
-    <section className="border-b border-slate-100 bg-slate-50 py-14 sm:py-16">
-      <div className="mx-auto max-w-3xl px-6 text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 shadow-sm">
-          <Icon className="h-7 w-7 text-white" />
+    <section className="relative overflow-hidden border-b border-white/[0.07] py-16 sm:py-20">
+      <div className="claude-grid absolute inset-0 opacity-40" aria-hidden="true" />
+      <div className="relative mx-auto max-w-3xl px-6 text-center">
+        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-[#7894f8]/30 bg-[#7894f8]/10 text-[#9aafff] shadow-[0_0_40px_rgba(120,148,248,0.12)]">
+          <Icon className="size-7" aria-hidden="true" />
         </div>
-        <h1 className="mx-auto mt-6 max-w-2xl text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          {title}
-        </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-slate-500">
-          {description}
-        </p>
-        <p className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-500">
-          <Check className="h-3.5 w-3.5 text-emerald-500" aria-hidden="true" />
-          Free · No sign-up · Runs in your browser
+        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.22em] text-[#7894f8]">Pursuitz free utility</p>
+        <h1 className="mx-auto mt-4 max-w-2xl text-balance text-4xl font-semibold tracking-[-0.035em] text-[#f4f5f7] sm:text-5xl">{title}</h1>
+        <p className="mx-auto mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-[#8b919e]">{description}</p>
+        <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[#9da3af]">
+          <Check className="size-3.5 text-[#7894f8]" aria-hidden="true" /> Free · No sign-up · Private
         </p>
       </div>
     </section>
   )
 }
 
-/**
- * SignupCTA — soft upsell shown below every tool's results.
- */
 export function SignupCTA() {
   return (
-    <section className="mx-auto max-w-4xl px-6 py-14">
-      <div className="overflow-hidden rounded-3xl bg-slate-900 px-8 py-12 text-center sm:px-12">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-blue-200">
-          <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-          Pursuitz
-        </span>
-        <h2 className="mx-auto mt-5 max-w-xl text-balance text-2xl font-bold tracking-tight text-white sm:text-3xl">
-          Let Pursuitz do this automatically
-        </h2>
-        <p className="mx-auto mt-4 max-w-lg text-pretty leading-relaxed text-slate-300">
-          These free tools are just the start. Pursuitz tracks every application, tailors your resume
-          with AI, and writes cover letters for each role — all in one place.
-        </p>
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
-            <Link href="/auth/sign-up">
-              Get started free
-              <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
-            </Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="ghost"
-            className="text-slate-200 hover:bg-white/10 hover:text-white"
-          >
-            <Link href="/#pricing">See plans</Link>
-          </Button>
+    <section className="mx-auto max-w-5xl px-6 py-20">
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.09] bg-[#101217] px-8 py-14 text-center shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:px-12">
+        <div className="claude-grid absolute inset-0 opacity-25" aria-hidden="true" />
+        <div className="relative">
+          <span className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[#7894f8]"><Sparkles className="size-3.5" aria-hidden="true" /> Beyond the free tools</span>
+          <h2 className="mx-auto mt-5 max-w-xl text-balance text-3xl font-semibold tracking-[-0.03em] text-[#f4f5f7] sm:text-4xl">Let Pursuitz run the whole search.</h2>
+          <p className="mx-auto mt-4 max-w-lg text-pretty leading-relaxed text-[#8b919e]">Track every application, tailor each resume, and create role-specific cover letters from one focused workspace.</p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button asChild size="lg" className="rounded-full bg-[#7894f8] text-[#08090c] hover:bg-[#8fa7ff]"><Link href="/auth/sign-up">Get started free<ArrowRight data-icon="inline-end" /></Link></Button>
+            <Button asChild size="lg" variant="ghost" className="rounded-full text-[#c8ccd5] hover:bg-white/[0.06] hover:text-white"><Link href="/#pricing">See plans</Link></Button>
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-/**
- * ToolsFooter — compact footer for /tools pages.
- */
 export function ToolsFooter() {
   return (
-    <footer className="border-t border-slate-100 bg-white">
+    <footer className="border-t border-white/[0.07] bg-[#08090c]">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
-        <Link href="/" aria-label="Pursuitz home">
-          <BrandLogo markClassName="h-7 w-7 rounded-md" wordmarkClassName="text-sm text-slate-900" />
-        </Link>
-        <p className="text-xs text-slate-400">
-          Free job-search tools · Built by Pursuitz
-        </p>
+        <Link href="/" aria-label="Pursuitz home"><BrandLogo markClassName="size-7 rounded-md" wordmarkClassName="text-sm text-[#f4f5f7]" /></Link>
+        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#59606d]">Free job-search tools · Built by Pursuitz</p>
       </div>
     </footer>
   )
