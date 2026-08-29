@@ -25,6 +25,7 @@ export default async function DashboardPage() {
       subscriptionTier={subscriptionTier}
       isPremium={isPremium}
       documentsUsedThisMonth={documentsUsedThisMonth}
+      userName={profile?.full_name?.trim() || profile?.email?.split('@')[0] || undefined}
     />
   )
 }
