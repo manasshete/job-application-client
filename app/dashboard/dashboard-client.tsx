@@ -8,10 +8,13 @@ import { FilterToolbar } from '@/components/filter-toolbar'
 import { QuickActionsMenu } from '@/components/quick-actions-menu'
 import { TimelineView } from '@/components/timeline-view'
 import { JobDetailDialog } from '@/components/job-detail-dialog'
-import { Plus, Search, LayoutGrid, Baseline as Timeline, LogOut, Settings, Menu, X } from 'lucide-react'
+import { DocumentGeneratorDialog } from '@/components/document-generator-dialog'
+import { DashboardTheme } from './dashboard-theme'
+import { Plus, Search, LayoutGrid, Baseline as Timeline, LogOut, Settings, Menu, X, Sparkles, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { createClient } from '@/lib/supabase/client'
 import { BrandLogo } from '@/components/brand-logo'
 import { useRouter } from 'next/navigation'
@@ -43,6 +46,9 @@ export function DashboardClient({
   const [sortBy, setSortBy] = useState('dateApplied-desc')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
+  const [documentJob, setDocumentJob] = useState<Job | null>(null)
+  const [isDocumentPickerOpen, setIsDocumentPickerOpen] = useState(false)
+  const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [, startTransition] = useTransition()
   const [localDocsUsed, setLocalDocsUsed] = useState(documentsUsedThisMonth)
@@ -207,7 +213,8 @@ export function DashboardClient({
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
+    <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
+      <DashboardTheme />
       <div className="claude-grid pointer-events-none absolute inset-x-0 top-0 h-[34rem] opacity-25" aria-hidden="true" />
       {/* ── Top navigation bar ── */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-xl">
@@ -320,9 +327,12 @@ export function DashboardClient({
                 : 'Keep your search moving by adding and updating applications.'}
             </p>
           </div>
-          <Button variant="outline" onClick={() => setIsAddDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add an application
+          <Button
+            variant="outline"
+            onClick={() => jobs.length > 0 ? setIsDocumentPickerOpen(true) : setIsAddDialogOpen(true)}
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            {jobs.length > 0 ? 'Generate tailored documents' : 'Add an application'}
           </Button>
         </section>
 
@@ -391,6 +401,51 @@ export function DashboardClient({
         )}
 
         {/* Dialogs */}
+        <Dialog open={isDocumentPickerOpen} onOpenChange={setIsDocumentPickerOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Choose an application</DialogTitle>
+              <DialogDescription>
+                Select the role you want to tailor a resume or cover letter for.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex max-h-[55vh] flex-col gap-2 overflow-y-auto py-2">
+              {jobs.map((job) => (
+                <button
+                  key={job.id}
+                  type="button"
+                  className="flex min-h-16 items-center justify-between gap-4 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  onClick={() => {
+                    setDocumentJob(job)
+                    setIsDocumentPickerOpen(false)
+                    setIsDocumentDialogOpen(true)
+                  }}
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate font-semibold text-card-foreground">{job.position}</span>
+                    <span className="block truncate text-sm text-muted-foreground">{job.company}</span>
+                  </span>
+                  <FileText className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                </button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {documentJob && (
+          <DocumentGeneratorDialog
+            open={isDocumentDialogOpen}
+            onOpenChange={setIsDocumentDialogOpen}
+            jobTitle={documentJob.position}
+            company={documentJob.company}
+            jobDescription={documentJob.notes || ''}
+            isPremium={isPremium}
+            subscriptionTier={subscriptionTier}
+            documentsUsedThisMonth={localDocsUsed}
+            onDocumentGenerated={handleDocumentGenerated}
+          />
+        )}
+
         <AddJobDialog
           open={isAddDialogOpen}
           onOpenChange={setIsAddDialogOpen}
