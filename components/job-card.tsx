@@ -61,12 +61,12 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
   return (
     <>
       <Card
-        className="group relative cursor-pointer overflow-hidden card-hover btn-press border border-border bg-card shadow-sm"
+        className="group relative cursor-pointer overflow-hidden rounded-xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
         onClick={handleCardClick}
       >
-        <CardHeader className="pb-3">
+        <CardHeader className="p-4 pb-0">
           <div className="flex items-start justify-between gap-2">
-            <CardTitle className="flex-1 text-base font-semibold leading-tight text-card-foreground">
+            <CardTitle className="flex-1 text-base font-semibold leading-snug text-card-foreground">
               {job.jobUrl ? (
                 <a
                   href={toSafeHref(job.jobUrl)}
@@ -125,12 +125,12 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <p className="mt-1 line-clamp-1 text-sm font-medium text-muted-foreground">
+          <p className="mt-1 line-clamp-1 text-sm font-medium text-primary">
             {job.company}
           </p>
         </CardHeader>
-        <CardContent className="space-y-2.5 pb-4">
-          <div className="space-y-1.5 text-xs text-muted-foreground">
+        <CardContent className="p-4 pt-0">
+          <div className="mt-4 flex flex-col gap-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">{new Date(job.dateApplied).toLocaleDateString()}</span>
@@ -206,35 +206,32 @@ export function JobCard({ job, onUpdate, onDelete, canMoveLeft, canMoveRight, on
           ) : null}
         </CardContent>
         
-        {/* Arrow navigation — 44px touch targets, visible on touch / hover on mouse */}
-        {(canMoveLeft && onMoveLeft) && (
+        <div className="flex items-center justify-between border-t border-border px-3 py-2">
           <Button
-            variant="default"
-            size="icon"
-            className="absolute left-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full shadow-md transition-transform hover:scale-110 active:scale-95 md:h-7 md:w-7 md:opacity-0 md:group-hover:opacity-100"
-            onClick={(e) => {
-              e.stopPropagation()
-              onMoveLeft()
+            variant="ghost"
+            size="sm"
+            disabled={!canMoveLeft || !onMoveLeft}
+            onClick={(event) => {
+              event.stopPropagation()
+              onMoveLeft?.()
             }}
-            aria-label="Move left"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="mr-1 h-3.5 w-3.5" />
+            Back
           </Button>
-        )}
-        {(canMoveRight && onMoveRight) && (
           <Button
-            variant="default"
-            size="icon"
-            className="absolute right-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full shadow-md transition-transform hover:scale-110 active:scale-95 md:h-7 md:w-7 md:opacity-0 md:group-hover:opacity-100"
-            onClick={(e) => {
-              e.stopPropagation()
-              onMoveRight()
+            variant="ghost"
+            size="sm"
+            disabled={!canMoveRight || !onMoveRight}
+            onClick={(event) => {
+              event.stopPropagation()
+              onMoveRight?.()
             }}
-            aria-label="Move right"
           >
-            <ChevronRight className="h-4 w-4" />
+            Move
+            <ChevronRight className="ml-1 h-3.5 w-3.5" />
           </Button>
-        )}
+        </div>
       </Card>
 
       <JobDetailDialog
