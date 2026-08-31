@@ -1,6 +1,6 @@
 import { getJobs } from '@/lib/data/jobs'
 import { getProfile } from '@/lib/data/profiles'
-import { getTokenBalance } from '@/lib/data/tokens'
+import { getTokenSummary } from '@/lib/data/tokens'
 import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
 import { DashboardClient } from './dashboard-client'
 
@@ -15,9 +15,9 @@ export default async function DashboardPage() {
   
   // getTokenBalance returns REMAINING tokens. Convert to "used" by subtracting
   // from the tier limit so the dialog displays "X used out of Y".
-  const tokensRemaining = await getTokenBalance('document_generation')
+  const tokenSummary = await getTokenSummary()
   const tierLimit = SUBSCRIPTION_LIMITS[subscriptionTier]?.documentGenerationLimit ?? 0
-  const documentsUsedThisMonth = Math.max(0, tierLimit - tokensRemaining)
+  const documentsUsedThisMonth = Math.max(0, tierLimit - tokenSummary.documentGenerationBalance)
 
   return (
     <DashboardClient 
@@ -26,6 +26,10 @@ export default async function DashboardPage() {
       isPremium={isPremium}
       documentsUsedThisMonth={documentsUsedThisMonth}
       userName={profile?.full_name?.trim() || profile?.email?.split('@')[0] || undefined}
+      userEmail={profile?.email || undefined}
+      extractionTokens={tokenSummary.aiExtractionBalance}
+      documentTokens={tokenSummary.documentGenerationBalance}
+      nextTokenExpiry={tokenSummary.nextExpiry}
     />
   )
 }
