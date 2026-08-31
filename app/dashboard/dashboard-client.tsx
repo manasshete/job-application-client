@@ -1,27 +1,19 @@
 'use client'
 
-import { useState, useMemo, useTransition, useEffect } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { BarChart3, BriefcaseBusiness, Clock3, FileText, LayoutGrid, LogOut, Menu, Plus, Search, Settings, Sparkles, X } from 'lucide-react'
 import { JobBoard } from '@/components/job-board'
 import { AddJobDialog } from '@/components/add-job-dialog'
-import { Stats } from '@/components/stats'
 import { FilterToolbar } from '@/components/filter-toolbar'
 import { QuickActionsMenu } from '@/components/quick-actions-menu'
 import { TimelineView } from '@/components/timeline-view'
-import { JobDetailDialog } from '@/components/job-detail-dialog'
 import { DocumentGeneratorDialog } from '@/components/document-generator-dialog'
-import { DashboardTheme } from './dashboard-theme'
-import { Plus, Search, LayoutGrid, Baseline as Timeline, LogOut, Settings, Menu, X, Sparkles, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { createClient } from '@/lib/supabase/client'
-import { BrandLogo } from '@/components/brand-logo'
-import { useRouter } from 'next/navigation'
-import { Badge } from '@/components/ui/badge'
 import type { Job, JobStatus } from '@/lib/types'
-import { DOC_LIMITS } from '@/lib/document-limits'
-
+import { DashboardTheme } from './dashboard-theme'
 
 interface DashboardClientProps {
   initialJobs: Job[]
@@ -29,462 +21,128 @@ interface DashboardClientProps {
   isPremium?: boolean
   documentsUsedThisMonth?: number
   userName?: string
+  userEmail?: string
+  extractionTokens?: number
+  documentTokens?: number
+  nextTokenExpiry?: string | null
 }
 
-export function DashboardClient({ 
-  initialJobs, 
-  subscriptionTier = 'free',
-  isPremium = false,
-  documentsUsedThisMonth = 0,
-  userName,
-}: DashboardClientProps) {
-  const [jobs, setJobs] = useState<Job[]>(initialJobs)
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+const statuses: JobStatus[] = ['applied', 'interview', 'offer', 'accepted', 'rejected']
+const labels: Record<JobStatus, string> = { applied: 'Applied', interview: 'Interview', offer: 'Offer', accepted: 'Accepted', rejected: 'Rejected' }
+
+export function DashboardClient({ initialJobs, subscriptionTier = 'free', isPremium = false, documentsUsedThisMonth = 0, userName, userEmail, extractionTokens = 0, documentTokens = 0, nextTokenExpiry }: DashboardClientProps) {
+  const [jobs, setJobs] = useState(initialJobs)
   const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState<'board' | 'timeline'>('board')
+  const [statusFilter, setStatusFilter] = useState<'all' | JobStatus>('all')
   const [hiddenStatuses, setHiddenStatuses] = useState<JobStatus[]>([])
   const [sortBy, setSortBy] = useState('dateApplied-desc')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null)
-  const [documentJob, setDocumentJob] = useState<Job | null>(null)
+  const [viewMode, setViewMode] = useState<'board' | 'timeline'>('board')
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isDocumentPickerOpen, setIsDocumentPickerOpen] = useState(false)
   const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [, startTransition] = useTransition()
+  const [documentJob, setDocumentJob] = useState<Job | null>(null)
+  const [warningVisible, setWarningVisible] = useState(true)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [localDocsUsed, setLocalDocsUsed] = useState(documentsUsedThisMonth)
+  const [, startTransition] = useTransition()
   const router = useRouter()
 
-  // When the server re-renders with fresh token data (e.g. after payment or
-  // admin tier change), sync local state so the counter ceiling is correct.
-  useEffect(() => {
-    setLocalDocsUsed(documentsUsedThisMonth)
-  }, [documentsUsedThisMonth])
+  useEffect(() => setLocalDocsUsed(documentsUsedThisMonth), [documentsUsedThisMonth])
 
-  const handleDocumentGenerated = () => {
-    setLocalDocsUsed(prev => prev + 1)
-  }
-
-  const availableTags = useMemo(() => {
-    const tags = new Set<string>()
-    jobs.forEach((job) => {
-      job.tags?.forEach((tag: string) => tags.add(tag))
-    })
-    return Array.from(tags)
-  }, [jobs])
-
+  const availableTags = useMemo(() => Array.from(new Set(jobs.flatMap((job) => job.tags ?? []))), [jobs])
   const filteredJobs = useMemo(() => {
-    let filtered = jobs.filter((job) => {
-      const query = searchQuery.toLowerCase()
-      const matchesSearch =
-        !searchQuery.trim() ||
-        job.company.toLowerCase().includes(query) ||
-        job.position.toLowerCase().includes(query) ||
-        job.location?.toLowerCase().includes(query) ||
-        job.notes?.toLowerCase().includes(query)
-
-      const matchesStatus = !hiddenStatuses.includes(job.status)
-      const matchesTags =
-        selectedTags.length === 0 ||
-        selectedTags.some((tag) => job.tags?.includes(tag))
-
-      return matchesSearch && matchesStatus && matchesTags
+    const query = searchQuery.trim().toLowerCase()
+    const [field, direction] = sortBy.split('-')
+    return jobs.filter((job) => {
+      const haystack = `${job.company} ${job.position} ${job.location ?? ''} ${job.notes ?? ''}`.toLowerCase()
+      return (!query || haystack.includes(query)) && (statusFilter === 'all' || job.status === statusFilter) && !hiddenStatuses.includes(job.status) && (!selectedTags.length || selectedTags.some((tag) => job.tags?.includes(tag)))
+    }).sort((a, b) => {
+      const values = field === 'company' ? [a.company.toLowerCase(), b.company.toLowerCase()] : field === 'deadline' ? [a.deadline ? new Date(a.deadline).getTime() : Infinity, b.deadline ? new Date(b.deadline).getTime() : Infinity] : [new Date(a.dateApplied).getTime(), new Date(b.dateApplied).getTime()]
+      const result = values[0] > values[1] ? 1 : values[0] < values[1] ? -1 : 0
+      return direction === 'asc' ? result : -result
     })
-
-    const [sortField, sortOrder] = sortBy.split('-')
-    filtered.sort((a, b) => {
-      let aVal: any
-      let bVal: any
-
-      if (sortField === 'dateApplied') {
-        aVal = new Date(a.dateApplied).getTime()
-        bVal = new Date(b.dateApplied).getTime()
-      } else if (sortField === 'company') {
-        aVal = a.company.toLowerCase()
-        bVal = b.company.toLowerCase()
-      } else if (sortField === 'deadline') {
-        aVal = a.deadline ? new Date(a.deadline).getTime() : Infinity
-        bVal = b.deadline ? new Date(b.deadline).getTime() : Infinity
-      }
-
-      return sortOrder === 'asc' ? (aVal > bVal ? 1 : -1) : aVal < bVal ? 1 : -1
-    })
-
-    return filtered
-  }, [jobs, searchQuery, hiddenStatuses, selectedTags, sortBy])
+  }, [jobs, searchQuery, statusFilter, hiddenStatuses, selectedTags, sortBy])
 
   const addJob = async (job: Omit<Job, 'id' | 'activityLog'>) => {
-    const duplicate = jobs.find(
-      (j) =>
-        j.company.toLowerCase() === job.company.toLowerCase() &&
-        j.position.toLowerCase() === job.position.toLowerCase()
-    )
-
-    if (duplicate) {
-      const confirmAdd = confirm(
-        `A similar job application already exists for ${job.company} - ${job.position}. Add anyway?`
-      )
-      if (!confirmAdd) return
-    }
-
+    if (jobs.some((item) => item.company.toLowerCase() === job.company.toLowerCase() && item.position.toLowerCase() === job.position.toLowerCase()) && !confirm(`A similar application exists for ${job.company}. Add anyway?`)) return
     startTransition(async () => {
-      const response = await fetch('/api/jobs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(job),
-      })
-
+      const response = await fetch('/api/jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(job) })
       if (response.ok) {
-        const newJob = await response.json()
-        setJobs([...jobs, newJob])
+        const createdJob = await response.json()
+        setJobs((current) => [...current, createdJob])
       }
     })
   }
-
-  const updateJob = async (id: string, updates: Partial<Job>) => {
-    startTransition(async () => {
-      const response = await fetch(`/api/jobs/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      })
-
-      if (response.ok) {
-        setJobs(jobs.map((job) => (job.id === id ? { ...job, ...updates } : job)))
-      }
-    })
-  }
-
-  const deleteJob = async (id: string) => {
-    startTransition(async () => {
-      const response = await fetch(`/api/jobs/${id}`, {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        setJobs(jobs.filter((job) => job.id !== id))
-      }
-    })
-  }
-
+  const updateJob = (id: string, updates: Partial<Job>) => startTransition(async () => {
+    const response = await fetch(`/api/jobs/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates) })
+    if (response.ok) setJobs((current) => current.map((job) => job.id === id ? { ...job, ...updates } : job))
+  })
+  const deleteJob = (id: string) => startTransition(async () => {
+    const response = await fetch(`/api/jobs/${id}`, { method: 'DELETE' })
+    if (response.ok) setJobs((current) => current.filter((job) => job.id !== id))
+  })
   const exportToCSV = () => {
-    const headers = ['Company', 'Position', 'Status', 'Date Applied', 'Location', 'Salary', 'Tags', 'Notes']
-    const rows = jobs.map((job) => [
-      job.company,
-      job.position,
-      job.status,
-      job.dateApplied,
-      job.location || '',
-      job.salary || '',
-      job.tags?.join(', ') || '',
-      job.notes?.replace(/\n/g, ' ') || '',
-    ])
-
-    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `job-applications-${new Date().toISOString().split('T')[0]}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+    const rows = [['Company', 'Position', 'Status', 'Date Applied', 'Location', 'Salary'], ...jobs.map((job) => [job.company, job.position, job.status, job.dateApplied, job.location ?? '', job.salary ?? ''])]
+    const url = URL.createObjectURL(new Blob([rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')], { type: 'text/csv' }))
+    const link = document.createElement('a'); link.href = url; link.download = 'pursuitz-applications.csv'; link.click(); URL.revokeObjectURL(url)
   }
-
-  const clearRejected = () => {
-    if (confirm('Are you sure you want to delete all rejected applications?')) {
-      const rejected = jobs.filter((job) => job.status === 'rejected')
-      rejected.forEach((job) => deleteJob(job.id))
-    }
-  }
-
-  const archiveOld = () => {
-    const threeMonthsAgo = new Date()
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3)
-
-    if (confirm('Archive applications older than 3 months?')) {
-      const old = jobs.filter((job) => new Date(job.dateApplied) < threeMonthsAgo)
-      old.forEach((job) => deleteJob(job.id))
-    }
-  }
-
-  const handleSignOut = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
-  }
+  const handleSignOut = async () => { await createClient().auth.signOut(); router.push('/') }
+  const scheduledRounds = jobs.reduce((count, job) => count + (job.interviews?.filter((interview) => interview.status === 'scheduled').length ?? 0), 0)
+  const interviews = jobs.filter((job) => job.status === 'interview').length
+  const offers = jobs.filter((job) => job.status === 'offer' || job.status === 'accepted').length
+  const accepted = jobs.filter((job) => job.status === 'accepted').length
+  const active = jobs.filter((job) => !['rejected', 'accepted'].includes(job.status)).length
+  const responses = jobs.filter((job) => job.status !== 'applied').length
+  const responseRate = jobs.length ? Math.round((responses / jobs.length) * 100) : 0
+  const maxTokens = subscriptionTier === 'free' ? 10 : 100
+  const lowTokens = extractionTokens <= Math.max(3, maxTokens * 0.15) || documentTokens <= Math.max(3, maxTokens * 0.15)
+  const expiryLabel = nextTokenExpiry ? new Date(nextTokenExpiry).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : 'No active batch'
+  const openDocuments = () => jobs.length ? setIsDocumentPickerOpen(true) : setIsAddDialogOpen(true)
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
+    <main className="dashboard-shell">
       <DashboardTheme />
-      <div className="claude-grid pointer-events-none absolute inset-x-0 top-0 h-[34rem] opacity-25" aria-hidden="true" />
-      {/* ── Top navigation bar ── */}
-      <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-4 lg:px-8">
-          {/* Brand + tier badge */}
-          <div className="flex items-center gap-3">
-            <BrandLogo markClassName="h-9 w-9 rounded-xl" wordmarkClassName="text-lg" />
-            <span className="hidden text-xs text-muted-foreground md:inline">Job search workspace</span>
-            <Badge
-              variant={subscriptionTier === 'premium' ? 'default' : subscriptionTier === 'pro' ? 'secondary' : 'outline'}
-              className={
-                subscriptionTier === 'premium'
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 text-xs'
-                  : subscriptionTier === 'pro'
-                  ? 'bg-blue-600 text-white border-0 text-xs'
-                  : 'text-xs'
-              }
-            >
-              {subscriptionTier.charAt(0).toUpperCase() + subscriptionTier.slice(1)}
-            </Badge>
-          </div>
-
-          {/* Desktop actions */}
-          <div className="hidden items-center gap-2 sm:flex">
-            <Button onClick={() => router.push('/dashboard/settings')} variant="outline" size="sm">
-              <Settings className="mr-2 h-4 w-4" />
-              Account
-            </Button>
-            <Button onClick={handleSignOut} variant="ghost" size="sm">
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
-            </Button>
-            <QuickActionsMenu
-              jobs={jobs}
-              onExportCSV={exportToCSV}
-              onClearRejected={clearRejected}
-              onArchiveOld={archiveOld}
-            />
-            <Button onClick={() => setIsAddDialogOpen(true)} size="sm">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Job
-            </Button>
-          </div>
-
-          {/* Mobile: Add + menu toggle */}
-          <div className="flex items-center gap-2 sm:hidden">
-            <Button onClick={() => setIsAddDialogOpen(true)} size="sm" className="h-9 px-3">
-              <Plus className="h-4 w-4" />
-              <span className="sr-only">Add Job</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => setIsMobileMenuOpen((o) => !o)}
-              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
-            >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-          </div>
+      <aside className={`dashboard-sidebar ${mobileNavOpen ? 'is-open' : ''}`}>
+        <div className="dashboard-brand"><span><i /></span><strong>Pursuitz</strong><em>{subscriptionTier.toUpperCase()}</em></div>
+        <nav aria-label="Dashboard navigation">
+          <button className={statusFilter === 'all' ? 'active' : ''} onClick={() => { setStatusFilter('all'); setViewMode('board') }}><BriefcaseBusiness /><span>Board</span><small>{jobs.length}</small></button>
+          <button className={statusFilter === 'interview' ? 'active' : ''} onClick={() => { setStatusFilter('interview'); setViewMode('board') }}><Clock3 /><span>Interviews</span><small>{interviews}</small></button>
+          <button onClick={() => setViewMode('timeline')} className={viewMode === 'timeline' ? 'active' : ''}><BarChart3 /><span>Timeline</span></button>
+          <button onClick={openDocuments}><FileText /><span>Documents</span><small>{documentTokens}</small></button>
+          <button onClick={() => router.push('/dashboard/settings')}><Settings /><span>Settings</span></button>
+        </nav>
+        <div className="dashboard-side-bottom">
+          <section className="dashboard-tokens">
+            <h2>Tokens · 60-day</h2>
+            <div><span>Extraction</span><b>{extractionTokens} / {maxTokens}</b></div><progress max={maxTokens} value={Math.min(extractionTokens, maxTokens)} />
+            <div><span>Documents</span><b>{documentTokens} / {maxTokens}</b></div><progress max={maxTokens} value={Math.min(documentTokens, maxTokens)} />
+            <p>Next batch expires {expiryLabel}</p><button onClick={() => router.push('/dashboard/settings')}>Top up</button>
+          </section>
+          <div className="dashboard-profile"><span>{(userName || userEmail || 'U').charAt(0).toUpperCase()}</span><div><b>{userName || 'Pursuitz user'}</b><small>{userEmail || subscriptionTier}</small></div><button onClick={handleSignOut} aria-label="Sign out"><LogOut /></button></div>
         </div>
+      </aside>
 
-        {/* Mobile slide-down menu */}
-        {isMobileMenuOpen && (
-          <div className="animate-fade-down border-t border-border bg-background px-4 pb-4 pt-3 sm:hidden">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Account
-            </p>
-            <div className="flex flex-col gap-2">
-              <Button
-                onClick={() => { router.push('/dashboard/settings'); setIsMobileMenuOpen(false) }}
-                variant="outline"
-                className="h-11 w-full justify-start"
-              >
-                <Settings className="mr-3 h-4 w-4" />
-                Account Settings
-              </Button>
-              <Button
-                onClick={handleSignOut}
-                variant="ghost"
-                className="h-11 w-full justify-start text-muted-foreground"
-              >
-                <LogOut className="mr-3 h-4 w-4" />
-                Sign Out
-              </Button>
-              <QuickActionsMenu
-                jobs={jobs}
-                onExportCSV={exportToCSV}
-                onClearRejected={clearRejected}
-                onArchiveOld={archiveOld}
-              />
-            </div>
-          </div>
-        )}
-      </header>
-
-      {/* ── Main content ── */}
-      <main className="relative mx-auto max-w-[1500px] px-5 py-8 lg:px-8">
-        <section className="animate-fade-up flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-sm font-medium text-primary">
-              {new Intl.DateTimeFormat('en', { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date())}
-            </p>
-            <h1 className="mt-1 text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-              Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}{userName ? `, ${userName}` : ''}.
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              {jobs.filter((job) => job.status === 'interview').length > 0
-                ? `Your search is moving. You have ${jobs.filter((job) => job.status === 'interview').length} active interview${jobs.filter((job) => job.status === 'interview').length === 1 ? '' : 's'}.`
-                : 'Keep your search moving by adding and updating applications.'}
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => jobs.length > 0 ? setIsDocumentPickerOpen(true) : setIsAddDialogOpen(true)}
-          >
-            <Sparkles className="mr-2 h-4 w-4" />
-            {jobs.length > 0 ? 'Generate tailored documents' : 'Add an application'}
-          </Button>
-        </section>
-
-        <div className="mt-8 animate-fade-up">
-          <Stats
-            jobs={jobs}
-            documentLimit={DOC_LIMITS[subscriptionTier]}
-            documentsUsed={localDocsUsed}
-          />
+      <div className="dashboard-workspace">
+        <header className="dashboard-topbar">
+          <button className="dashboard-menu-button" onClick={() => setMobileNavOpen((value) => !value)} aria-label="Toggle navigation">{mobileNavOpen ? <X /> : <Menu />}</button>
+          <div><h1>Application board</h1><p>Track every role from first click to signed offer.</p></div>
+          <div className="dashboard-top-actions"><label><Search /><span className="sr-only">Search applications</span><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search company, role, location" /></label><Button onClick={() => setIsAddDialogOpen(true)}><Plus />Add via link</Button><QuickActionsMenu jobs={jobs} onExportCSV={exportToCSV} onClearRejected={() => confirm('Delete all rejected applications?') && jobs.filter((job) => job.status === 'rejected').forEach((job) => deleteJob(job.id))} onArchiveOld={() => confirm('Archive applications older than 3 months?') && jobs.filter((job) => new Date(job.dateApplied) < new Date(Date.now() - 7889400000)).forEach((job) => deleteJob(job.id))} /></div>
+        </header>
+        {warningVisible && lowTokens && <div className="dashboard-warning"><i /><div><b>Tokens are running low</b><p>Tokens are spent oldest-first and expire 60 days after they land. Top up to keep tailoring.</p></div><Button onClick={() => router.push('/dashboard/settings')}>Top up</Button><button onClick={() => setWarningVisible(false)} aria-label="Dismiss warning"><X /></button></div>}
+        <div className="dashboard-board-wrap">
+          <section className="dashboard-stats" aria-label="Application statistics">
+            <div><span>On board</span><b>{jobs.length}</b><small>unlimited</small></div><div><span>Active</span><b>{active}</b><small>in play</small></div><div className="cyan"><span>Interviewing</span><b>{interviews}</b><small>{scheduledRounds} rounds booked</small></div><div className="green"><span>Offers</span><b>{offers}</b><small>{accepted} accepted</small></div><div><span>Response rate</span><b>{responseRate}%</b><small>all-time · {jobs.length} applications</small></div>
+          </section>
+          <div className="dashboard-filters">{(['all', ...statuses] as const).map((status) => <button key={status} className={statusFilter === status ? 'selected' : ''} onClick={() => { setStatusFilter(status); setViewMode('board') }}>{status === 'all' ? 'All' : labels[status]}</button>)}<button onClick={() => setViewMode(viewMode === 'board' ? 'timeline' : 'board')}><LayoutGrid />{viewMode === 'board' ? 'Timeline' : 'Board'}</button><span><i /> Use arrows to move cards</span></div>
+          <details className="dashboard-advanced"><summary>Advanced filters</summary><FilterToolbar hiddenStatuses={hiddenStatuses} onToggleStatus={(status) => setHiddenStatuses((current) => current.includes(status) ? current.filter((item) => item !== status) : [...current, status])} sortBy={sortBy} onSortChange={setSortBy} selectedTags={selectedTags} availableTags={availableTags} onToggleTag={(tag) => setSelectedTags((current) => current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag])} /></details>
+          {viewMode === 'board' ? <JobBoard jobs={filteredJobs} onUpdateJob={updateJob} onDeleteJob={deleteJob} /> : <TimelineView jobs={filteredJobs} onJobClick={(job) => { setDocumentJob(job); setIsDocumentDialogOpen(false) }} />}
         </div>
+      </div>
 
-        <div className="mb-5 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-        {/* Search + view toggle row */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search company, position, location…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 pl-10 sm:h-9"
-            />
-          </div>
-          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'board' | 'timeline')}>
-            <TabsList className="h-10 sm:h-9">
-              <TabsTrigger value="board" className="gap-1.5 px-3">
-                <LayoutGrid className="h-4 w-4" />
-                <span>Board</span>
-              </TabsTrigger>
-              <TabsTrigger value="timeline" className="gap-1.5 px-3">
-                <Timeline className="h-4 w-4" />
-                <span>Timeline</span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-
-        {/* Filter toolbar */}
-        <div className="mt-4 border-t border-border pt-4">
-          <FilterToolbar
-            hiddenStatuses={hiddenStatuses}
-            onToggleStatus={(status) =>
-              setHiddenStatuses((prev) =>
-                prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
-              )
-            }
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            selectedTags={selectedTags}
-            availableTags={availableTags}
-            onToggleTag={(tag) =>
-              setSelectedTags((prev) =>
-                prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-              )
-            }
-          />
-        </div>
-        </div>
-
-        {/* Board / timeline */}
-        {viewMode === 'board' ? (
-          <JobBoard jobs={filteredJobs} onUpdateJob={updateJob} onDeleteJob={deleteJob} />
-        ) : (
-          <TimelineView jobs={filteredJobs} onJobClick={setSelectedJob} />
-        )}
-
-        {/* Dialogs */}
-        <Dialog open={isDocumentPickerOpen} onOpenChange={setIsDocumentPickerOpen}>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Choose an application</DialogTitle>
-              <DialogDescription>
-                Select the role you want to tailor a resume or cover letter for.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex max-h-[55vh] flex-col gap-2 overflow-y-auto py-2">
-              {jobs.map((job) => (
-                <button
-                  key={job.id}
-                  type="button"
-                  className="flex min-h-16 items-center justify-between gap-4 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  onClick={() => {
-                    setDocumentJob(job)
-                    setIsDocumentPickerOpen(false)
-                    setIsDocumentDialogOpen(true)
-                  }}
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate font-semibold text-card-foreground">{job.position}</span>
-                    <span className="block truncate text-sm text-muted-foreground">{job.company}</span>
-                  </span>
-                  <FileText className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-                </button>
-              ))}
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {documentJob && (
-          <DocumentGeneratorDialog
-            open={isDocumentDialogOpen}
-            onOpenChange={setIsDocumentDialogOpen}
-            jobTitle={documentJob.position}
-            company={documentJob.company}
-            jobDescription={documentJob.notes || ''}
-            isPremium={isPremium}
-            subscriptionTier={subscriptionTier}
-            documentsUsedThisMonth={localDocsUsed}
-            onDocumentGenerated={handleDocumentGenerated}
-          />
-        )}
-
-        <AddJobDialog
-          open={isAddDialogOpen}
-          onOpenChange={setIsAddDialogOpen}
-          onAddJob={addJob}
-          isPremium={isPremium}
-          subscriptionTier={subscriptionTier}
-          documentsUsedThisMonth={localDocsUsed}
-          onDocumentGenerated={handleDocumentGenerated}
-        />
-
-        {selectedJob && (
-          <JobDetailDialog
-            job={selectedJob}
-            open={!!selectedJob}
-            onOpenChange={(open) => !open && setSelectedJob(null)}
-            onUpdateJob={(updates) => {
-              updateJob(selectedJob.id, updates)
-              setSelectedJob({ ...selectedJob, ...updates })
-            }}
-            onDeleteJob={() => {
-              deleteJob(selectedJob.id)
-              setSelectedJob(null)
-            }}
-            isPremium={isPremium}
-            subscriptionTier={subscriptionTier}
-            documentsUsedThisMonth={localDocsUsed}
-            onDocumentGenerated={handleDocumentGenerated}
-          />
-        )}
-
-        {/* Footer disclaimer */}
-        <div className="mt-12 border-t border-border pb-8 pt-6">
-          <p className="text-center text-xs leading-relaxed text-muted-foreground">
-            Pursuitz is a personal organisation tool only. Use of this service does not guarantee employment or job offers.
-            AI-generated content including extracted job details, tailored resumes, and cover letters may contain inaccuracies — always review before submitting.
-            Your data is stored securely and is never shared with third parties. We are not responsible for outcomes resulting from applications submitted using this tool.
-          </p>
-        </div>
-      </main>
-    </div>
+      <Dialog open={isDocumentPickerOpen} onOpenChange={setIsDocumentPickerOpen}><DialogContent><DialogHeader><DialogTitle>Choose an application</DialogTitle><DialogDescription>Select the role you want to tailor documents for.</DialogDescription></DialogHeader><div className="flex max-h-[55vh] flex-col gap-2 overflow-y-auto">{jobs.map((job) => <button className="dashboard-document-choice" key={job.id} onClick={() => { setDocumentJob(job); setIsDocumentPickerOpen(false); setIsDocumentDialogOpen(true) }}><span><b>{job.position}</b><small>{job.company}</small></span><Sparkles /></button>)}</div></DialogContent></Dialog>
+      {documentJob && <DocumentGeneratorDialog open={isDocumentDialogOpen} onOpenChange={setIsDocumentDialogOpen} jobTitle={documentJob.position} company={documentJob.company} jobDescription={documentJob.notes || ''} isPremium={isPremium} subscriptionTier={subscriptionTier} documentsUsedThisMonth={localDocsUsed} onDocumentGenerated={() => setLocalDocsUsed((value) => value + 1)} />}
+      <AddJobDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} onAddJob={addJob} isPremium={isPremium} subscriptionTier={subscriptionTier} documentsUsedThisMonth={localDocsUsed} onDocumentGenerated={() => setLocalDocsUsed((value) => value + 1)} />
+    </main>
   )
 }
