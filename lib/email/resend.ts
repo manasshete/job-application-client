@@ -25,12 +25,18 @@ function getResend(): Resend {
   return resendInstance
 }
 
-export async function sendConfirmationEmail(email: string, confirmationUrl: string) {
+export async function sendPasswordResetEmail(email: string, resetUrl: string) {
+  // Local testing without Resend: print the link instead of emailing it
+  if (!process.env.RESEND_API_KEY && process.env.NODE_ENV !== 'production') {
+    console.log(`[dev] Password reset link for ${email}: ${resetUrl}`)
+    return
+  }
+
   try {
     await getResend().emails.send({
       from: 'Pursuitz <noreply@pursuitz.co>',
       to: email,
-      subject: 'Confirm your Pursuitz account',
+      subject: 'Reset your Pursuitz password',
       html: `
         <!DOCTYPE html>
         <html>
@@ -47,14 +53,14 @@ export async function sendConfirmationEmail(email: string, confirmationUrl: stri
           <body>
             <div class="container">
               <div class="header">
-                <h1>Welcome to Pursuitz</h1>
+                <h1>Reset your password</h1>
               </div>
               <div class="content">
                 <p>Hi there,</p>
-                <p>Thanks for signing up! Click the button below to confirm your email and start tracking your job applications.</p>
-                <a href="${esc(confirmationUrl)}" class="button">Confirm Email</a>
-                <p style="color: #666; font-size: 14px;">Or copy and paste this link: ${esc(confirmationUrl)}</p>
-                <p>This link expires in 24 hours.</p>
+                <p>We received a request to reset your Pursuitz password. Click the button below to choose a new one.</p>
+                <a href="${esc(resetUrl)}" class="button">Reset Password</a>
+                <p style="color: #666; font-size: 14px;">Or copy and paste this link: ${esc(resetUrl)}</p>
+                <p>This link expires in 1 hour. If you did not request it, you can safely ignore this email.</p>
               </div>
               <div class="footer">
                 <p>© 2026 Pursuitz. All rights reserved.</p>
@@ -65,7 +71,7 @@ export async function sendConfirmationEmail(email: string, confirmationUrl: stri
       `,
     })
   } catch (error) {
-    console.error('Failed to send confirmation email:', error)
+    console.error('Failed to send password reset email:', error)
     throw error
   }
 }

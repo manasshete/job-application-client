@@ -1,3 +1,4 @@
+import { getCurrentUser } from '@/lib/auth/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/admin/service-client'
 
@@ -33,9 +34,7 @@ export interface TokenSummary {
 /** Total still-valid tokens of a type for the current user. */
 export async function getTokenBalance(tokenType: TokenType): Promise<number> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) return 0
 
   const { data, error } = await supabase.rpc('get_token_balance', { p_token_type: tokenType })
@@ -53,9 +52,7 @@ export async function getTokenBalance(tokenType: TokenType): Promise<number> {
  */
 export async function consumeToken(tokenType: TokenType): Promise<boolean> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) return false
 
   const { data, error } = await supabase.rpc('consume_token', { p_token_type: tokenType })
@@ -69,9 +66,7 @@ export async function consumeToken(tokenType: TokenType): Promise<boolean> {
 /** Balances for both token types plus the next upcoming expiry date. */
 export async function getTokenSummary(): Promise<TokenSummary> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) {
     return { aiExtractionBalance: 0, documentGenerationBalance: 0, nextExpiry: null }
   }
@@ -101,6 +96,45 @@ export async function getTokenSummary(): Promise<TokenSummary> {
     documentGenerationBalance,
     nextExpiry: data.length > 0 ? data[0].expires_at : null,
   }
+}
+
+export interface TokenBatchRow {
+  /** Day the batch was added, YYYY-MM-DD (UTC). */
+  added: string
+  /** Day it expires, YYYY-MM-DD (UTC). */
+  expires: string
+  extractions: number
+  documents: number
+}
+
+/** Still-valid tokens grouped by the day they were added, oldest first. */
+export async function getTokenBatches(): Promise<TokenBatchRow[]> {
+  const supabase = await createClient()
+  const user = await getCurrentUser()
+  if (!user) return []
+
+  const { data, error } = await supabase
+    .from('token_batches')
+    .select('token_type, remaining, granted_at, expires_at')
+    .eq('user_id', user.id)
+    .gt('remaining', 0)
+    .gt('expires_at', new Date().toISOString())
+    .order('expires_at', { ascending: true })
+
+  if (error || !data) {
+    console.error('[v0] Error fetching token batches:', error?.message)
+    return []
+  }
+
+  const rows = new Map<string, TokenBatchRow>()
+  for (const batch of data) {
+    const added = String(batch.granted_at).slice(0, 10)
+    const row = rows.get(added) ?? { added, expires: String(batch.expires_at).slice(0, 10), extractions: 0, documents: 0 }
+    if (batch.token_type === 'ai_extraction') row.extractions += batch.remaining
+    else if (batch.token_type === 'document_generation') row.documents += batch.remaining
+    rows.set(added, row)
+  }
+  return [...rows.values()]
 }
 
 /**

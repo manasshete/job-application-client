@@ -1,34 +1,24 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { getSessionToken } from '@/lib/auth/server'
 
 /**
+ * User-scoped Supabase client. Sends the app's session JWT as the access
+ * token, so RLS sees auth.uid() = the logged-in user. Without a session it
+ * acts as the anonymous role.
+ *
  * Especially important if using Fluid compute: Don't put this client in a
  * global variable. Always create a new client within each function when using
  * it.
  */
 export async function createClient() {
-  const cookieStore = await cookies()
+  const token = await getSessionToken()
 
-  return createServerClient(
+  return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)!,
     {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            )
-          } catch {
-            // The "setAll" method was called from a Server Component.
-            // This can be ignored if you have proxy refreshing
-            // user sessions.
-          }
-        },
-      },
+      global: token ? { headers: { Authorization: `Bearer ${token}` } } : undefined,
+      auth: { autoRefreshToken: false, persistSession: false },
     },
   )
 }

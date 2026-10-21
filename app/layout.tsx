@@ -1,10 +1,12 @@
 import React from "react"
 import type { Metadata, Viewport } from 'next'
-import { Instrument_Sans, JetBrains_Mono } from 'next/font/google'
+import { Instrument_Sans, JetBrains_Mono, Public_Sans, Newsreader } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { siteConfig } from '@/lib/site-config'
 
 import './globals.css'
+import '../styles/pursuitz.css'
+import { themeInitScript } from '@/components/pz/theme-script'
 
 const instrumentSans = Instrument_Sans({
   subsets: ['latin'],
@@ -15,6 +17,19 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   weight: ['400', '500'],
   variable: '--font-jetbrains-mono',
+  display: 'swap',
+})
+
+const publicSans = Public_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-public-sans',
+  display: 'swap',
+})
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-newsreader',
   display: 'swap',
 })
 
@@ -83,12 +98,18 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`bg-background ${instrumentSans.variable} ${jetbrainsMono.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`bg-background ${instrumentSans.variable} ${jetbrainsMono.variable} ${publicSans.variable} ${newsreader.variable}`}
+    >
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <link rel="icon" href="/favicon.png" type="image/png" />
         <link rel="apple-touch-icon" href="/favicon.png" />
       </head>
-      <body className="font-sans antialiased">
+      {/* suppressHydrationWarning: browser extensions add attributes to <body> before React loads. Affects this element only. */}
+      <body className="font-sans antialiased" suppressHydrationWarning>
         {children}
         <Analytics />
       </body>

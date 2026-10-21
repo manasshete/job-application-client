@@ -1,3 +1,4 @@
+import { getCurrentUser } from '@/lib/auth/server'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/admin/service-client'
@@ -24,9 +25,7 @@ const VALID_TIERS: SubscriptionTier[] = ['free', 'pro', 'premium']
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    const user = await getCurrentUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

@@ -1,9 +1,10 @@
+import { getCurrentUser } from '@/lib/auth/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/admin/service-client'
-import type { User } from '@supabase/supabase-js'
+import type { SessionUser } from '@/lib/auth/session'
 
 export type AdminCheckResult =
-  | { ok: true; user: User }
+  | { ok: true; user: SessionUser }
   | { ok: false; status: 401 | 403; error: string }
 
 /**
@@ -16,12 +17,9 @@ export type AdminCheckResult =
 export async function verifyAdmin(): Promise<AdminCheckResult> {
   const supabase = await createClient()
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
 
-  if (userError || !user) {
+  if (!user) {
     return { ok: false, status: 401, error: 'Authentication required' }
   }
 

@@ -1,3 +1,4 @@
+import { getCurrentUser } from '@/lib/auth/server'
 import { createClient } from '@/lib/supabase/server'
 import type { SubscriptionTier } from '@/lib/subscription'
 
@@ -17,7 +18,7 @@ export interface Profile {
 export async function getProfile(): Promise<Profile | null> {
   const supabase = await createClient()
   
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) return null
 
   const { data, error } = await supabase
@@ -40,7 +41,7 @@ export async function getProfile(): Promise<Profile | null> {
 export async function updateProfile(updates: Partial<Profile>): Promise<{ error: Error | null }> {
   const supabase = await createClient()
   
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) return { error: new Error('Not authenticated') }
 
   const { error } = await supabase
@@ -59,7 +60,7 @@ export async function updateProfile(updates: Partial<Profile>): Promise<{ error:
 export async function incrementAIExtractionCount(): Promise<void> {
   const supabase = await createClient()
   
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) return
 
   await supabase.rpc('increment_ai_extractions', { user_id: user.id })
@@ -68,7 +69,7 @@ export async function incrementAIExtractionCount(): Promise<void> {
 export async function incrementDocumentGenerationCount(): Promise<void> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) return
 
   // Use the SECURITY DEFINER RPC: direct profile column writes are revoked

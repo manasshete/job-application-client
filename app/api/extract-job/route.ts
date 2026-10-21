@@ -1,3 +1,4 @@
+import { getCurrentUser } from '@/lib/auth/server'
 import { generateText, Output } from 'ai'
 import { z } from 'zod'
 import { isValidUrl, isPublicUrl, MAX_LENGTHS } from '@/lib/validation'
@@ -12,15 +13,16 @@ const jobDetailsSchema = z.object({
   location: z.string().nullable(),
   salary: z.string().nullable(),
   description: z.string().nullable(),
+  requirements: z.array(z.string()).nullable(),
 })
 
 export async function POST(req: Request) {
   try {
     // Authentication check
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const user = await getCurrentUser()
     
-    if (authError || !user) {
+    if (!user) {
       return Response.json({ error: 'Authentication required' }, { status: 401 })
     }
 
@@ -130,7 +132,7 @@ export async function POST(req: Request) {
         messages: [
           {
             role: 'user',
-            content: `Extract job details from this HTML content. Return the company name, job position/title, location, salary range (if mentioned), and a brief description. Return null for any field that cannot be found.\n\nHTML:\n${html.slice(0, 15000)}`,
+            content: `Extract job details from this HTML content. Return the company name, job position/title, location, salary range (if mentioned), a brief description, and up to 10 key requirements (short skill or qualification names such as "React" or "3+ years experience", not sentences). Return null for any field that cannot be found.\n\nHTML:\n${html.slice(0, 15000)}`,
           },
         ],
       })

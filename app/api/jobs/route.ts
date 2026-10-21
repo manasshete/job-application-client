@@ -1,12 +1,13 @@
+import { getCurrentUser } from '@/lib/auth/server'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { getProfile } from '@/lib/data/profiles'
-import { sanitizeInput, validateLength, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
+import { sanitizeInput, validateLength, isValidUrl, unescapeHtmlEntities, MAX_LENGTHS } from '@/lib/validation'
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getCurrentUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -84,17 +85,23 @@ export async function POST(request: Request) {
     const deadline = (typeof job.deadline === 'string' && job.deadline) || null
 
     // Normalize status to a value allowed by the DB CHECK constraint
-    // (jobs.status must be one of: applied, interview, offer, rejected).
-    const ALLOWED_STATUSES = ['applied', 'interview', 'offer', 'rejected']
+    // (jobs.status must be one of: applied, interview, offer, accepted, rejected).
+    const ALLOWED_STATUSES = ['applied', 'interview', 'offer', 'accepted', 'rejected']
     const requestedStatus =
       typeof job.status === 'string' ? job.status.trim().toLowerCase() : 'applied'
     const normalizedStatus = ALLOWED_STATUSES.includes(requestedStatus)
       ? requestedStatus
       : 'applied'
 
-    const { data, error } = await supabase
-      .from('jobs')
-      .insert({
+    const requirements = Array.isArray(job.requirements)
+      ? job.requirements.slice(0, 30).map((r) => sanitizeInput(String(r))).filter(Boolean)
+      : []
+    const description =
+      typeof job.description === 'string' && job.description.trim() && validateLength(job.description, 20000)
+        ? sanitizeInput(job.description)
+        : null
+
+    const baseRow = {
         user_id: user.id,
         company: sanitizeInput(job.company as string),
         position: sanitizeInput(job.position as string),
@@ -108,11 +115,20 @@ export async function POST(request: Request) {
         recruiter_name: clean(job.recruiterName),
         recruiter_email: clean(job.recruiterEmail),
         tags: Array.isArray(job.tags) ? job.tags.slice(0, 20).map((t) => sanitizeInput(String(t))) : [],
-      })
+    }
+
+    let { data, error } = await supabase
+      .from('jobs')
+      .insert({ ...baseRow, requirements, description })
       .select()
       .single()
 
-    if (error) {
+    // Migration 013 adds requirements/description. Until it is applied, save without them.
+    if (error?.code === '42703' || error?.code === 'PGRST204') {
+      ;({ data, error } = await supabase.from('jobs').insert(baseRow).select().single())
+    }
+
+    if (error || !data) {
       console.error('[jobs] Error creating job:', error)
       return NextResponse.json({ error: 'Failed to create job. Please try again.' }, { status: 500 })
     }
@@ -127,18 +143,20 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       id: data.id,
-      company: data.company,
-      position: data.position,
+      company: unescapeHtmlEntities(data.company),
+      position: unescapeHtmlEntities(data.position),
       status: data.status,
       dateApplied: data.date_applied,
-      salary: data.salary,
-      location: data.location,
-      notes: data.notes,
+      salary: data.salary ? unescapeHtmlEntities(data.salary) : data.salary,
+      location: data.location ? unescapeHtmlEntities(data.location) : data.location,
+      notes: data.notes ? unescapeHtmlEntities(data.notes) : data.notes,
       jobUrl: data.job_url,
       deadline: data.deadline,
-      recruiterName: data.recruiter_name,
-      recruiterEmail: data.recruiter_email,
-      tags: data.tags,
+      recruiterName: data.recruiter_name ? unescapeHtmlEntities(data.recruiter_name) : data.recruiter_name,
+      recruiterEmail: data.recruiter_email ? unescapeHtmlEntities(data.recruiter_email) : data.recruiter_email,
+      tags: (data.tags || []).map((t: string) => unescapeHtmlEntities(t)),
+      requirements: (data.requirements || []).map((t: string) => unescapeHtmlEntities(t)),
+      description: data.description ? unescapeHtmlEntities(data.description) : undefined,
       interviews: [],
       tasks: [],
       activityLog: [],

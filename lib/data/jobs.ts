@@ -1,5 +1,10 @@
+import { getCurrentUser } from '@/lib/auth/server'
 import { createClient } from '@/lib/supabase/server'
 import type { Job, Interview, Task, ActivityLogEntry } from '@/lib/types'
+import { unescapeHtmlEntities } from '@/lib/validation'
+
+// Text is stored HTML-escaped (see sanitizeInput); hand the UI the plain text.
+const d = (v: string | null | undefined) => (typeof v === 'string' ? unescapeHtmlEntities(v) : v ?? undefined)
 
 export async function getJobs(): Promise<Job[]> {
   const supabase = await createClient()
@@ -7,7 +12,7 @@ export async function getJobs(): Promise<Job[]> {
   // Explicitly scope to the authenticated user. This is defense-in-depth on top
   // of RLS so the personal dashboard only ever shows the current user's jobs,
   // even for admin accounts that may have broader RLS visibility.
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) {
     return []
   }
@@ -30,31 +35,34 @@ export async function getJobs(): Promise<Job[]> {
 
   return jobs.map((job) => ({
     id: job.id,
-    company: job.company,
-    position: job.position,
+    company: d(job.company) as string,
+    position: d(job.position) as string,
     status: job.status,
     dateApplied: job.date_applied,
-    salary: job.salary,
-    location: job.location,
-    notes: job.notes,
-    jobUrl: job.job_url,
+    salary: d(job.salary),
+    location: d(job.location),
+    notes: d(job.notes),
+    jobUrl: job.job_url ? unescapeHtmlEntities(job.job_url) : job.job_url,
     deadline: job.deadline,
-    recruiterName: job.recruiter_name,
-    recruiterEmail: job.recruiter_email,
-    tags: job.tags || [],
+    recruiterName: d(job.recruiter_name),
+    recruiterEmail: d(job.recruiter_email),
+    tags: (job.tags || []).map((t: string) => d(t) as string),
+    requirements: (job.requirements || []).map((t: string) => d(t) as string),
+    description: d(job.description),
     interviews: job.interviews?.map((i: any) => ({
       id: i.id,
-      round: i.round,
+      round: d(i.round) as string,
       date: i.date,
+      time: i.time || undefined,
       status: i.status,
-      notes: i.notes,
+      notes: d(i.notes),
     })) || [],
     tasks: job.tasks?.map((t: any) => ({
       id: t.id,
-      title: t.title,
+      title: d(t.title) as string,
       dueDate: t.due_date,
       status: t.status,
-      notes: t.notes,
+      notes: d(t.notes),
     })) || [],
     activityLog: job.activity_logs?.map((a: any) => ({
       id: a.id,
@@ -69,7 +77,7 @@ export async function getJobs(): Promise<Job[]> {
 export async function createJob(job: Omit<Job, 'id' | 'activityLog'>) {
   const supabase = await createClient()
   
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) throw new Error('Not authenticated')
 
   const { data, error } = await supabase

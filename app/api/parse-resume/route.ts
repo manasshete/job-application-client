@@ -1,3 +1,4 @@
+import { getCurrentUser } from '@/lib/auth/server'
 import mammoth from 'mammoth'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
@@ -10,7 +11,7 @@ const ALLOWED_MIME_TYPES = [
 export async function POST(req: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getCurrentUser()
 
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })

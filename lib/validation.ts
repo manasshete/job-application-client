@@ -21,7 +21,7 @@ export function sanitizeInput(input: string): string {
 // Reverse escapeHtml() for the specific entities it produces. Some URLs were
 // previously stored HTML-escaped (e.g. "https:&#x2F;&#x2F;site.com&amp;a=1"),
 // which breaks links. This restores them to a usable URL.
-function unescapeHtmlEntities(text: string): string {
+export function unescapeHtmlEntities(text: string): string {
   return text
     .replace(/&#x2F;/gi, '/')
     .replace(/&#x27;/gi, "'")

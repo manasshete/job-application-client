@@ -1,3 +1,4 @@
+import { getCurrentUser } from '@/lib/auth/server'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { sanitizeInput, validateLength, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
@@ -11,7 +12,7 @@ export async function PATCH(
 ) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getCurrentUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -68,6 +69,7 @@ export async function PATCH(
       const recruiterEmail = str(updates.recruiterEmail, MAX_LENGTHS.COMPANY, 'Recruiter email')
       if (recruiterEmail !== undefined) dbUpdates.recruiter_email = recruiterEmail
       if (Array.isArray(updates.tags)) dbUpdates.tags = updates.tags.slice(0, 20).map((t) => sanitizeInput(String(t)))
+      if (Array.isArray(updates.requirements)) dbUpdates.requirements = updates.requirements.slice(0, 30).map((t) => sanitizeInput(String(t))).filter(Boolean)
     } catch (validationError) {
       return NextResponse.json(
         { error: validationError instanceof Error ? validationError.message : 'Invalid input' },
@@ -109,7 +111,7 @@ export async function DELETE(
 ) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getCurrentUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

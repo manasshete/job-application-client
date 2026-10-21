@@ -11,6 +11,8 @@ export interface Interview {
   id: string
   round: string
   date: string
+  /** Time of day, HH:MM (24h). Optional. */
+  time?: string
   status: InterviewStatus
   notes?: string
 }
@@ -45,6 +47,10 @@ export interface Job {
   recruiterName?: string
   recruiterEmail?: string
   tags?: string[]
+  /** Key requirements read from the posting. */
+  requirements?: string[]
+  /** Posting text, used as context when tailoring a CV or cover letter. */
+  description?: string
   interviews?: Interview[]
   tasks?: Task[]
   activityLog?: ActivityLogEntry[]

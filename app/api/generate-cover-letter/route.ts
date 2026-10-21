@@ -1,3 +1,4 @@
+import { getCurrentUser } from '@/lib/auth/server'
 import { generateText } from 'ai'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
@@ -7,7 +8,7 @@ import { getTokenBalance, consumeToken } from '@/lib/data/tokens'
 export async function POST(req: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getCurrentUser()
 
     if (!user) {
       return Response.json({ error: 'Authentication required' }, { status: 401 })
