@@ -4,9 +4,20 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 
+interface RazorpaySuccessResponse {
+  razorpay_order_id: string
+  razorpay_payment_id: string
+  razorpay_signature: string
+}
+
+interface RazorpayInstance {
+  open: () => void
+  on: (event: string, handler: (response: unknown) => void) => void
+}
+
 declare global {
   interface Window {
-    Razorpay: any
+    Razorpay: new (options: Record<string, unknown>) => RazorpayInstance
   }
 }
 
@@ -45,7 +56,7 @@ export function RazorpayCheckout({ tier, onSuccess, onError }: RazorpayCheckoutP
           amount: orderData.amount,
           currency: orderData.currency,
           order_id: orderData.orderId,
-          handler: async (response: any) => {
+          handler: async (response: RazorpaySuccessResponse) => {
             try {
               // Verify payment on server
               const verifyRes = await fetch('/api/payment/verify', {

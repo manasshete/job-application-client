@@ -44,10 +44,15 @@ function Settings() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const out = tokens.extractions === 0 && tokens.documents === 0
+  const partOut = !out && (tokens.extractions === 0 || tokens.documents === 0)
   const warn = !out && (tokens.extractions <= 3 || tokens.documents <= 1)
   const tkMsg = out
-    ? 'You have no tokens left. AI features are paused until your plan adds more.'
-    : `You are running low: ${tokens.extractions} extraction${tokens.extractions === 1 ? '' : 's'} and ${tokens.documents} document${tokens.documents === 1 ? '' : 's'} left.`
+    ? 'You have no tokens left. Reading job links and writing documents are paused until you get more.'
+    : partOut
+      ? tokens.extractions === 0
+        ? `You’re out of extraction tokens, so job links can’t be read. You still have ${tokens.documents} document${tokens.documents === 1 ? '' : 's'}.`
+        : `You’re out of document tokens, so CVs and cover letters can’t be written. You still have ${tokens.extractions} extraction${tokens.extractions === 1 ? '' : 's'}.`
+      : `You are running low: ${tokens.extractions} extraction${tokens.extractions === 1 ? '' : 's'} and ${tokens.documents} document${tokens.documents === 1 ? '' : 's'} left.`
   const curIdx = PLANS.findIndex((p) => p.tier === account.tier)
   const up = upgradeTarget(account.tier)
 
@@ -91,7 +96,7 @@ function Settings() {
         <>
           {(warn || out) && (
             <Note style={{ marginTop: 24 }} role="status">
-              <b>{out ? 'Out of tokens.' : 'Running low.'}</b> {tkMsg}
+              <b>{out || partOut ? 'Out of tokens.' : 'Running low.'}</b> {tkMsg}
             </Note>
           )}
           <section style={{ marginTop: 32 }}>

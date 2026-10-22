@@ -58,6 +58,8 @@ export default function CoverLetterPage() {
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data.coverLetter) {
+        // Out of tokens on the server: refresh the counter so the "out of document tokens" view shows.
+        if (res.status === 403) void app.refreshTokens()
         setError(data.error || 'We could not write the letter. Please try again.')
         return setPhase('setup')
       }
@@ -88,9 +90,10 @@ export default function CoverLetterPage() {
       {phase === 'setup' && blocked && (
         <div className="block">
           <h2 className="h2">You’re out of document tokens.</h2>
-          <p className="muted" style={{ margin: '8px 0 16px' }}>A tailored CV or cover letter uses 1 document token. Upgrade for a larger monthly allowance.</p>
+          <p className="muted" style={{ margin: '8px 0 16px' }}>{up ? 'A tailored CV or cover letter uses 1 document token. Upgrade for a larger monthly allowance.' : 'A tailored CV or cover letter uses 1 document token. You can see when more are added under Plan and tokens in Settings.'}</p>
           <div className="row-actions">
             {up && <button className="btn btn-p" onClick={() => app.startCheckout(up)}>Upgrade to {planOf(up).name}</button>}
+            {!up && <Link href="/dashboard/settings?tab=plan" className="btn btn-p">Plan and tokens</Link>}
             <Link href={`/dashboard/jobs/${job.id}`} className="btn btn-q">Back to the job</Link>
           </div>
         </div>

@@ -15,6 +15,11 @@ interface CountryTax {
   /** Standard deduction / tax-free allowance applied before brackets. */
   allowance: number
   brackets: Bracket[]
+  /**
+   * Rebate that makes taxable income up to `threshold` tax-free, with marginal
+   * relief just above it (tax never exceeds the income over the threshold).
+   */
+  rebateThreshold?: number
   note: string
 }
 
@@ -29,34 +34,36 @@ const COUNTRIES: CountryTax[] = [
     label: 'India',
     currency: 'INR',
     symbol: '₹',
-    allowance: 0,
-    // New regime FY2023-24 slabs (approx), incl. standard deduction handled below.
+    allowance: 75000, // standard deduction for salaried taxpayers, new regime
+    // New regime slabs, FY2025-26 onwards.
     brackets: [
-      { upTo: 300000, rate: 0 },
-      { upTo: 600000, rate: 0.05 },
-      { upTo: 900000, rate: 0.1 },
-      { upTo: 1200000, rate: 0.15 },
-      { upTo: 1500000, rate: 0.2 },
+      { upTo: 400000, rate: 0 },
+      { upTo: 800000, rate: 0.05 },
+      { upTo: 1200000, rate: 0.1 },
+      { upTo: 1600000, rate: 0.15 },
+      { upTo: 2000000, rate: 0.2 },
+      { upTo: 2400000, rate: 0.25 },
       { upTo: Infinity, rate: 0.3 },
     ],
-    note: 'Based on India\u2019s new tax regime slabs (approx). Excludes cess, surcharge, and exemptions.',
+    rebateThreshold: 1200000, // section 87A rebate
+    note: 'India new tax regime for salaried income (\u20b975,000 standard deduction and 87A rebate, FY2025-26). Excludes 4% cess, surcharge, and other deductions.',
   },
   {
     code: 'US',
     label: 'United States',
     currency: 'USD',
     symbol: '$',
-    allowance: 14600, // 2024 single standard deduction
+    allowance: 15750, // 2025 single standard deduction
     brackets: [
-      { upTo: 11600, rate: 0.1 },
-      { upTo: 47150, rate: 0.12 },
-      { upTo: 100525, rate: 0.22 },
-      { upTo: 191950, rate: 0.24 },
-      { upTo: 243725, rate: 0.32 },
-      { upTo: 609350, rate: 0.35 },
+      { upTo: 11925, rate: 0.1 },
+      { upTo: 48475, rate: 0.12 },
+      { upTo: 103350, rate: 0.22 },
+      { upTo: 197300, rate: 0.24 },
+      { upTo: 250525, rate: 0.32 },
+      { upTo: 626350, rate: 0.35 },
       { upTo: Infinity, rate: 0.37 },
     ],
-    note: 'Federal income tax only (2024, single filer). Excludes state tax, FICA, and credits.',
+    note: 'Federal income tax only (2025 tax year, single filer). Excludes state tax, FICA, and credits.',
   },
   {
     code: 'UK',
@@ -69,7 +76,7 @@ const COUNTRIES: CountryTax[] = [
       { upTo: 125140, rate: 0.4 }, // higher
       { upTo: Infinity, rate: 0.45 }, // additional
     ],
-    note: 'England/Wales income tax bands (2024-25). Excludes National Insurance and Scotland bands.',
+    note: 'England/Wales income tax bands (2025-26). Excludes National Insurance and Scotland bands.',
   },
 ]
 
@@ -83,14 +90,26 @@ function computeTax(gross: number, country: CountryTax): number {
     if (slice > 0) tax += slice * bracket.rate
     lower = bracket.upTo
   }
+  if (country.rebateThreshold !== undefined && taxable > 0) {
+    tax = taxable <= country.rebateThreshold ? 0 : Math.min(tax, taxable - country.rebateThreshold)
+  }
   return Math.round(tax)
+}
+
+const MAX_SALARY_DIGITS = 12
+
+/** Keeps digits and a single decimal point; drops signs, letters and excess length. */
+function sanitizeSalary(raw: string): string {
+  const [whole, ...rest] = raw.replace(/[^0-9.]/g, '').split('.')
+  const cleaned = rest.length ? `${whole}.${rest.join('')}` : whole
+  return cleaned.slice(0, MAX_SALARY_DIGITS)
 }
 
 export function SalaryCalculator() {
   const [country, setCountry] = useState<CountryTax>(COUNTRIES[0])
   const [salaryInput, setSalaryInput] = useState('')
 
-  const gross = Math.max(0, Number(salaryInput.replace(/[^0-9.]/g, '')) || 0)
+  const gross = Math.max(0, Number(salaryInput) || 0)
 
   const result = useMemo(() => {
     const tax = computeTax(gross, country)
@@ -137,7 +156,7 @@ export function SalaryCalculator() {
                 id="salary"
                 inputMode="numeric"
                 value={salaryInput}
-                onChange={(e) => setSalaryInput(e.target.value)}
+                onChange={(e) => setSalaryInput(sanitizeSalary(e.target.value))}
                 placeholder="e.g. 1200000"
                 className="w-full rounded-lg border border-slate-200 py-2 pl-8 pr-3 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />

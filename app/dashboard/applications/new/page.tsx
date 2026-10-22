@@ -82,6 +82,9 @@ function AddJob() {
       const res = await fetch('/api/extract-job', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: u }), signal: abort.current.signal })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
+        // The server is the source of truth: if it says the tokens are gone, refresh the counter so the
+        // "out of extraction tokens" view takes over instead of a generic error.
+        if (res.status === 403) void app.refreshTokens()
         setReadError(data.error || 'We couldn’t read that posting. Some sites block automatic reading.')
         setStep('paste')
         return

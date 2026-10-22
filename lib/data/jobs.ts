@@ -1,10 +1,35 @@
 import { getCurrentUser } from '@/lib/auth/server'
 import { createClient } from '@/lib/supabase/server'
-import type { Job, Interview, Task, ActivityLogEntry } from '@/lib/types'
+import type { Job, InterviewStatus, TaskStatus } from '@/lib/types'
 import { unescapeHtmlEntities } from '@/lib/validation'
 
 // Text is stored HTML-escaped (see sanitizeInput); hand the UI the plain text.
 const d = (v: string | null | undefined) => (typeof v === 'string' ? unescapeHtmlEntities(v) : v ?? undefined)
+
+interface InterviewRow {
+  id: string
+  round: string
+  date: string
+  time: string | null
+  status: InterviewStatus
+  notes: string | null
+}
+
+interface TaskRow {
+  id: string
+  title: string
+  due_date: string | null
+  status: TaskStatus
+  notes: string | null
+}
+
+interface ActivityRow {
+  id: string
+  timestamp: string
+  action: string
+  old_value: string | null
+  new_value: string | null
+}
 
 export async function getJobs(): Promise<Job[]> {
   const supabase = await createClient()
@@ -49,7 +74,7 @@ export async function getJobs(): Promise<Job[]> {
     tags: (job.tags || []).map((t: string) => d(t) as string),
     requirements: (job.requirements || []).map((t: string) => d(t) as string),
     description: d(job.description),
-    interviews: job.interviews?.map((i: any) => ({
+    interviews: job.interviews?.map((i: InterviewRow) => ({
       id: i.id,
       round: d(i.round) as string,
       date: i.date,
@@ -57,14 +82,14 @@ export async function getJobs(): Promise<Job[]> {
       status: i.status,
       notes: d(i.notes),
     })) || [],
-    tasks: job.tasks?.map((t: any) => ({
+    tasks: job.tasks?.map((t: TaskRow) => ({
       id: t.id,
       title: d(t.title) as string,
       dueDate: t.due_date,
       status: t.status,
       notes: d(t.notes),
     })) || [],
-    activityLog: job.activity_logs?.map((a: any) => ({
+    activityLog: job.activity_logs?.map((a: ActivityRow) => ({
       id: a.id,
       timestamp: a.timestamp,
       action: a.action,
@@ -118,7 +143,7 @@ export async function createJob(job: Omit<Job, 'id' | 'activityLog'>) {
 export async function updateJob(id: string, updates: Partial<Job>) {
   const supabase = await createClient()
   
-  const dbUpdates: any = {}
+  const dbUpdates: Record<string, unknown> = {}
   if (updates.company) dbUpdates.company = updates.company
   if (updates.position) dbUpdates.position = updates.position
   if (updates.status) dbUpdates.status = updates.status

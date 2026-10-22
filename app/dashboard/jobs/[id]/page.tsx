@@ -111,7 +111,11 @@ export default function JobPage() {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 20, alignItems: 'center' }}>
         <button className="btn btn-p" onClick={() => router.push(`/dashboard/jobs/${job.id}/cv`)}><Sparkles aria-hidden="true" />Tailor my CV</button>
         <button className="btn btn-q" onClick={() => router.push(`/dashboard/jobs/${job.id}/cover-letter`)}><PenLine aria-hidden="true" />Write a cover letter</button>
-        <span className="muted tnum" style={{ fontSize: 'var(--text-xs)' }}>Each document uses 1 token. You have {tokens.documents}.</span>
+        {tokens.documents === 0 ? (
+          <span className="tnum" style={{ fontSize: 'var(--text-xs)', color: 'var(--st-rejected)' }}>You’re out of document tokens. <Link href="/dashboard/settings?tab=plan" className="link">See your plan</Link></span>
+        ) : (
+          <span className="muted tnum" style={{ fontSize: 'var(--text-xs)' }}>Each document uses 1 token. You have {tokens.documents}.</span>
+        )}
       </div>
 
       <section className="sec" style={{ marginTop: 32 }}>

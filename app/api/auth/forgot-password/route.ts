@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHash, randomBytes } from 'crypto'
 import { createAdminClient } from '@/lib/admin/service-client'
-import { getClientIp, isSameOrigin, normalizeEmail } from '@/lib/auth/request'
+import { getClientIp, isSameOrigin, normalizeEmail, readAuthBody } from '@/lib/auth/request'
 import { authRateLimit } from '@/lib/auth/rate-limit'
 import { sendPasswordResetEmail } from '@/lib/email/resend'
 
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     if (!isSameOrigin(request)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
-    const body = await request.json().catch(() => ({}))
+    const body = await readAuthBody(request)
     const email = normalizeEmail(body.email)
     if (!email) {
       return NextResponse.json({ error: 'Please enter a valid email address' }, { status: 400 })

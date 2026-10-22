@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { sanitizeInput, validateLength, isValidUrl, MAX_LENGTHS } from '@/lib/validation'
 
+const JOB_STATUSES = ['applied', 'interview', 'offer', 'accepted', 'rejected']
+
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -44,7 +46,12 @@ export async function PATCH(
       if (company) dbUpdates.company = company
       const position = str(updates.position, MAX_LENGTHS.POSITION, 'Position')
       if (position) dbUpdates.position = position
-      if (typeof updates.status === 'string') dbUpdates.status = sanitizeInput(updates.status)
+      if (updates.status !== undefined) {
+        if (typeof updates.status !== 'string' || !JOB_STATUSES.includes(updates.status)) {
+          throw new Error('Invalid status')
+        }
+        dbUpdates.status = updates.status
+      }
       if (typeof updates.dateApplied === 'string' && updates.dateApplied) dbUpdates.date_applied = updates.dateApplied
 
       const salary = str(updates.salary, MAX_LENGTHS.SALARY, 'Salary')
@@ -77,15 +84,19 @@ export async function PATCH(
       )
     }
 
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from('jobs')
       .update(dbUpdates)
       .eq('id', id)
       .eq('user_id', user.id)
+      .select('id')
 
     if (error) {
       console.error('[jobs/id] Error updating job:', error)
       return NextResponse.json({ error: 'Failed to update job. Please try again.' }, { status: 500 })
+    }
+    if (!updated?.length) {
+      return NextResponse.json({ error: 'Job not found' }, { status: 404 })
     }
 
     // Log status changes
@@ -122,15 +133,19 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid job ID' }, { status: 400 })
     }
 
-    const { error } = await supabase
+    const { data: deleted, error } = await supabase
       .from('jobs')
       .delete()
       .eq('id', id)
       .eq('user_id', user.id)
+      .select('id')
 
     if (error) {
       console.error('[jobs/id] Error deleting job:', error)
       return NextResponse.json({ error: 'Failed to delete job. Please try again.' }, { status: 500 })
+    }
+    if (!deleted?.length) {
+      return NextResponse.json({ error: 'Job not found' }, { status: 404 })
     }
 
     return NextResponse.json({ success: true })

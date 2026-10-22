@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createHash } from 'crypto'
 import { createAdminClient } from '@/lib/admin/service-client'
 import { hashPassword, MIN_PASSWORD_LENGTH } from '@/lib/auth/password'
-import { getClientIp, isSameOrigin } from '@/lib/auth/request'
+import { getClientIp, isSameOrigin, readAuthBody } from '@/lib/auth/request'
 import { authRateLimit } from '@/lib/auth/rate-limit'
 
 /**
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     if (!isSameOrigin(request)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
-    const body = await request.json().catch(() => ({}))
+    const body = await readAuthBody(request)
     const token = typeof body.token === 'string' ? body.token : ''
     const password = typeof body.password === 'string' ? body.password : ''
 

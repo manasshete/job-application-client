@@ -45,6 +45,10 @@ export default function CvReviewPage() {
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok || !data.tailoredResume) {
+          if (res.status === 403 && /token/i.test(String(data.error ?? ''))) {
+            void app.refreshTokens()
+            return setPhase('blocked')
+          }
           setError(data.error || 'We could not tailor your CV. Please try again.')
           return setPhase('error')
         }
@@ -108,12 +112,13 @@ export default function CvReviewPage() {
             {phase === 'blocked' ? 'You’re out of document tokens.' : phase === 'nomaster' ? 'Add your master CV first.' : 'Something went wrong.'}
           </h2>
           <p className="muted" style={{ margin: '8px 0 16px' }}>
-            {phase === 'blocked' && 'A tailored CV or cover letter uses 1 document token. Upgrade for a larger monthly allowance.'}
+            {phase === 'blocked' && (up ? 'A tailored CV or cover letter uses 1 document token. Upgrade for a larger monthly allowance.' : 'A tailored CV or cover letter uses 1 document token. You can see when more are added under Plan and tokens in Settings.')}
             {phase === 'nomaster' && 'Tailoring starts from your master CV. Upload a .docx or paste the text in Settings, then come back.'}
             {phase === 'error' && error}
           </p>
           <div className="row-actions">
             {phase === 'blocked' && up && <button className="btn btn-p" onClick={() => app.startCheckout(up)}>Upgrade to {planOf(up).name}</button>}
+            {phase === 'blocked' && !up && <Link href="/dashboard/settings?tab=plan" className="btn btn-p">Plan and tokens</Link>}
             {phase === 'nomaster' && <Link href="/dashboard/settings?tab=cv" className="btn btn-p">Add master CV</Link>}
             <Link href={`/dashboard/jobs/${job.id}`} className="btn btn-q">Back to the job</Link>
           </div>

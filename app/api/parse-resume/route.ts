@@ -29,8 +29,14 @@ export async function POST(req: Request) {
       )
     }
 
-    const formData = await req.formData()
-    const file = formData.get('file') as File | null
+    let formData: FormData
+    try {
+      formData = await req.formData()
+    } catch {
+      return Response.json({ error: 'Expected a multipart form upload.' }, { status: 400 })
+    }
+    const entry = formData.get('file')
+    const file = entry instanceof File ? entry : null
 
     if (!file) {
       return Response.json({ error: 'No file provided' }, { status: 400 })
@@ -53,8 +59,17 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    const result = await mammoth.extractRawText({ buffer })
-    const text = result.value.trim()
+    let text: string
+    try {
+      const result = await mammoth.extractRawText({ buffer })
+      text = result.value.trim()
+    } catch (err) {
+      console.error('[parse-resume] mammoth failed:', err)
+      return Response.json(
+        { error: 'Could not read this document. Please upload a valid .docx file.' },
+        { status: 400 }
+      )
+    }
 
     if (!text) {
       return Response.json({ error: 'Could not extract text from document.' }, { status: 400 })

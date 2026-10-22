@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import Razorpay from 'razorpay'
 
 let razorpayInstance: Razorpay | null = null
@@ -47,12 +48,13 @@ export async function verifyPayment(
       throw new Error('Razorpay is not configured.')
     }
 
-    const crypto = require('crypto')
     const hmac = crypto.createHmac('sha256', key_secret)
     hmac.update(orderId + '|' + paymentId)
     const generated_signature = hmac.digest('hex')
 
-    const isAuthentic = generated_signature === signature
+    const expected = Buffer.from(generated_signature)
+    const received = Buffer.from(typeof signature === 'string' ? signature : '')
+    const isAuthentic = expected.length === received.length && crypto.timingSafeEqual(expected, received)
 
     if (!isAuthentic) {
       throw new Error('Payment signature verification failed')

@@ -84,14 +84,14 @@ export async function POST(request: Request) {
     const dateApplied = (typeof job.dateApplied === 'string' && job.dateApplied) || new Date().toISOString().split('T')[0]
     const deadline = (typeof job.deadline === 'string' && job.deadline) || null
 
-    // Normalize status to a value allowed by the DB CHECK constraint
-    // (jobs.status must be one of: applied, interview, offer, accepted, rejected).
+    // jobs.status must be one of: applied, interview, offer, accepted, rejected.
     const ALLOWED_STATUSES = ['applied', 'interview', 'offer', 'accepted', 'rejected']
     const requestedStatus =
-      typeof job.status === 'string' ? job.status.trim().toLowerCase() : 'applied'
-    const normalizedStatus = ALLOWED_STATUSES.includes(requestedStatus)
-      ? requestedStatus
-      : 'applied'
+      typeof job.status === 'string' && job.status.trim() ? job.status.trim().toLowerCase() : 'applied'
+    if (!ALLOWED_STATUSES.includes(requestedStatus)) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
+    }
+    const normalizedStatus = requestedStatus
 
     const requirements = Array.isArray(job.requirements)
       ? job.requirements.slice(0, 30).map((r) => sanitizeInput(String(r))).filter(Boolean)

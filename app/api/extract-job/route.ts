@@ -141,13 +141,15 @@ export async function POST(req: Request) {
       await consumeToken('ai_extraction')
 
       return Response.json(output)
-    } catch {
+    } catch (error) {
+      console.error('[extract-job] AI extraction failed:', error)
       return Response.json(
         { error: 'AI extraction failed. Please try again or fill in manually.' },
         { status: 500 }
       )
     }
-  } catch {
+  } catch (error) {
+    console.error('[extract-job] Unexpected error:', error)
     return Response.json(
       { error: 'Failed to extract job details' },
       { status: 500 }

@@ -23,6 +23,15 @@ export interface Tokens {
   batches: TokenBatchRow[]
 }
 
+interface DocumentApiRow {
+  id: string
+  document_type: DocMeta['type']
+  name: string
+  is_default?: boolean | null
+  job_id?: string | null
+  created_at: string
+}
+
 export interface ToastAction {
   label: string
   run: () => void
@@ -101,7 +110,7 @@ const json = (method: string, body: unknown): RequestInit => ({ method, headers:
 
 function loadRazorpay(): Promise<void> {
   return new Promise((resolve, reject) => {
-    if ((window as any).Razorpay) return resolve()
+    if (window.Razorpay) return resolve()
     const s = document.createElement('script')
     s.src = 'https://checkout.razorpay.com/v1/checkout.js'
     s.async = true
@@ -141,7 +150,9 @@ export function AppProvider({
   const [modal, setModal] = useState<ModalState>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const jobsRef = useRef(jobs)
-  jobsRef.current = jobs
+  useEffect(() => {
+    jobsRef.current = jobs
+  }, [jobs])
 
   // The server renders with its own clock; settle on the visitor's calendar day once mounted.
   useEffect(() => setToday(todayIso()), [])
@@ -310,11 +321,11 @@ export function AppProvider({
 
   /* ── Documents ──────────────────────────────────── */
 
-  const toMeta = (d: any): DocMeta => ({ id: d.id, type: d.document_type, name: d.name, isDefault: !!d.is_default, jobId: d.job_id ?? null, createdAt: d.created_at })
+  const toMeta = (d: DocumentApiRow): DocMeta => ({ id: d.id, type: d.document_type, name: d.name, isDefault: !!d.is_default, jobId: d.job_id ?? null, createdAt: d.created_at })
 
   const saveDoc: Ctx['saveDoc'] = useCallback(
     async ({ type, name, content, jobId, isDefault }) => {
-      const r = await api<any>('/api/user-documents', json('POST', { documentType: type, name, content, jobId, isDefault: !!isDefault }))
+      const r = await api<DocumentApiRow>('/api/user-documents', json('POST', { documentType: type, name, content, jobId, isDefault: !!isDefault }))
       if (!r.ok) {
         toast(r.data.error || 'We could not save that document. Please try again.')
         return null
@@ -359,7 +370,7 @@ export function AppProvider({
         const order = await api<{ orderId: string; amount: number; currency: string; keyId: string }>('/api/payment/create-order', json('POST', { tier }))
         if (!order.ok) throw new Error(order.data.error || 'order')
         await loadRazorpay()
-        const rz = new (window as any).Razorpay({
+        const rz = new window.Razorpay({
           key: order.data.keyId,
           amount: order.data.amount,
           currency: order.data.currency,

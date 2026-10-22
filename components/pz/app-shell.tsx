@@ -10,6 +10,7 @@ import { Brand } from './brand'
 import { ThemeCycle, ThemeSwitch } from './theme'
 import { useApp } from './app-context'
 import { CommandPalette } from './command-palette'
+import { CreditsBanner } from './credits-banner'
 
 type NavKey = 'next' | 'apps' | 'board' | 'add' | 'docs' | 'analytics' | 'settings'
 
@@ -56,7 +57,7 @@ function UsageMeter({ label, left, of }: { label: string; left: number; of: numb
   const pct = of > 0 ? Math.min(100, Math.round((100 * left) / of)) : 0
   return (
     <div>
-      <div className="usage-row"><span>{label}</span><b>{left} left</b></div>
+      <div className="usage-row"><span>{label}</span><b className={left === 0 ? 'usage-out' : undefined}>{left === 0 ? 'None left' : `${left} left`}</b></div>
       <div className="meter-tr" aria-hidden="true"><div className="meter-fl" style={{ width: `${pct}%` }} /></div>
     </div>
   )
@@ -64,7 +65,7 @@ function UsageMeter({ label, left, of }: { label: string; left: number; of: numb
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  const { tokens, account, logout, clearNew } = useApp()
+  const { tokens, account, logout, clearNew, jobs } = useApp()
   const cur = currentKey(pathname)
   const phone = usePhone()
   const [searchOpen, setSearchOpen] = useState(false)
@@ -169,13 +170,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             {navLink(['Settings', 'settings', '/dashboard/settings', Settings])}
           </nav>
           <Link href="/dashboard/settings" className={`usage${warn ? ' usage-warn' : ''}`} aria-label={`AI usage: ${tokens.extractions} extractions and ${tokens.documents} documents left. Open plan and tokens.`}>
-            {out ? (
-              <span className="usage-row" style={{ color: 'var(--flag-ink)' }}>No AI tokens left. See plans</span>
-            ) : (
-              <>
-                <UsageMeter label="Extractions" left={tokens.extractions} of={limits.aiExtractionLimit} />
-                <UsageMeter label="Documents" left={tokens.documents} of={limits.documentGenerationLimit} />
-              </>
+            {out && <span className="usage-row usage-out">No AI tokens left</span>}
+            <UsageMeter label="Extractions" left={tokens.extractions} of={limits.aiExtractionLimit} />
+            <UsageMeter label="Documents" left={tokens.documents} of={limits.documentGenerationLimit} />
+            {Number.isFinite(limits.maxJobs) && limits.maxJobs > 0 && (
+              <div>
+                <div className="usage-row"><span>Applications</span><b>{Math.min(jobs.length, limits.maxJobs)} of {limits.maxJobs}</b></div>
+                <div className="meter-tr" aria-hidden="true"><div className="meter-fl" style={{ width: `${Math.min(100, Math.round((100 * jobs.length) / limits.maxJobs))}%` }} /></div>
+              </div>
             )}
             <span className="usage-row muted" style={{ fontSize: 'var(--text-label)' }}>{tokens.nextExpiry ? `Next batch expires ${fd(tokens.nextExpiry.slice(0, 10))}` : 'Upgrade for a bigger allowance'}</span>
           </Link>
@@ -207,6 +209,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </span>
         </header>
 
+        <CreditsBanner />
         <main id="main" style={{ flex: 1, minWidth: 0 }}>{children}</main>
         <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
 

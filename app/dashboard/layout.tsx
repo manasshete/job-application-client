@@ -16,12 +16,12 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const user = await getCurrentUser()
   if (!user) redirect('/auth/login')
 
-  let loadError = false
+  const status = { loadError: false }
   const safe = async <T,>(fn: () => Promise<T>, fallback: T): Promise<T> => {
     try {
       return await fn()
     } catch {
-      loadError = true
+      status.loadError = true
       return fallback
     }
   }
@@ -46,7 +46,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         }}
         initialTokens={{ extractions: summary.aiExtractionBalance, documents: summary.documentGenerationBalance, nextExpiry: summary.nextExpiry, batches }}
         initialDocs={docs}
-        loadError={loadError}
+        loadError={status.loadError}
       >
         <AppShell>{children}</AppShell>
       </AppProvider>

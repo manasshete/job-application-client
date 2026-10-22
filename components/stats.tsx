@@ -13,6 +13,7 @@ export function Stats({ jobs, documentLimit = 0, documentsUsed = 0 }: StatsProps
   const interviewCount = jobs.filter((job) => job.status === 'interview').length
   const offerCount = jobs.filter((job) => job.status === 'offer' || job.status === 'accepted').length
   const documentsRemaining = Math.max(0, documentLimit - documentsUsed)
+  // eslint-disable-next-line react-hooks/purity -- a one-off 'last 7 days' cutoff per render is fine here
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   const weeklyCount = jobs.filter((job) => new Date(job.dateApplied) >= weekAgo).length
   const upcomingInterviews = jobs.reduce(

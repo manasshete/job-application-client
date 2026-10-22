@@ -18,6 +18,10 @@ const STOPWORDS = new Set([
   'looking', 'ability', 'strong', 'good', 'great', 'well', 'including', 'etc', 'e', 'g', 'per',
   'across', 'within', 'while', 'also', 'may', 'must', 'able', 'help', 'like', 'new', 'plus', 'years',
   'year', 'experience', 'experienced', 'skills', 'skill', 'requirements', 'required', 'responsibilities',
+  'need', 'needs', 'needed', 'want', 'wants', 'seeking', 'seek', 'looking', 'join', 'using', 'use',
+  'would', 'could', 'make', 'get', 'many', 'much', 'high', 'highly', 'based', 'ensure', 'build',
+  'develop', 'support', 'provide', 'responsible', 'candidate', 'candidates', 'ideal', 'preferred',
+  'excellent', 'etc', 'one', 'two', 'both', 'being', 'order', 'within',
 ])
 
 interface ScanResult {

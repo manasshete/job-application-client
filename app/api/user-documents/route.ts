@@ -113,7 +113,7 @@ export async function POST(request: Request) {
       is_default: isDefault === true,
     }
 
-    let { data, error } = await (supabase as any)
+    let { data, error } = await supabase
       .from('user_documents')
       .insert(linkedJobId ? { ...row, job_id: linkedJobId } : row)
       .select()
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
 
     // Migration 013 adds user_documents.job_id. Until it is applied, save without the link.
     if (linkedJobId && (error?.code === '42703' || error?.code === 'PGRST204')) {
-      ;({ data, error } = await (supabase as any).from('user_documents').insert(row).select().single())
+      ;({ data, error } = await supabase.from('user_documents').insert(row).select().single())
     }
 
     if (error || !data) {

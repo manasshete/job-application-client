@@ -36,3 +36,23 @@ export function normalizeEmail(email: unknown): string | null {
   const trimmed = email.trim().toLowerCase()
   return trimmed.length <= 254 && EMAIL_RE.test(trimmed) ? trimmed : null
 }
+
+const MAX_AUTH_BODY_BYTES = 16 * 1024
+
+/**
+ * Parses a small JSON body for auth endpoints. Oversized or malformed bodies
+ * yield an empty object so callers fall through to their normal validation
+ * errors, without buffering megabytes of attacker-controlled input.
+ */
+export async function readAuthBody(request: NextRequest): Promise<Record<string, unknown>> {
+  const declared = Number(request.headers.get('content-length') ?? 0)
+  if (declared > MAX_AUTH_BODY_BYTES) return {}
+  try {
+    const text = await request.text()
+    if (text.length > MAX_AUTH_BODY_BYTES) return {}
+    const parsed = JSON.parse(text)
+    return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {}
+  } catch {
+    return {}
+  }
+}

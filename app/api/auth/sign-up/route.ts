@@ -3,7 +3,7 @@ import { createAdminClient } from '@/lib/admin/service-client'
 import { isDisposableEmail } from '@/lib/disposable-domains'
 import { SESSION_COOKIE, sessionCookieOptions, signSession } from '@/lib/auth/session'
 import { hashPassword, MIN_PASSWORD_LENGTH } from '@/lib/auth/password'
-import { getClientIp, isSameOrigin, normalizeEmail } from '@/lib/auth/request'
+import { getClientIp, isSameOrigin, normalizeEmail, readAuthBody } from '@/lib/auth/request'
 
 /**
  * POST /api/auth/sign-up
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     if (!isSameOrigin(request)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
-    const body = await request.json().catch(() => ({}))
+    const body = await readAuthBody(request)
     const email = normalizeEmail(body.email)
     const password = typeof body.password === 'string' ? body.password : ''
 

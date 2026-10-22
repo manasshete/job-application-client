@@ -90,13 +90,6 @@ export function DocumentGeneratorDialog({
   // Access is granted whenever the tier has a document allotment (free now gets 2/month).
   const hasDocGeneration = docLimit > 0
 
-  // Load saved documents when dialog opens
-  useEffect(() => {
-    if (open && hasDocGeneration) {
-      loadSavedDocuments()
-    }
-  }, [open, hasDocGeneration])
-
   const loadSavedDocuments = async () => {
     setIsLoadingDocs(true)
     try {
@@ -125,6 +118,13 @@ export function DocumentGeneratorDialog({
       setIsLoadingDocs(false)
     }
   }
+
+  // Load saved documents when dialog opens
+  useEffect(() => {
+    if (open && hasDocGeneration) {
+      loadSavedDocuments()
+    }
+  }, [open, hasDocGeneration])
 
   const saveDocument = async (type: 'cv' | 'cover_letter', name: string, content: string, isDefault: boolean) => {
     try {
@@ -412,7 +412,7 @@ export function DocumentGeneratorDialog({
         {isOverLimit && (
           <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30">
             <p className="font-medium mb-1">Document limit reached</p>
-            <p>You've used all {docLimit} documents for this month. Upgrade to {subscriptionTier === 'pro' ? 'Premium' : 'a higher plan'} for more documents.</p>
+            <p>You&apos;ve used all {docLimit} documents for this month. Upgrade to {subscriptionTier === 'pro' ? 'Premium' : 'a higher plan'} for more documents.</p>
           </div>
         )}
 
