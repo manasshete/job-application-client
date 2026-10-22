@@ -2,8 +2,6 @@
 
 import { useState } from 'react'
 import { Check, X, Search, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
 
 /** Common English stopwords + generic resume filler to ignore when extracting keywords. */
 const STOPWORDS = new Set([
@@ -66,16 +64,10 @@ function scan(resume: string, jd: string): ScanResult {
   return { score, matched, missing, totalKeywords }
 }
 
-function scoreColor(score: number): string {
-  if (score >= 75) return 'text-emerald-600'
-  if (score >= 50) return 'text-amber-600'
-  return 'text-red-600'
-}
-
-function scoreRing(score: number): string {
-  if (score >= 75) return 'stroke-emerald-500'
-  if (score >= 50) return 'stroke-amber-500'
-  return 'stroke-red-500'
+function tone(score: number): { cls: string; stroke: string; title: string } {
+  if (score >= 75) return { cls: 'tl-ok', stroke: 'var(--st-offer)', title: 'Strong match' }
+  if (score >= 50) return { cls: 'tl-warn', stroke: 'var(--flag-ink)', title: 'Decent match, room to improve' }
+  return { cls: 'tl-bad', stroke: 'var(--st-rejected)', title: 'Low match: add missing keywords' }
 }
 
 export function AtsScanner() {
@@ -86,7 +78,7 @@ export function AtsScanner() {
 
   function handleScan() {
     if (resume.trim().length < 50 || jd.trim().length < 50) {
-      setError('Please paste both your resume and a job description (at least a few sentences each).')
+      setError('Paste both your resume and the job description, at least a few sentences each.')
       setResult(null)
       return
     }
@@ -94,136 +86,84 @@ export function AtsScanner() {
     setResult(scan(resume, jd))
   }
 
+  function reset() {
+    setResume('')
+    setJd('')
+    setResult(null)
+    setError('')
+  }
+
   const circumference = 2 * Math.PI * 52
+  const t = result ? tone(result.score) : null
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="flex flex-col">
-          <label htmlFor="resume" className="mb-2 text-sm font-medium text-slate-900">
-            Your resume
-          </label>
-          <Textarea
-            id="resume"
-            value={resume}
-            onChange={(e) => setResume(e.target.value)}
-            placeholder="Paste the full text of your resume here…"
-            className="min-h-[220px] resize-y rounded-xl border-slate-200 text-sm"
-          />
+    <div className="tl-wrap">
+      <div className="tl-2">
+        <div className="tl-field">
+          <label htmlFor="resume">Your resume</label>
+          <textarea id="resume" className="inp" style={{ minHeight: 240 }} value={resume} onChange={(e) => setResume(e.target.value)} placeholder="Paste the full text of your resume here" />
         </div>
-        <div className="flex flex-col">
-          <label htmlFor="jd" className="mb-2 text-sm font-medium text-slate-900">
-            Job description
-          </label>
-          <Textarea
-            id="jd"
-            value={jd}
-            onChange={(e) => setJd(e.target.value)}
-            placeholder="Paste the job description you're applying to…"
-            className="min-h-[220px] resize-y rounded-xl border-slate-200 text-sm"
-          />
+        <div className="tl-field">
+          <label htmlFor="jd">Job description</label>
+          <textarea id="jd" className="inp" style={{ minHeight: 240 }} value={jd} onChange={(e) => setJd(e.target.value)} placeholder="Paste the job description you are applying to" />
         </div>
       </div>
 
       {error && (
-        <div className="mt-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
-          {error}
+        <div className="field-msg field-err" role="alert" style={{ marginTop: 0 }}>
+          <AlertCircle aria-hidden="true" />
+          <span>{error}</span>
         </div>
       )}
 
-      <div className="mt-6 flex justify-center">
-        <Button onClick={handleScan} size="lg" className="bg-blue-600 hover:bg-blue-700">
-          <Search className="mr-1.5 h-4 w-4" aria-hidden="true" />
+      <div className="tl-actions">
+        <button type="button" className="btn btn-p" onClick={handleScan}>
+          <Search aria-hidden="true" />
           Scan my resume
-        </Button>
+        </button>
+        {(resume || jd || result) && (
+          <button type="button" className="btn btn-q" onClick={reset}>Clear</button>
+        )}
+        <span className="tl-hint">Runs in your browser. Nothing is sent or saved.</span>
       </div>
 
-      {result && (
-        <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
-          <div className="flex flex-col items-center gap-6 sm:flex-row sm:gap-10">
-            <div className="relative flex h-32 w-32 shrink-0 items-center justify-center">
-              <svg className="h-32 w-32 -rotate-90" viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="52" fill="none" className="stroke-slate-100" strokeWidth="12" />
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="52"
-                  fill="none"
-                  className={scoreRing(result.score)}
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={circumference - (result.score / 100) * circumference}
-                />
+      {result && t && (
+        <section className="panel fade" aria-live="polite" style={{ padding: 24, display: 'grid', gap: 24 }}>
+          <div className="tl-score">
+            <div className="tl-ring" role="img" aria-label={`${result.score} percent keyword match`}>
+              <svg viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" className="trk" strokeWidth="10" />
+                <circle cx="60" cy="60" r="52" fill="none" stroke={t.stroke} strokeWidth="10" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference - (result.score / 100) * circumference} />
               </svg>
-              <div className="absolute flex flex-col items-center">
-                <span className={`text-3xl font-bold ${scoreColor(result.score)}`}>{result.score}%</span>
-                <span className="text-xs text-slate-400">match</span>
-              </div>
+              <div className="tl-ring-n"><b className={t.cls}>{result.score}%</b><span>match</span></div>
             </div>
-            <div className="flex-1 text-center sm:text-left">
-              <h3 className="text-lg font-semibold text-slate-900">
-                {result.score >= 75
-                  ? 'Strong match'
-                  : result.score >= 50
-                    ? 'Decent match — room to improve'
-                    : 'Low match — add missing keywords'}
-              </h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-500">
-                Your resume includes {result.matched.length} of {result.totalKeywords} key terms from
-                this job description. Weaving in the missing keywords (where truthful) can improve how
-                an ATS ranks you.
+            <div>
+              <h2 className="h2" style={{ margin: 0 }}>{t.title}</h2>
+              <p className="muted" style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)', lineHeight: 1.6, maxWidth: 520 }}>
+                Your resume includes {result.matched.length} of {result.totalKeywords} key terms from this job description. Add the missing ones where they are true to your experience.
               </p>
             </div>
           </div>
 
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+          <div className="tl-2">
             <div>
-              <p className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-slate-900">
-                <Check className="h-4 w-4 text-emerald-500" aria-hidden="true" />
-                Matched keywords ({result.matched.length})
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {result.matched.length === 0 && (
-                  <span className="text-sm text-slate-400">None yet</span>
-                )}
-                {result.matched.map((kw) => (
-                  <span
-                    key={kw}
-                    className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
-                  >
-                    {kw}
-                  </span>
-                ))}
+              <p className="lbl" style={{ margin: '0 0 10px' }}>Matched ({result.matched.length})</p>
+              <div className="tl-chips">
+                {result.matched.length === 0 && <span className="tl-hint">None yet</span>}
+                {result.matched.map((kw) => <span key={kw} className="chip chip-ok">{kw}</span>)}
               </div>
             </div>
             <div>
-              <p className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-slate-900">
-                <X className="h-4 w-4 text-red-500" aria-hidden="true" />
-                Missing keywords ({result.missing.length})
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {result.missing.length === 0 && (
-                  <span className="text-sm text-slate-400">Nothing missing — great!</span>
-                )}
-                {result.missing.map((kw) => (
-                  <span
-                    key={kw}
-                    className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700"
-                  >
-                    {kw}
-                  </span>
-                ))}
+              <p className="lbl" style={{ margin: '0 0 10px' }}>Missing ({result.missing.length})</p>
+              <div className="tl-chips">
+                {result.missing.length === 0 && <span className="tl-hint">Nothing missing</span>}
+                {result.missing.map((kw) => <span key={kw} className="chip chip-bad">{kw}</span>)}
               </div>
             </div>
           </div>
 
-          <p className="mt-6 text-xs leading-relaxed text-slate-400">
-            This is a keyword-based estimate to guide your edits — real ATS software varies. Only add
-            keywords that genuinely reflect your experience.
-          </p>
-        </div>
+          <p className="tl-hint" style={{ margin: 0 }}>A keyword-based estimate to guide your edits. Real ATS software varies, so only add keywords that reflect your experience.</p>
+        </section>
       )}
     </div>
   )

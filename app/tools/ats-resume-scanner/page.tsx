@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
+import { getCurrentUser } from '@/lib/auth/server'
 import { FileSearch } from 'lucide-react'
 import { getTool } from '@/lib/tools'
 import { ToolHero, SignupCTA } from '@/components/tools/tools-chrome'
@@ -12,11 +14,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/tools/ats-resume-scanner' },
 }
 
-export default function AtsResumeScannerPage() {
+export default async function AtsResumeScannerPage() {
+  // Signed-in users get the tool inside their dashboard, so it never feels like a second login.
+  if (await getCurrentUser()) redirect('/dashboard/tools/ats-resume-scanner')
   return (
     <>
       <ToolHero icon={FileSearch} title="ATS Resume Scanner" description={tool.longDescription} />
-      <AtsScanner />
+      <div className="pz" style={{ background: "var(--bg)" }}><div className="tl-pub"><AtsScanner /></div></div>
       <SignupCTA />
     </>
   )

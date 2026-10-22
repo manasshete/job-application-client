@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react'
 import { Copy, Download, Check } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 type Tone = 'professional' | 'enthusiastic' | 'concise'
 
@@ -92,7 +91,7 @@ export function CoverLetterBuilder() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      /* clipboard unavailable — no-op */
+      /* clipboard unavailable */
     }
   }
 
@@ -107,67 +106,43 @@ export function CoverLetterBuilder() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div>
-          <div className="mb-5">
-            <p className="mb-2 text-sm font-medium text-slate-900">Tone</p>
-            <div className="flex flex-wrap gap-2">
+    <div className="tl-wrap">
+      <div className="tl-2" style={{ alignItems: 'start', gap: 28 }}>
+        <div style={{ display: 'grid', gap: 16 }}>
+          <div className="tl-field">
+            <span className="tl-lbl" id="tone-l">Tone</span>
+            <div className="tl-opts" role="radiogroup" aria-labelledby="tone-l">
               {TONES.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => setTone(t.value)}
-                  className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
-                    tone === t.value
-                      ? 'border-blue-600 bg-blue-600 text-white'
-                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                  }`}
-                >
+                <button key={t.value} type="button" role="radio" aria-checked={tone === t.value} className={`seg${tone === t.value ? ' seg-on' : ''}`} onClick={() => setTone(t.value)}>
                   {t.label}
                 </button>
               ))}
             </div>
           </div>
-
-          <div className="space-y-4">
-            {FIELD_DEFS.map((def) => (
-              <div key={def.key}>
-                <label htmlFor={def.key} className="mb-1.5 block text-sm font-medium text-slate-900">
-                  {def.label}
-                </label>
-                <input
-                  id={def.key}
-                  value={fields[def.key]}
-                  onChange={(e) => update(def.key, e.target.value)}
-                  placeholder={def.placeholder}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                />
-              </div>
-            ))}
-          </div>
+          {FIELD_DEFS.map((def) => (
+            <div key={def.key} className="tl-field">
+              <label htmlFor={def.key}>{def.label}</label>
+              <input id={def.key} className="inp" value={fields[def.key]} onChange={(e) => update(def.key, e.target.value)} placeholder={def.placeholder} />
+            </div>
+          ))}
         </div>
 
-        <div className="flex flex-col">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-sm font-medium text-slate-900">Preview</p>
-            <div className="flex gap-2">
-              <Button onClick={handleCopy} size="sm" variant="outline" className="h-8 gap-1.5">
-                {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+        <div style={{ display: 'grid', gap: 12, position: 'sticky', top: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <span className="tl-lbl">Preview</span>
+            <div className="tl-actions">
+              <button type="button" className="btn btn-q" style={{ minHeight: 36 }} onClick={handleCopy}>
+                {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
                 {copied ? 'Copied' : 'Copy'}
-              </Button>
-              <Button onClick={handleDownload} size="sm" className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700">
-                <Download className="h-3.5 w-3.5" />
+              </button>
+              <button type="button" className="btn btn-p" style={{ minHeight: 36 }} onClick={handleDownload}>
+                <Download aria-hidden="true" />
                 Download
-              </Button>
+              </button>
             </div>
           </div>
-          <pre className="flex-1 whitespace-pre-wrap rounded-2xl border border-slate-200 bg-white p-6 font-sans text-sm leading-relaxed text-slate-700">
-            {letter}
-          </pre>
-          <p className="mt-3 text-xs leading-relaxed text-slate-400">
-            Built from a proven template — no AI, fully private. Edit freely before sending.
-          </p>
+          <pre className="tl-pre" aria-live="polite">{letter}</pre>
+          <p className="tl-hint" style={{ margin: 0 }}>Built from a proven template, no AI, fully private. Edit freely before sending.</p>
         </div>
       </div>
     </div>

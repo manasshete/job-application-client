@@ -118,103 +118,53 @@ export function SalaryCalculator() {
     return { tax, net, effectiveRate }
   }, [gross, country])
 
-  const fmt = (n: number) =>
-    `${country.symbol}${Math.round(n).toLocaleString('en-US')}`
+  const fmt = (n: number) => `${country.symbol}${Math.round(n).toLocaleString('en-US')}`
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-slate-900">Country</label>
-            <div className="flex flex-wrap gap-2">
+    <div className="tl-wrap">
+      <div className="panel" style={{ padding: 20, display: 'grid', gap: 20 }}>
+        <div className="tl-2">
+          <div className="tl-field">
+            <span className="tl-lbl" id="country-l">Country</span>
+            <div className="tl-opts" role="radiogroup" aria-labelledby="country-l">
               {COUNTRIES.map((c) => (
-                <button
-                  key={c.code}
-                  type="button"
-                  onClick={() => setCountry(c)}
-                  className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                    country.code === c.code
-                      ? 'border-blue-600 bg-blue-600 text-white'
-                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-                  }`}
-                >
+                <button key={c.code} type="button" role="radio" aria-checked={country.code === c.code} className={`seg${country.code === c.code ? ' seg-on' : ''}`} onClick={() => setCountry(c)}>
                   {c.label}
                 </button>
               ))}
             </div>
           </div>
-          <div>
-            <label htmlFor="salary" className="mb-2 block text-sm font-medium text-slate-900">
-              Gross annual salary
-            </label>
-            <div className="relative">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                {country.symbol}
-              </span>
-              <input
-                id="salary"
-                inputMode="numeric"
-                value={salaryInput}
-                onChange={(e) => setSalaryInput(sanitizeSalary(e.target.value))}
-                placeholder="e.g. 1200000"
-                className="w-full rounded-lg border border-slate-200 py-2 pl-8 pr-3 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              />
+          <div className="tl-field">
+            <label htmlFor="salary">Gross annual salary</label>
+            <div className="inp-ic">
+              <span aria-hidden="true" style={{ position: 'absolute', left: 14, color: 'var(--text-muted)' }}>{country.symbol}</span>
+              <input id="salary" className="inp" style={{ paddingLeft: 34 }} inputMode="numeric" value={salaryInput} onChange={(e) => setSalaryInput(sanitizeSalary(e.target.value))} placeholder="e.g. 1200000" />
             </div>
           </div>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-xl bg-slate-50 p-4 text-center">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Take-home / yr</p>
-            <p className="mt-1 text-2xl font-bold text-emerald-600">{fmt(result.net)}</p>
-          </div>
-          <div className="rounded-xl bg-slate-50 p-4 text-center">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Take-home / mo</p>
-            <p className="mt-1 text-2xl font-bold text-slate-900">{fmt(result.net / 12)}</p>
-          </div>
-          <div className="rounded-xl bg-slate-50 p-4 text-center">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Income tax / yr</p>
-            <p className="mt-1 text-2xl font-bold text-red-600">{fmt(result.tax)}</p>
-          </div>
+        <div className="tl-3" aria-live="polite">
+          <div className="stat"><span className="lbl">Take-home / year</span><span className="stat-v tl-ok">{fmt(result.net)}</span></div>
+          <div className="stat"><span className="lbl">Take-home / month</span><span className="stat-v">{fmt(result.net / 12)}</span></div>
+          <div className="stat"><span className="lbl">Income tax / year</span><span className="stat-v tl-bad">{fmt(result.tax)}</span></div>
         </div>
 
-        {gross > 0 && (
-          <>
-            <div className="mt-6">
-              <div className="mb-1.5 flex items-center justify-between text-xs text-slate-500">
-                <span>Effective tax rate</span>
-                <span className="font-semibold text-slate-900">
-                  {result.effectiveRate.toFixed(1)}%
-                </span>
-              </div>
-              <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
-                <div
-                  className="h-full rounded-full bg-blue-600 transition-all"
-                  style={{ width: `${Math.min(100, result.effectiveRate)}%` }}
-                />
-              </div>
+        {gross > 0 ? (
+          <div style={{ display: 'grid', gap: 14 }}>
+            <div className="meter">
+              <div className="meter-hd"><span>Effective tax rate</span><b>{result.effectiveRate.toFixed(1)}%</b></div>
+              <div className="meter-tr"><div className="meter-fl" style={{ width: `${Math.min(100, result.effectiveRate)}%` }} /></div>
             </div>
-            <div className="mt-4 flex overflow-hidden rounded-lg text-center text-xs font-medium">
-              <div
-                className="bg-emerald-500 py-1.5 text-white"
-                style={{ width: `${(result.net / gross) * 100}%` }}
-              >
-                Net
-              </div>
-              <div
-                className="bg-red-400 py-1.5 text-white"
-                style={{ width: `${(result.tax / gross) * 100}%` }}
-              >
-                Tax
-              </div>
+            <div className="tl-stack" aria-hidden="true">
+              <div style={{ width: `${(result.net / gross) * 100}%`, background: 'var(--st-offer)' }}>{result.net / gross > 0.12 ? 'Net' : ''}</div>
+              <div style={{ width: `${(result.tax / gross) * 100}%`, background: 'var(--st-rejected)' }}>{result.tax / gross > 0.12 ? 'Tax' : ''}</div>
             </div>
-          </>
+          </div>
+        ) : (
+          <p className="tl-hint" style={{ margin: 0 }}>Enter a salary to see your take-home pay.</p>
         )}
-
-        <p className="mt-6 text-xs leading-relaxed text-slate-400">{country.note} These figures are
-          rough estimates for comparison only — not tax advice.</p>
       </div>
+      <p className="tl-hint" style={{ margin: 0, maxWidth: 720 }}>{country.note} Rough estimates for comparing offers, not tax advice.</p>
     </div>
   )
 }
