@@ -63,6 +63,15 @@ export async function consumeToken(tokenType: TokenType): Promise<boolean> {
   return data === true
 }
 
+/**
+ * Give back one token that was reserved with consumeToken() when the work it
+ * paid for failed. Granted as a fresh batch via the service role.
+ */
+export async function refundToken(userId: string, tokenType: TokenType): Promise<void> {
+  const { error } = await grantTokens(userId, tokenType, 1, 'refund')
+  if (error) console.error('[v0] Token refund failed for user', userId, error.message)
+}
+
 /** Balances for both token types plus the next upcoming expiry date. */
 export async function getTokenSummary(): Promise<TokenSummary> {
   const supabase = await createClient()

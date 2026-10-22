@@ -3,9 +3,10 @@ import { generateText } from 'ai'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
 import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
-import { getTokenBalance, consumeToken } from '@/lib/data/tokens'
+import { getTokenBalance, consumeToken, refundToken } from '@/lib/data/tokens'
 
 export async function POST(req: Request) {
+  let reservedFor: string | null = null
   try {
     const supabase = await createClient()
     const user = await getCurrentUser()
@@ -64,6 +65,16 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Company name is too long.' }, { status: 400 })
     }
 
+    // Reserve the token atomically before the AI call so parallel requests can't
+    // all pass the balance check above. Refunded in the catch below if the call fails.
+    if (!(await consumeToken('document_generation'))) {
+      return Response.json(
+        { error: 'You have no document generation tokens left. Tokens are valid for 60 days from the date they are added; renew or upgrade to get more.' },
+        { status: 403 }
+      )
+    }
+    reservedFor = user.id
+
     const { text } = await generateText({
       model: 'google/gemini-2.5-flash',
       system: `You are an expert ATS Resume Writer, Technical Recruiter, and Career Coach. Your task is to tailor the provided CV to the provided Job Description while remaining 100% truthful.
@@ -116,12 +127,9 @@ Tailor this CV for the ${String(jobTitle ?? 'role')} at ${String(company ?? 'thi
       ],
     })
 
-    // Increment document count via SECURITY DEFINER RPC (direct column writes
-    // are revoked for the user-scoped client to prevent tampering).
-    await consumeToken('document_generation')
-
     return Response.json({ tailoredResume: text })
   } catch (err) {
+    if (reservedFor) await refundToken(reservedFor, 'document_generation')
     console.error('[v0] tailor-resume error:', err)
     return Response.json({ error: 'Failed to tailor resume. Please try again.' }, { status: 500 })
   }

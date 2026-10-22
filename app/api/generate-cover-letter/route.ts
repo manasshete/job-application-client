@@ -3,9 +3,10 @@ import { generateText } from 'ai'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
 import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
-import { getTokenBalance, consumeToken } from '@/lib/data/tokens'
+import { getTokenBalance, consumeToken, refundToken } from '@/lib/data/tokens'
 
 export async function POST(req: Request) {
+  let reservedFor: string | null = null
   try {
     const supabase = await createClient()
     const user = await getCurrentUser()
@@ -161,6 +162,16 @@ ${jobDescription.slice(0, 3000)}
 CV (use ONLY companies, tools, and facts from here — do not invent anything):
 ${userInput.slice(0, 15000)}`
 
+    // Reserve the token atomically before the AI call so parallel requests can't
+    // all pass the balance check above. Refunded in the catch below if the call fails.
+    if (!(await consumeToken('document_generation'))) {
+      return Response.json(
+        { error: 'You have no document generation tokens left. Tokens are valid for 60 days from the date they are added; renew or upgrade to get more.' },
+        { status: 403 }
+      )
+    }
+    reservedFor = user.id
+
     const { text } = await generateText({
       model: 'google/gemini-2.5-flash',
       messages: [
@@ -172,12 +183,9 @@ ${userInput.slice(0, 15000)}`
       system: systemPrompt,
     })
 
-    // Increment document count via SECURITY DEFINER RPC (direct column writes
-    // are revoked for the user-scoped client to prevent tampering).
-    await consumeToken('document_generation')
-
     return Response.json({ coverLetter: text })
   } catch (err: unknown) {
+    if (reservedFor) await refundToken(reservedFor, 'document_generation')
     const message = err instanceof Error ? err.message : String(err)
     console.error('[cover-letter]', message)
     return Response.json({ error: 'Failed to generate cover letter. Please try again.' }, { status: 500 })

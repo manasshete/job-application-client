@@ -1,11 +1,12 @@
 import { getCurrentUser } from '@/lib/auth/server'
 import { generateText, Output } from 'ai'
 import { z } from 'zod'
-import { isValidUrl, isPublicUrl, MAX_LENGTHS } from '@/lib/validation'
+import { isValidUrl, MAX_LENGTHS } from '@/lib/validation'
+import { isSafePublicUrl } from '@/lib/ssrf'
 import { rateLimit } from '@/lib/rate-limit'
 import { createClient } from '@/lib/supabase/server'
 import { getProfile } from '@/lib/data/profiles'
-import { getTokenBalance, consumeToken } from '@/lib/data/tokens'
+import { getTokenBalance, consumeToken, refundToken } from '@/lib/data/tokens'
 
 const jobDetailsSchema = z.object({
   company: z.string().nullable(),
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
     }
 
     // Prevent SSRF attacks by blocking internal/private URLs
-    if (!isPublicUrl(url)) {
+    if (!(await isSafePublicUrl(url))) {
       return Response.json(
         { error: 'Cannot access internal or private network URLs.' },
         { status: 400 }
@@ -123,6 +124,15 @@ export async function POST(req: Request) {
     }
 
     // Use AI to extract job details
+    // Reserve the token atomically just before the AI call (not after), so parallel
+    // requests can't all pass the balance check. Refunded below if extraction fails.
+    if (!(await consumeToken('ai_extraction'))) {
+      return Response.json(
+        { error: 'You have no AI extraction tokens left. Purchase or upgrade your plan to get more. Tokens are valid for 60 days from the date they are added.' },
+        { status: 403 }
+      )
+    }
+
     try {
       const { output } = await generateText({
         model: 'openai/gpt-4o-mini',
@@ -137,11 +147,9 @@ export async function POST(req: Request) {
         ],
       })
 
-      // Consume one AI extraction token (oldest-expiring batch first)
-      await consumeToken('ai_extraction')
-
       return Response.json(output)
     } catch (error) {
+      await refundToken(user.id, 'ai_extraction')
       console.error('[extract-job] AI extraction failed:', error)
       return Response.json(
         { error: 'AI extraction failed. Please try again or fill in manually.' },

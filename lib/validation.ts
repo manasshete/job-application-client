@@ -50,26 +50,56 @@ export function isValidUrl(url: string): boolean {
   }
 }
 
-// Validate URL is not pointing to internal/private networks
+// True if an IP literal (v4, or v6 without brackets) is loopback, private,
+// link-local, CGNAT, multicast, reserved or otherwise not publicly routable.
+export function isPrivateIp(ip: string): boolean {
+  const v4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(ip)
+  if (v4) {
+    const [a, b] = [Number(v4[1]), Number(v4[2])]
+    return (
+      a === 0 || a === 10 || a === 127 ||
+      (a === 100 && b >= 64 && b <= 127) ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 192 && b === 0) ||
+      (a === 198 && (b === 18 || b === 19)) ||
+      a >= 224
+    )
+  }
+  const v6 = ip.toLowerCase()
+  if (!v6.includes(':')) return false
+  if (v6 === '::' || v6 === '::1') return true
+  // IPv4-mapped (::ffff:a.b.c.d, or ::ffff:XXXX:XXXX after URL normalisation)
+  const mapped = /^::ffff:(?:(\d+\.\d+\.\d+\.\d+)|([0-9a-f]{1,4}):([0-9a-f]{1,4}))$/.exec(v6)
+  if (mapped) {
+    if (mapped[1]) return isPrivateIp(mapped[1])
+    const hi = parseInt(mapped[2], 16)
+    const lo = parseInt(mapped[3], 16)
+    return isPrivateIp(`${hi >> 8}.${hi & 255}.${lo >> 8}.${lo & 255}`)
+  }
+  return /^f[cd]/.test(v6) || /^fe[89ab]/.test(v6) || /^ff/.test(v6)
+}
+
+// Validate URL is not pointing to internal/private networks (literal hosts only;
+// see lib/ssrf.ts for the DNS-resolution check used by server routes).
 export function isPublicUrl(url: string): boolean {
   try {
     const parsed = new URL(url)
-    const hostname = parsed.hostname.toLowerCase()
-    
-    // Block localhost and private IPs
-    const blockedPatterns = [
-      /^localhost$/i,
-      /^127\./,
-      /^10\./,
-      /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
-      /^192\.168\./,
-      /^169\.254\./,
-      /^::1$/,
-      /^fe80:/,
-      /^fc00:/,
-    ]
-    
-    return !blockedPatterns.some(pattern => pattern.test(hostname))
+    // IPv6 hostnames come back wrapped in brackets, e.g. "[::1]".
+    const hostname = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, '').replace(/\.$/, '')
+    if (!hostname) return false
+
+    if (
+      hostname === 'localhost' ||
+      hostname.endsWith('.localhost') ||
+      hostname.endsWith('.local') ||
+      hostname.endsWith('.internal') ||
+      hostname === 'metadata.google.internal'
+    ) {
+      return false
+    }
+    return !isPrivateIp(hostname)
   } catch {
     return false
   }
