@@ -337,3 +337,4 @@ Report security issues privately to the repository owner rather than opening a p
 | Password-reset emails not arriving | `RESEND_API_KEY` missing/invalid, or the sending domain isn't verified in Resend. |
 | Logged out after deploy | `SUPABASE_JWT_SECRET` changed, which invalidates all sessions. |
 | Monthly free credits not granted | `CRON_SECRET` not set in Vercel. |
+| "Could not read job details from this page" | The page builds its content with JavaScript, so the HTML has no job text. Use the job board's own link (Greenhouse, Lever, …) or fill in the details manually. No credit is charged. |

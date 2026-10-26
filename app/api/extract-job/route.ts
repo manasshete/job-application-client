@@ -4,6 +4,7 @@ import { generateText, Output } from 'ai'
 import { z } from 'zod'
 import { isValidUrl, MAX_LENGTHS } from '@/lib/validation'
 import { isSafePublicUrl } from '@/lib/ssrf'
+import { fetchJobPage, jobPageToText, JobPageError } from '@/lib/job-page'
 import { rateLimit } from '@/lib/rate-limit'
 import { createClient } from '@/lib/supabase/server'
 import { getProfile } from '@/lib/data/profiles'
@@ -85,42 +86,23 @@ export async function POST(req: Request) {
       )
     }
 
-    // Fetch the job posting HTML with timeout
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
-
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-      },
-      signal: controller.signal,
-      // Do not follow redirects: a public URL could otherwise 302-redirect to
-      // an internal address (e.g. cloud metadata) and bypass the SSRF check.
-      redirect: 'manual',
-    }).finally(() => clearTimeout(timeoutId))
-
-    // A redirect (3xx) is treated as a failure rather than silently followed.
-    if (response.status >= 300 && response.status < 400) {
-      return Response.json(
-        { error: 'Job posting URL redirects are not supported.' },
-        { status: 400 }
-      )
+    // Fetch the job posting (redirects are followed with an SSRF check on every hop)
+    let pageText: string
+    try {
+      pageText = jobPageToText(await fetchJobPage(url))
+    } catch (error) {
+      if (error instanceof JobPageError) {
+        return Response.json({ error: error.message }, { status: 400 })
+      }
+      throw error
     }
 
-    if (!response.ok) {
+    // Pages rendered entirely by JavaScript have no job text in their HTML.
+    // Checked before reserving a token so the user isn't charged.
+    if (pageText.length < 200) {
       return Response.json(
-        { error: 'Failed to fetch job posting' },
-        { status: 400 }
-      )
-    }
-
-    // Limit response size to prevent abuse
-    const html = await response.text()
-    if (html.length > 500000) {
-      return Response.json(
-        { error: 'Job posting content too large' },
-        { status: 400 }
+        { error: 'Could not read job details from this page. Try the job board\'s own link (e.g. Greenhouse, Lever, LinkedIn) or fill in the details manually.' },
+        { status: 422 }
       )
     }
 
@@ -143,7 +125,7 @@ export async function POST(req: Request) {
         messages: [
           {
             role: 'user',
-            content: `Extract job details from this HTML content. Return the company name, job position/title, location, salary range (if mentioned), a brief description, and up to 10 key requirements (short skill or qualification names such as "React" or "3+ years experience", not sentences). Return null for any field that cannot be found.\n\nHTML:\n${html.slice(0, 15000)}`,
+            content: `Extract job details from this job posting page. Return the company name, job position/title, location, salary range (if mentioned), a brief description, and up to 10 key requirements (short skill or qualification names such as "React" or "3+ years experience", not sentences). Return null for any field that cannot be found.\n\n${pageText}`,
           },
         ],
       })
