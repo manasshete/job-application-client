@@ -38,7 +38,7 @@ Pursuitz helps job seekers track every application in one place and use AI to ta
 | **Tailor resume** | Rewrites your resume for a specific job description to improve ATS keyword match, without inventing experience. | 1 document generation |
 | **Cover letter** | Writes a cover letter from your resume or notes and the job description. | 1 document generation |
 | **PDF download** | Exports the tailored resume or cover letter as a PDF. | Free |
-| **Resume upload** | Upload a `.doc`/`.docx` resume and its text is extracted for the AI tools. | Free |
+| **Resume upload** | Upload a `.pdf` or `.docx` resume and its text is extracted for the AI tools. Scanned (image-only) PDFs can't be read; paste the text instead. | Free |
 
 If an AI call fails, the credit is refunded automatically.
 
@@ -65,7 +65,7 @@ Available at `/tools` and inside the dashboard at `/dashboard/tools`:
 | Database | [Supabase](https://supabase.com) Postgres with Row Level Security |
 | Auth | Custom email/password auth: bcrypt hashes + HS256 JWT session cookie (`jose`) |
 | AI | [Vercel AI SDK](https://ai-sdk.dev) v6 + `@ai-sdk/google` (Gemini) |
-| Documents | `mammoth` (.docx parsing), `@react-pdf/renderer` / `pdf-lib` (PDF output) |
+| Documents | `mammoth` (.docx parsing), `unpdf` (PDF parsing), `@react-pdf/renderer` / `pdf-lib` (PDF output) |
 | Payments | [Razorpay](https://razorpay.com) (INR) |
 | Email | [Resend](https://resend.com) |
 | Monitoring | Sentry, Vercel Analytics |
@@ -280,7 +280,7 @@ All routes live under `app/api/`. Unless noted, they require a signed-in user.
 | POST | `/api/extract-job` | AI: extract job details `{ url }` |
 | POST | `/api/tailor-resume` | AI: `{ resumeText, jobDescription, jobTitle?, company? }` → `{ tailoredResume }` |
 | POST | `/api/generate-cover-letter` | AI: `{ userInput, jobDescription, mode?, jobTitle?, company?, applicantName? }` → `{ coverLetter }` |
-| POST | `/api/parse-resume` | Multipart upload `file` (.doc/.docx, max 5 MB) → text |
+| POST | `/api/parse-resume` | Multipart upload `file` (.pdf/.doc/.docx, max 5 MB) → text |
 | POST | `/api/generate-pdf` | `{ content, filename? }` → PDF file |
 | GET / POST / DELETE | `/api/user-documents` | Saved documents |
 | POST | `/api/subscription`, `/api/subscription/change-tier` | Plan changes |

@@ -73,7 +73,7 @@ function Settings() {
       const res = await fetch('/api/parse-resume', { method: 'POST', body: form })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data.text) {
-        app.toast(data.error || 'We could not read that file. Try a .docx, or paste the text instead.')
+        app.toast(data.error || 'We could not read that file. Try a .pdf or .docx, or paste the text instead.')
         return
       }
       await saveCv(file.name, data.text)
@@ -173,8 +173,8 @@ function Settings() {
           </div>
           <p className="muted" style={{ margin: 0, fontSize: 'var(--text-sm)' }}>One CV is used for tailoring and for matching keywords against each job’s requirements.</p>
           <label className="fld">
-            <span className="fl">{app.masterCv ? 'Replace with a .docx file' : 'Upload a .docx file'}</span>
-            <input className="inp" type="file" accept=".docx,.doc" disabled={busy} style={{ padding: 8 }} onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = '' }} />
+            <span className="fl">{app.masterCv ? 'Replace with a .pdf or .docx file' : 'Upload a .pdf or .docx file'}</span>
+            <input className="inp" type="file" accept=".pdf,.docx,.doc" disabled={busy} style={{ padding: 8 }} onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = '' }} />
           </label>
           <div><button className="btn btn-t" style={{ padding: 0 }} onClick={() => setPasteOn(!pasteOn)}>Or paste text instead</button></div>
           {pasteOn && (

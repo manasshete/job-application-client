@@ -113,7 +113,7 @@ export default function CvReviewPage() {
           </h2>
           <p className="muted" style={{ margin: '8px 0 16px' }}>
             {phase === 'blocked' && (up ? 'A tailored CV or cover letter uses 1 document token. Upgrade for a larger monthly allowance.' : 'A tailored CV or cover letter uses 1 document token. You can see when more are added under Plan and tokens in Settings.')}
-            {phase === 'nomaster' && 'Tailoring starts from your master CV. Upload a .docx or paste the text in Settings, then come back.'}
+            {phase === 'nomaster' && 'Tailoring starts from your master CV. Upload a .pdf or .docx or paste the text in Settings, then come back.'}
             {phase === 'error' && error}
           </p>
           <div className="row-actions">

@@ -1,12 +1,36 @@
 import { getCurrentUser } from '@/lib/auth/server'
 import mammoth from 'mammoth'
+import { getDocumentProxy } from 'unpdf'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
 
 const ALLOWED_MIME_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
   'application/msword', // .doc
+  'application/pdf', // .pdf
 ]
+
+// Rebuilds line breaks from pdf.js text items (end-of-line markers and vertical
+// position), since the AI tools rely on the CV's line structure.
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  const pdf = await getDocumentProxy(new Uint8Array(buffer))
+  const pages: string[] = []
+  for (let n = 1; n <= pdf.numPages; n++) {
+    const { items } = await (await pdf.getPage(n)).getTextContent()
+    let text = ''
+    let lastY: number | undefined
+    for (const item of items) {
+      if (!('str' in item)) continue
+      const y = item.transform[5]
+      if (lastY !== undefined && Math.abs(y - lastY) > 1 && !text.endsWith('\n')) text += '\n'
+      text += item.str
+      if (item.hasEOL && !text.endsWith('\n')) text += '\n'
+      if (item.str) lastY = y
+    }
+    pages.push(text.replace(/[ \t]+\n/g, '\n').trim())
+  }
+  return pages.join('\n\n')
+}
 
 export async function POST(req: Request) {
   try {
@@ -46,12 +70,13 @@ export async function POST(req: Request) {
       return Response.json({ error: 'File too large. Maximum size is 5MB.' }, { status: 400 })
     }
 
-    // Only allow Word documents (mammoth only supports these anyway).
+    // Only allow Word documents and PDFs.
     const lowerName = file.name.toLowerCase()
-    const hasValidExt = lowerName.endsWith('.docx') || lowerName.endsWith('.doc')
+    const isPdf = lowerName.endsWith('.pdf')
+    const hasValidExt = isPdf || lowerName.endsWith('.docx') || lowerName.endsWith('.doc')
     if ((file.type && !ALLOWED_MIME_TYPES.includes(file.type)) || !hasValidExt) {
       return Response.json(
-        { error: 'Unsupported file type. Please upload a .doc or .docx file.' },
+        { error: 'Unsupported file type. Please upload a .pdf, .doc or .docx file.' },
         { status: 400 }
       )
     }
@@ -61,18 +86,29 @@ export async function POST(req: Request) {
 
     let text: string
     try {
-      const result = await mammoth.extractRawText({ buffer })
-      text = result.value.trim()
+      if (isPdf) {
+        text = (await extractPdfText(buffer)).trim()
+      } else {
+        const result = await mammoth.extractRawText({ buffer })
+        text = result.value.trim()
+      }
     } catch (err) {
-      console.error('[parse-resume] mammoth failed:', err)
+      console.error(`[parse-resume] ${isPdf ? 'pdf' : 'mammoth'} failed:`, err)
       return Response.json(
-        { error: 'Could not read this document. Please upload a valid .docx file.' },
+        { error: `Could not read this document. Please upload a valid ${isPdf ? '.pdf' : '.docx'} file.` },
         { status: 400 }
       )
     }
 
     if (!text) {
-      return Response.json({ error: 'Could not extract text from document.' }, { status: 400 })
+      return Response.json(
+        {
+          error: isPdf
+            ? 'This PDF has no selectable text (it may be a scanned image). Please upload a .docx or paste the text instead.'
+            : 'Could not extract text from document.',
+        },
+        { status: 400 }
+      )
     }
 
     return Response.json({ text })

@@ -173,15 +173,15 @@ export function DocumentGeneratorDialog({
       if (file.type === 'text/plain') {
         const text = await file.text()
         setResumeText(text)
-      } else if (file.name.endsWith('.docx') || file.type.includes('wordprocessingml')) {
+      } else if (/\.(docx|pdf)$/i.test(file.name) || file.type.includes('wordprocessingml') || file.type === 'application/pdf') {
         const formData = new FormData()
         formData.append('file', file)
         const res = await fetch('/api/parse-resume', { method: 'POST', body: formData })
         const data = await res.json()
         if (data.text) setResumeText(data.text)
-        else setError('Could not parse document. Please paste your resume as plain text.')
+        else setError(data.error || 'Could not parse document. Please paste your resume as plain text.')
       } else {
-        setError('Please upload a .txt or .docx file, or paste your resume as plain text below.')
+        setError('Please upload a .txt, .pdf or .docx file, or paste your resume as plain text below.')
       }
     } catch {
       setError('Failed to read file. Please paste your resume as plain text.')
@@ -527,14 +527,14 @@ export function DocumentGeneratorDialog({
             )}
 
             <div className="space-y-2">
-              <Label>Upload your resume (.txt or .docx)</Label>
+              <Label>Upload your resume (.txt, .pdf or .docx)</Label>
               <div className="flex items-center gap-2">
                 <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-4 py-2 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors">
                   <Upload className="h-4 w-4" />
                   {resumeFileName || 'Choose file'}
                   <input
                     type="file"
-                    accept=".txt,.docx"
+                    accept=".txt,.pdf,.docx"
                     className="hidden"
                     onChange={handleFileUpload}
                   />
