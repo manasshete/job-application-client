@@ -19,8 +19,34 @@ const STOPWORDS = new Set([
   'need', 'needs', 'needed', 'want', 'wants', 'seeking', 'seek', 'looking', 'join', 'using', 'use',
   'would', 'could', 'make', 'get', 'many', 'much', 'high', 'highly', 'based', 'ensure', 'build',
   'develop', 'support', 'provide', 'responsible', 'candidate', 'candidates', 'ideal', 'preferred',
-  'excellent', 'etc', 'one', 'two', 'both', 'being', 'order', 'within',
+  'excellent', 'etc', 'one', 'two', 'both', 'being', 'order', 'within', 'environment', 'opportunity',
+  'opportunities', 'benefits', 'offer', 'offers', 'apply', 'applicant', 'applicants', 'salary',
+  'location', 'office', 'day', 'days', 'time', 'full', 'part', 'equal', 'employer', 'employees',
+  'background', 'related', 'relevant', 'knowledge', 'understanding', 'proven', 'track', 'record',
+  'demonstrated', 'familiarity', 'familiar', 'proficiency', 'proficient', 'minimum', 'ideally',
+  'world', 'people', 'others', 'every', 'way', 'ways', 'key', 'take', 'best', 'e.g', 'i.e', 'eg',
+  'ie', 'vs', 'via', 'ok',
 ])
+
+/** One-letter terms that are real skills (languages). Everything else under 2 chars is noise. */
+const SHORT_TERMS = new Set(['c', 'r'])
+
+/**
+ * Light suffix stripping so "APIs" matches "API" and "managed" matches "management".
+ * Only used for comparison; the original word is still what gets displayed.
+ */
+function stem(word: string): string {
+  if (/[^a-z]/.test(word)) return word // keep c++, c#, node.js, ci-cd as-is
+  const strip = (w: string, suffix: string) =>
+    w.endsWith(suffix) && w.length - suffix.length >= 3 ? w.slice(0, -suffix.length) : null
+  // Plurals first, then word-form suffixes, then a trailing "e" (manage/managed -> manag).
+  let w = word
+  const ies = strip(w, 'ies')
+  if (ies) w = `${ies}y`
+  else w = strip(w, 'es') ?? (w.endsWith('ss') ? w : strip(w, 's') ?? w)
+  w = strip(w, 'ment') ?? strip(w, 'ing') ?? strip(w, 'ed') ?? w
+  return w.length > 3 && w.endsWith('e') ? w.slice(0, -1) : w
+}
 
 interface ScanResult {
   score: number
@@ -32,32 +58,44 @@ interface ScanResult {
 function tokenize(text: string): string[] {
   return text
     .toLowerCase()
-    .replace(/[^a-z0-9+#.\s-]/g, ' ')
+    .replace(/[^a-z0-9+#.\s-]/g, ' ') // "/" becomes a space, so ci/cd -> ci, cd
     .split(/\s+/)
     .map((w) => w.replace(/^[.\-]+|[.\-]+$/g, ''))
-    .filter((w) => w.length > 2 && !STOPWORDS.has(w) && !/^\d+$/.test(w))
+    .filter((w) => (w.length >= 2 || SHORT_TERMS.has(w)) && !STOPWORDS.has(w) && !/^\d+$/.test(w))
 }
 
-function extractKeywords(jd: string): string[] {
-  const counts = new Map<string, number>()
-  for (const token of tokenize(jd)) {
-    counts.set(token, (counts.get(token) ?? 0) + 1)
-  }
-  // Rank by frequency, keep the most significant terms.
-  return [...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
+/** Technical-looking terms (c++, node.js, ci-cd, s3) win frequency ties over plain words. */
+function isTechnical(word: string): boolean {
+  return /[^a-z]/.test(word) || word.length <= 3
+}
+
+function extractKeywords(jd: string): { stem: string; word: string }[] {
+  const terms = new Map<string, { word: string; count: number; first: number }>()
+  tokenize(jd).forEach((token, i) => {
+    const key = stem(token)
+    const entry = terms.get(key)
+    if (entry) entry.count++
+    else terms.set(key, { word: token, count: 1, first: i })
+  })
+  // Rank by frequency, then technical terms, then order of appearance.
+  return [...terms.entries()]
+    .sort(([, a], [, b]) =>
+      b.count - a.count ||
+      Number(isTechnical(b.word)) - Number(isTechnical(a.word)) ||
+      a.first - b.first,
+    )
     .slice(0, 30)
-    .map(([word]) => word)
+    .map(([key, { word }]) => ({ stem: key, word }))
 }
 
 function scan(resume: string, jd: string): ScanResult {
   const keywords = extractKeywords(jd)
-  const resumeTokens = new Set(tokenize(resume))
+  const resumeStems = new Set(tokenize(resume).map(stem))
   const matched: string[] = []
   const missing: string[] = []
   for (const kw of keywords) {
-    if (resumeTokens.has(kw)) matched.push(kw)
-    else missing.push(kw)
+    if (resumeStems.has(kw.stem)) matched.push(kw.word)
+    else missing.push(kw.word)
   }
   const totalKeywords = keywords.length
   const score = totalKeywords === 0 ? 0 : Math.round((matched.length / totalKeywords) * 100)

@@ -12,8 +12,14 @@ interface CountryTax {
   label: string
   currency: string
   symbol: string
+  /** Locale used to group digits (India uses lakh/crore grouping). */
+  locale: string
+  /** Example salary for the input placeholder. */
+  example: string
   /** Standard deduction / tax-free allowance applied before brackets. */
   allowance: number
+  /** Allowance shrinks by `ratio` per unit of gross income above `from` (UK personal allowance taper). */
+  allowanceTaper?: { from: number; ratio: number }
   brackets: Bracket[]
   /**
    * Rebate that makes taxable income up to `threshold` tax-free, with marginal
@@ -34,6 +40,8 @@ const COUNTRIES: CountryTax[] = [
     label: 'India',
     currency: 'INR',
     symbol: '₹',
+    locale: 'en-IN',
+    example: '1200000',
     allowance: 75000, // standard deduction for salaried taxpayers, new regime
     // New regime slabs, FY2025-26 onwards.
     brackets: [
@@ -53,6 +61,8 @@ const COUNTRIES: CountryTax[] = [
     label: 'United States',
     currency: 'USD',
     symbol: '$',
+    locale: 'en-US',
+    example: '85000',
     allowance: 15750, // 2025 single standard deduction
     brackets: [
       { upTo: 11925, rate: 0.1 },
@@ -70,18 +80,25 @@ const COUNTRIES: CountryTax[] = [
     label: 'United Kingdom',
     currency: 'GBP',
     symbol: '£',
+    locale: 'en-GB',
+    example: '45000',
     allowance: 12570,
+    allowanceTaper: { from: 100000, ratio: 0.5 }, // £1 lost per £2 over £100k, gone by £125,140
     brackets: [
       { upTo: 37700, rate: 0.2 }, // basic (after allowance)
       { upTo: 125140, rate: 0.4 }, // higher
       { upTo: Infinity, rate: 0.45 }, // additional
     ],
-    note: 'England/Wales income tax bands (2025-26). Excludes National Insurance and Scotland bands.',
+    note: 'England/Wales income tax bands (2025-26), including the personal allowance taper above £100,000. Excludes National Insurance and Scotland bands.',
   },
 ]
 
 function computeTax(gross: number, country: CountryTax): number {
-  const taxable = Math.max(0, gross - country.allowance)
+  const taper = country.allowanceTaper
+  const allowance = taper && gross > taper.from
+    ? Math.max(0, country.allowance - (gross - taper.from) * taper.ratio)
+    : country.allowance
+  const taxable = Math.max(0, gross - allowance)
   let tax = 0
   let lower = 0
   for (const bracket of country.brackets) {
@@ -118,7 +135,7 @@ export function SalaryCalculator() {
     return { tax, net, effectiveRate }
   }, [gross, country])
 
-  const fmt = (n: number) => `${country.symbol}${Math.round(n).toLocaleString('en-US')}`
+  const fmt = (n: number) => `${country.symbol}${Math.round(n).toLocaleString(country.locale)}`
 
   return (
     <div className="tl-wrap">
@@ -138,7 +155,7 @@ export function SalaryCalculator() {
             <label htmlFor="salary">Gross annual salary</label>
             <div className="inp-ic">
               <span aria-hidden="true" style={{ position: 'absolute', left: 14, color: 'var(--text-muted)' }}>{country.symbol}</span>
-              <input id="salary" className="inp" style={{ paddingLeft: 34 }} inputMode="numeric" value={salaryInput} onChange={(e) => setSalaryInput(sanitizeSalary(e.target.value))} placeholder="e.g. 1200000" />
+              <input id="salary" className="inp" style={{ paddingLeft: 34 }} inputMode="decimal" value={salaryInput} onChange={(e) => setSalaryInput(sanitizeSalary(e.target.value))} placeholder={`e.g. ${country.example}`} />
             </div>
           </div>
         </div>

@@ -19,7 +19,7 @@ export default async function ResumeWordCounterPage() {
   if (await getCurrentUser()) redirect('/dashboard/tools/resume-word-counter')
   return (
     <>
-      <ToolHero icon={FileText} title="Resume Readability Checker" description={tool.longDescription} />
+      <ToolHero icon={FileText} title={tool.title} description={tool.longDescription} />
       <div className="pz" style={{ background: "var(--bg)" }}><div className="tl-pub"><ReadabilityChecker /></div></div>
       <SignupCTA />
     </>

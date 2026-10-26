@@ -17,6 +17,17 @@ const CLICHES = [
 const PASSIVE_RE =
   /\b(?:am|is|are|was|were|be|been|being)\s+(\w+ed|written|done|made|given|taken|seen|known|shown|built|led|held|kept|sent|paid|met|won)\b/gi
 
+/** "-ed" words that usually act as adjectives after "is/am/was", not passive verbs. */
+const ADJECTIVE_ED = new Set([
+  'excited', 'interested', 'based', 'located', 'experienced', 'skilled', 'qualified', 'motivated',
+  'dedicated', 'detailed', 'focused', 'committed', 'involved', 'pleased', 'thrilled', 'talented',
+  'organized', 'organised', 'certified', 'licensed', 'determined', 'supposed',
+])
+
+function countPassive(text: string): number {
+  return [...text.matchAll(PASSIVE_RE)].filter((m) => !ADJECTIVE_ED.has(m[1].toLowerCase())).length
+}
+
 function highlightCount(text: string, phrases: string[]): { phrase: string; count: number }[] {
   const lower = text.toLowerCase()
   return phrases
@@ -35,15 +46,16 @@ export function ReadabilityChecker() {
   const stats = useMemo(() => {
     const trimmed = text.trim()
     const words = trimmed ? trimmed.split(/\s+/) : []
-    const sentences = trimmed ? trimmed.split(/[.!?]+\s/).filter(Boolean) : []
+    // Line breaks end a sentence too: resume bullets rarely end with a full stop.
+    const sentences = trimmed ? trimmed.split(/[.!?]+(?:\s|$)|\n+/).filter((s) => s.trim()) : []
     const wordCount = words.length
     const charCount = text.length
     const sentenceCount = Math.max(sentences.length, trimmed ? 1 : 0)
     const avgWordsPerSentence = sentenceCount ? wordCount / sentenceCount : 0
-    const readingTime = Math.max(1, Math.round(wordCount / 200))
+    const readingTime = wordCount ? Math.max(1, Math.round(wordCount / 200)) : 0
     const fillers = highlightCount(text, FILLER_WORDS)
     const cliches = highlightCount(text, CLICHES)
-    const passiveMatches = (text.match(PASSIVE_RE) ?? []).length
+    const passiveMatches = countPassive(text)
     return {
       wordCount,
       charCount,
@@ -82,7 +94,7 @@ export function ReadabilityChecker() {
       {hasText && (
         <div className="tl-3">
           <FlagCard label="Filler words" count={stats.fillerTotal} good={stats.fillerTotal === 0} items={stats.fillers.map((f) => `${f.phrase} (${f.count})`)} emptyMsg="No filler words. Crisp writing." />
-          <FlagCard label="Passive voice" count={stats.passiveMatches} good={stats.passiveMatches <= 2} items={[]} emptyMsg="Mostly active voice." note={stats.passiveMatches > 2 ? 'Try active voice: "Led the team" instead of "The team was led".' : undefined} />
+          <FlagCard label="Passive voice" count={stats.passiveMatches} good={stats.passiveMatches <= 2} items={[]} emptyMsg="Mostly active voice." note={stats.passiveMatches > 2 ? 'Try active voice: "Led the team" instead of "The team was led".' : 'A couple of passive phrases is fine.'} />
           <FlagCard label="Clichés" count={stats.clicheTotal} good={stats.clicheTotal === 0} items={stats.cliches.map((c) => `${c.phrase} (${c.count})`)} emptyMsg="No overused clichés." />
         </div>
       )}

@@ -19,7 +19,7 @@ export default async function AtsResumeScannerPage() {
   if (await getCurrentUser()) redirect('/dashboard/tools/ats-resume-scanner')
   return (
     <>
-      <ToolHero icon={FileSearch} title="ATS Resume Scanner" description={tool.longDescription} />
+      <ToolHero icon={FileSearch} title={tool.title} description={tool.longDescription} />
       <div className="pz" style={{ background: "var(--bg)" }}><div className="tl-pub"><AtsScanner /></div></div>
       <SignupCTA />
     </>

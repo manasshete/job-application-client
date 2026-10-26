@@ -19,7 +19,7 @@ export default async function CoverLetterGeneratorPage() {
   if (await getCurrentUser()) redirect('/dashboard/tools/cover-letter-generator')
   return (
     <>
-      <ToolHero icon={Mail} title="Cover Letter Template Generator" description={tool.longDescription} />
+      <ToolHero icon={Mail} title={tool.title} description={tool.longDescription} />
       <div className="pz" style={{ background: "var(--bg)" }}><div className="tl-pub"><CoverLetterBuilder /></div></div>
       <SignupCTA />
     </>

@@ -1,4 +1,5 @@
 import { getCurrentUser } from '@/lib/auth/server'
+import { extractionModel } from '@/lib/ai'
 import { generateText, Output } from 'ai'
 import { z } from 'zod'
 import { isValidUrl, MAX_LENGTHS } from '@/lib/validation'
@@ -135,7 +136,7 @@ export async function POST(req: Request) {
 
     try {
       const { output } = await generateText({
-        model: 'openai/gpt-4o-mini',
+        model: extractionModel,
         output: Output.object({
           schema: jobDetailsSchema,
         }),

@@ -1,4 +1,5 @@
 import { getCurrentUser } from '@/lib/auth/server'
+import { writingModel } from '@/lib/ai'
 import { generateText } from 'ai'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
@@ -173,7 +174,7 @@ ${userInput.slice(0, 15000)}`
     reservedFor = user.id
 
     const { text } = await generateText({
-      model: 'google/gemini-2.5-flash',
+      model: writingModel,
       messages: [
         {
           role: 'user',

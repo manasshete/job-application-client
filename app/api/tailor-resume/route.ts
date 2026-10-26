@@ -1,4 +1,5 @@
 import { getCurrentUser } from '@/lib/auth/server'
+import { writingModel } from '@/lib/ai'
 import { generateText } from 'ai'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
     reservedFor = user.id
 
     const { text } = await generateText({
-      model: 'google/gemini-2.5-flash',
+      model: writingModel,
       system: `You are an expert ATS Resume Writer, Technical Recruiter, and Career Coach. Your task is to tailor the provided CV to the provided Job Description while remaining 100% truthful.
 
 PRIMARY OBJECTIVE

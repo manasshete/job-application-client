@@ -19,7 +19,7 @@ export default async function SalaryCalculatorPage() {
   if (await getCurrentUser()) redirect('/dashboard/tools/salary-take-home-calculator')
   return (
     <>
-      <ToolHero icon={Calculator} title="Salary Take-Home Calculator" description={tool.longDescription} />
+      <ToolHero icon={Calculator} title={tool.title} description={tool.longDescription} />
       <div className="pz" style={{ background: "var(--bg)" }}><div className="tl-pub"><SalaryCalculator /></div></div>
       <SignupCTA />
     </>

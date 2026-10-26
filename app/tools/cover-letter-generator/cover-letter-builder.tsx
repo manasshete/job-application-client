@@ -28,7 +28,7 @@ function buildLetter(f: Fields, tone: Tone): string {
   const skill1 = f.skill1.trim() || '[key skill]'
   const skill2 = f.skill2.trim() || '[another skill]'
   const achievement = f.achievement.trim() || '[a specific achievement or result]'
-  const reason = f.reason.trim() || `[what draws you to ${company}]`
+  const reason = f.reason.trim() || `[what draws you to ${f.company.trim() || 'the company'}]`
 
   const openings: Record<Tone, string> = {
     professional: `I am writing to apply for the ${role} position at ${company}. With a strong background in ${skill1} and ${skill2}, I am confident I would make a valuable addition to your team.`,
@@ -39,13 +39,13 @@ function buildLetter(f: Fields, tone: Tone): string {
   const middles: Record<Tone, string> = {
     professional: `In my previous work, ${achievement}. I pride myself on ${skill1}, and I consistently look for ways to deliver measurable results. I believe these strengths would translate directly to the ${role} role.`,
     enthusiastic: `One accomplishment I am especially proud of: ${achievement}. Experiences like that are why I love this work, and I would bring the same energy and focus to the ${role} role at ${company}.`,
-    concise: `A recent highlight: ${achievement}. I focus on outcomes and would bring that same result-driven approach to ${company}.`,
+    concise: `A recent highlight: ${achievement}. I focus on outcomes and would bring that same approach to ${company}.`,
   }
 
   const closings: Record<Tone, string> = {
-    professional: `I am particularly drawn to ${company} because ${reason}. I would welcome the opportunity to discuss how my experience aligns with your needs. Thank you for your consideration.`,
+    professional: `I am particularly drawn to ${company} for ${reason}. I would welcome the opportunity to discuss how my experience aligns with your needs. Thank you for your consideration.`,
     enthusiastic: `What excites me most about ${company} is ${reason}. I would love the chance to talk about how I can help your team succeed. Thank you so much for considering my application!`,
-    concise: `I am interested in ${company} because ${reason}. I would welcome a conversation. Thank you for your time.`,
+    concise: `I am interested in ${company} for ${reason}. I would welcome a conversation. Thank you for your time.`,
   }
 
   return [
@@ -77,7 +77,7 @@ export function CoverLetterBuilder() {
     name: '', role: '', company: '', skill1: '', skill2: '', achievement: '', reason: '',
   })
   const [tone, setTone] = useState<Tone>('professional')
-  const [copied, setCopied] = useState(false)
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle')
 
   const letter = useMemo(() => buildLetter(fields, tone), [fields, tone])
 
@@ -88,21 +88,25 @@ export function CoverLetterBuilder() {
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(letter)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setCopyState('copied')
     } catch {
-      /* clipboard unavailable */
+      setCopyState('failed')
     }
+    setTimeout(() => setCopyState('idle'), 2000)
   }
 
   function handleDownload() {
     const blob = new Blob([letter], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
+    const slug = fields.company.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'draft'
     const a = document.createElement('a')
     a.href = url
-    a.download = `cover-letter-${(fields.company || 'draft').toLowerCase().replace(/[^a-z0-9]+/g, '-')}.txt`
+    a.download = `cover-letter-${slug}.txt`
+    // Firefox/Safari need the link in the DOM, and revoking immediately can cancel the download.
+    document.body.appendChild(a)
     a.click()
-    URL.revokeObjectURL(url)
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
 
   return (
@@ -132,8 +136,8 @@ export function CoverLetterBuilder() {
             <span className="tl-lbl">Preview</span>
             <div className="tl-actions">
               <button type="button" className="btn btn-q" style={{ minHeight: 36 }} onClick={handleCopy}>
-                {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-                {copied ? 'Copied' : 'Copy'}
+                {copyState === 'copied' ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+                {copyState === 'copied' ? 'Copied' : copyState === 'failed' ? 'Copy failed' : 'Copy'}
               </button>
               <button type="button" className="btn btn-p" style={{ minHeight: 36 }} onClick={handleDownload}>
                 <Download aria-hidden="true" />
