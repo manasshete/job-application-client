@@ -11,13 +11,84 @@ import { dayOf, fd, fdw } from '@/lib/pz/format'
 import { PLANS, planOf, upgradeTarget } from '@/lib/pz/plans'
 
 type Tab = 'plan' | 'profile' | 'cv' | 'data' | 'account'
-const TABS: [Tab, string][] = [['plan', 'Plan and tokens'], ['profile', 'Profile'], ['cv', 'Master CV'], ['data', 'Data'], ['account', 'Account']]
+const TABS: [Tab, string][] = [['plan', 'Plan and tokens'], ['profile', 'Profile'], ['cv', 'Master CV & cover letter'], ['data', 'Data'], ['account', 'Account']]
 
 const PRIVACY = (
   <>
     <b>Privacy notice.</b> Your data is encrypted and stored securely. We never sell your personal information. It’s only shared with the services needed to run Pursuitz (for example, AI processing of your CV and job posts, and payments). See our <Link href="/privacy">Privacy Policy</Link>.
   </>
 )
+
+const MASTER = {
+  cv: { title: 'Master CV', what: 'CV', none: 'None yet. Add one to start tailoring.', use: 'One CV is used for tailoring and for matching keywords against each job’s requirements.' },
+  cover_letter: { title: 'Master cover letter', what: 'cover letter', none: 'None yet. Optional.', use: 'Your usual cover letter. When you choose Improve my draft on a job, it starts from this letter.' },
+} as const
+
+/** Upload or paste the one default document of a type (master CV or master cover letter). */
+function MasterDoc({ type }: { type: 'cv' | 'cover_letter' }) {
+  const app = useApp()
+  const m = MASTER[type]
+  const cur = type === 'cv' ? app.masterCv : app.masterCl
+  const [pasteOn, setPasteOn] = useState(false)
+  const [pasteText, setPasteText] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const save = async (label: string, content: string) => {
+    setBusy(true)
+    const meta = await app.saveDoc({ type, name: label, content, isDefault: true })
+    setBusy(false)
+    if (meta) app.toast(`${m.title} replaced with ${label}.`)
+    return !!meta
+  }
+
+  const onFile = async (file?: File) => {
+    if (!file) return
+    setBusy(true)
+    const form = new FormData()
+    form.append('file', file)
+    try {
+      const res = await fetch('/api/parse-resume', { method: 'POST', body: form })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.text) {
+        app.toast(data.error || 'We could not read that file. Try a .pdf or .docx, or paste the text instead.')
+        return
+      }
+      await save(file.name, data.text)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div>
+        <h2 className="lbl" style={{ margin: '0 0 6px' }}>Current {m.title.toLowerCase()}</h2>
+        {cur ? (
+          <>
+            <div style={{ fontWeight: 500 }}>{cur.name}</div>
+            <div className="muted tnum" style={{ fontSize: 'var(--text-sm)' }}>Uploaded {fd(dayOf(cur.createdAt))}</div>
+          </>
+        ) : (
+          <div className="muted">{m.none}</div>
+        )}
+      </div>
+      <p className="muted" style={{ margin: 0, fontSize: 'var(--text-sm)' }}>{m.use}</p>
+      <label className="fld">
+        <span className="fl">{cur ? 'Replace with a .pdf or .docx file' : 'Upload a .pdf or .docx file'}</span>
+        <input className="inp" type="file" accept=".pdf,.docx,.doc" disabled={busy} style={{ padding: 8 }} onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = '' }} />
+      </label>
+      <div><button className="btn btn-t" style={{ padding: 0 }} onClick={() => setPasteOn(!pasteOn)}>Or paste text instead</button></div>
+      {pasteOn && (
+        <div className="fld">
+          <textarea className="inp" style={{ minHeight: 200 }} aria-label={`Paste ${m.what} text`} value={pasteText} onChange={(e) => setPasteText(e.target.value)} />
+          <div>
+            <button className="btn btn-p" disabled={!pasteText.trim() || busy} onClick={async () => { if (await save('Pasted text', pasteText)) { setPasteOn(false); setPasteText('') } }}>Use this text</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 function Settings() {
   const app = useApp()
@@ -28,9 +99,6 @@ function Settings() {
   const initial = params.get('tab')
   const [tab, setTab] = useState<Tab>(TABS.some(([k]) => k === initial) ? (initial as Tab) : 'plan')
   const [name, setName] = useState(account.name)
-  const [pasteOn, setPasteOn] = useState(false)
-  const [pasteText, setPasteText] = useState('')
-  const [busy, setBusy] = useState(false)
 
   useEffect(() => setName(account.name), [account.name])
 
@@ -56,36 +124,10 @@ function Settings() {
   const curIdx = PLANS.findIndex((p) => p.tier === account.tier)
   const up = upgradeTarget(account.tier)
 
-  const saveCv = async (label: string, content: string) => {
-    setBusy(true)
-    const meta = await app.saveDoc({ type: 'cv', name: label, content, isDefault: true })
-    setBusy(false)
-    if (meta) app.toast(`Master CV replaced with ${label}.`)
-    return !!meta
-  }
-
-  const onFile = async (file?: File) => {
-    if (!file) return
-    setBusy(true)
-    const form = new FormData()
-    form.append('file', file)
-    try {
-      const res = await fetch('/api/parse-resume', { method: 'POST', body: form })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok || !data.text) {
-        app.toast(data.error || 'We could not read that file. Try a .pdf or .docx, or paste the text instead.')
-        return
-      }
-      await saveCv(file.name, data.text)
-    } finally {
-      setBusy(false)
-    }
-  }
-
   return (
     <div className="pg fade" style={{ maxWidth: 1040 }}>
       <h1 className="h1">Settings</h1>
-      <p className="muted" style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)' }}>Your plan, profile, master CV, data and account.</p>
+      <p className="muted" style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)' }}>Your plan, profile, master CV and cover letter, data and account.</p>
       <div className="tabs" role="tablist" style={{ marginTop: 24 }}>
         {TABS.map(([k, label]) => (
           <button key={k} role="tab" aria-selected={tab === k} className={`tab${tab === k ? ' tab-on' : ''}`} onClick={() => setTab(k)}>{label}</button>
@@ -159,32 +201,9 @@ function Settings() {
       )}
 
       {tab === 'cv' && (
-        <section style={{ marginTop: 32, maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div>
-            <div className="lbl" style={{ marginBottom: 6 }}>Current master CV</div>
-            {app.masterCv ? (
-              <>
-                <div style={{ fontWeight: 500 }}>{app.masterCv.name}</div>
-                <div className="muted tnum" style={{ fontSize: 'var(--text-sm)' }}>Uploaded {fd(dayOf(app.masterCv.createdAt))}</div>
-              </>
-            ) : (
-              <div className="muted">None yet. Add one to start tailoring.</div>
-            )}
-          </div>
-          <p className="muted" style={{ margin: 0, fontSize: 'var(--text-sm)' }}>One CV is used for tailoring and for matching keywords against each job’s requirements.</p>
-          <label className="fld">
-            <span className="fl">{app.masterCv ? 'Replace with a .pdf or .docx file' : 'Upload a .pdf or .docx file'}</span>
-            <input className="inp" type="file" accept=".pdf,.docx,.doc" disabled={busy} style={{ padding: 8 }} onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = '' }} />
-          </label>
-          <div><button className="btn btn-t" style={{ padding: 0 }} onClick={() => setPasteOn(!pasteOn)}>Or paste text instead</button></div>
-          {pasteOn && (
-            <div className="fld">
-              <textarea className="inp" style={{ minHeight: 200 }} aria-label="Paste CV text" value={pasteText} onChange={(e) => setPasteText(e.target.value)} />
-              <div>
-                <button className="btn btn-p" disabled={!pasteText.trim() || busy} onClick={async () => { if (await saveCv('Pasted text', pasteText)) { setPasteOn(false); setPasteText('') } }}>Use this text</button>
-              </div>
-            </div>
-          )}
+        <section style={{ marginTop: 32, maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 40 }}>
+          <MasterDoc type="cv" />
+          <MasterDoc type="cover_letter" />
           <Note>{PRIVACY}</Note>
         </section>
       )}

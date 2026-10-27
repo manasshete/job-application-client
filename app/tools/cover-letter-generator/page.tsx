@@ -1,6 +1,4 @@
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
-import { getCurrentUser } from '@/lib/auth/server'
 import { Mail } from 'lucide-react'
 import { getTool } from '@/lib/tools'
 import { ToolHero, SignupCTA } from '@/components/tools/tools-chrome'
@@ -14,9 +12,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/tools/cover-letter-generator' },
 }
 
-export default async function CoverLetterGeneratorPage() {
-  // Signed-in users get the tool inside their dashboard, so it never feels like a second login.
-  if (await getCurrentUser()) redirect('/dashboard/tools/cover-letter-generator')
+export default function CoverLetterGeneratorPage() {
   return (
     <>
       <ToolHero icon={Mail} title={tool.title} description={tool.longDescription} />

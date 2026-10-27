@@ -659,7 +659,7 @@
 
 @media (prefers-reduced-motion: reduce) { .pz .hero-grid::before { animation: none; } }
 
-/* ---- Free tools (inside the dashboard, and the light panel on public /tools pages) ---- */
+/* ---- Free tools (dashboard home cards, and the light panel on public /tools pages) ---- */
 .pz .tl-back { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-sm); color: var(--text-muted); margin-bottom: 14px; }
 .pz .tl-back:hover { color: var(--accent-text); }
 .pz .tl-back svg { width: 14px; height: 14px; }

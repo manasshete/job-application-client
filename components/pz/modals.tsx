@@ -160,7 +160,7 @@ export function Modals() {
         <p className="muted" style={{ margin: '0 0 24px', fontSize: 'var(--text-sm)' }}>You’ll go to Razorpay to pay, then come back here.</p>
         <Actions>
           <button className="btn btn-q" onClick={closeModal}>Not now</button>
-          <button className="btn btn-p" onClick={() => app.continueToRazorpay(modal.tier)}>Continue to Razorpay</button>
+          <button className="btn btn-p" onClick={() => app.continueToRazorpay(modal.tier)}>Pay now</button>
         </Actions>
       </>
     )

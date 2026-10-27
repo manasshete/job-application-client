@@ -105,7 +105,7 @@ export default function CoverLetterPage() {
             <span className="fl">How should we start?</span>
             <span className="segs" role="group" aria-label="Start from">
               <button className={`seg${mode === 'generate' ? ' seg-on' : ''}`} style={{ minHeight: 44 }} onClick={() => { setMode('generate'); setDraftErr(false) }}>Write from scratch</button>
-              <button className={`seg${mode === 'refine' ? ' seg-on' : ''}`} style={{ minHeight: 44 }} onClick={() => setMode('refine')}>Improve my draft</button>
+              <button className={`seg${mode === 'refine' ? ' seg-on' : ''}`} style={{ minHeight: 44 }} onClick={async () => { setMode('refine'); if (!draft.trim()) { const t = await app.masterClText(); if (t) setDraft(t) } }}>Improve my draft</button>
             </span>
           </div>
           {mode === 'refine' && (

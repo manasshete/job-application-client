@@ -27,7 +27,7 @@ Pursuitz helps job seekers track every application in one place and use AI to ta
 ## Features
 
 ### Job tracking
-- **Applications list and Kanban board.** Move jobs between stages (applied, interview, offer, and so on).
+- **Applications list.** Track each job through its stages (applied, interview, offer, and so on).
 - **Job details.** Each job has notes, status, location and salary, plus its own **tasks** (follow-ups, deadlines) and **interviews** (rounds, dates, times).
 - **Analytics.** Charts of your pipeline and a weekly summary.
 
@@ -43,7 +43,7 @@ Pursuitz helps job seekers track every application in one place and use AI to ta
 If an AI call fails, the credit is refunded automatically.
 
 ### Free tools (no account needed)
-Available at `/tools` and inside the dashboard at `/dashboard/tools`:
+Available as a separate public site at `/tools` (not inside the dashboard):
 - **ATS Resume Scanner.** Checks how well a resume matches a job description.
 - **Salary Take-Home Calculator.** Estimates in-hand salary.
 - **Resume Readability Checker.** Word count and readability score.
@@ -81,8 +81,8 @@ Available at `/tools` and inside the dashboard at `/dashboard/tools`:
 app/
   (landing)/              Marketing landing page
   auth/                   Login, sign-up, forgot/reset password pages
-  dashboard/              Signed-in app: applications, board, analytics,
-                          documents, settings, tools, jobs/[id] (cv, cover-letter)
+  dashboard/              Signed-in app: applications, analytics,
+                          documents, settings, jobs/[id] (cv, cover-letter)
   admin/                  Admin dashboard
   tools/                  Public free tools
   api/                    Route handlers (see API reference below)

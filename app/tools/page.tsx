@@ -1,6 +1,4 @@
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
-import { getCurrentUser } from '@/lib/auth/server'
 import Link from 'next/link'
 import { ArrowRight, Check } from 'lucide-react'
 import { FREE_TOOLS } from '@/lib/tools'
@@ -14,8 +12,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/tools' },
 }
 
-export default async function ToolsIndexPage() {
-  if (await getCurrentUser()) redirect('/dashboard/tools')
+export default function ToolsIndexPage() {
   return (
     <>
       <section className="relative overflow-hidden border-b border-white/[0.07] py-16 sm:py-20">

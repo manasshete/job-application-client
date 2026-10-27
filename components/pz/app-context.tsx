@@ -77,6 +77,9 @@ interface Ctx {
   masterCv: DocMeta | undefined
   /** Text of the master CV, or null when none is saved. */
   masterCvText: () => Promise<string | null>
+  masterCl: DocMeta | undefined
+  /** Text of the master cover letter, or null when none is saved. */
+  masterClText: () => Promise<string | null>
 
   refreshTokens: () => Promise<void>
   noteTokenUsed: (kind: 'extractions' | 'documents') => void
@@ -358,6 +361,8 @@ export function AppProvider({
 
   const masterCv = useMemo(() => docs.find((d) => d.type === 'cv' && d.isDefault), [docs])
   const masterCvText = useCallback(async () => (masterCv ? fetchDocText(masterCv.id) : null), [masterCv, fetchDocText])
+  const masterCl = useMemo(() => docs.find((d) => d.type === 'cover_letter' && d.isDefault), [docs])
+  const masterClText = useCallback(async () => (masterCl ? fetchDocText(masterCl.id) : null), [masterCl, fetchDocText])
 
   /* ── Plan, profile, account ─────────────────────── */
 
@@ -450,7 +455,7 @@ export function AppProvider({
     toast, modal, openModal, closeModal,
     getJob, addJob, patchJob, setStatus, removeJob,
     addRound, patchRound, addTask, patchTask,
-    saveDoc, removeDoc, fetchDocText, masterCv, masterCvText,
+    saveDoc, removeDoc, fetchDocText, masterCv, masterCvText, masterCl, masterClText,
     refreshTokens, noteTokenUsed, startCheckout, continueToRazorpay, confirmDowngrade, saveName, deleteAccount, logout,
   }
 

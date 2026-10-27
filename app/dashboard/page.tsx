@@ -125,18 +125,18 @@ function Onboarding({ first }: { first: string }) {
       <section style={{ marginTop: 32 }} aria-labelledby="tools-t">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
           <h2 id="tools-t" className="sec-t">Free tools for your search</h2>
-          <Link href="/dashboard/tools" className="link" style={{ fontSize: 'var(--text-xs)' }}>All tools</Link>
+          <a href="/tools" target="_blank" rel="noopener" className="link" style={{ fontSize: 'var(--text-xs)' }}>All tools</a>
         </div>
         <div className="tools">
           {FREE_TOOLS.map((t) => {
             const Icon = TOOL_ICONS[t.icon]
             return (
-              <Link key={t.slug} href={`/dashboard/tools/${t.slug}`} className="tool">
+              <a key={t.slug} href={`/tools/${t.slug}`} target="_blank" rel="noopener" className="tool">
                 <span className="tool-ic" aria-hidden="true"><Icon /></span>
                 <b>{t.title}</b>
                 <p>{t.description}</p>
                 <span className="tool-go" aria-hidden="true">Open tool<ArrowRight /></span>
-              </Link>
+              </a>
             )
           })}
         </div>

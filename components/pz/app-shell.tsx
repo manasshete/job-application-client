@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { BarChart3, Briefcase, Columns3, FileText, ListTodo, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Plus, Search, Settings, Wrench, X, type LucideIcon } from 'lucide-react'
+import { BarChart3, Briefcase, FileText, ListTodo, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Plus, Search, Settings, X, type LucideIcon } from 'lucide-react'
 import { fd } from '@/lib/pz/format'
 import { SUBSCRIPTION_LIMITS } from '@/lib/subscription'
 import { Brand } from './brand'
@@ -12,16 +12,14 @@ import { useApp } from './app-context'
 import { CommandPalette } from './command-palette'
 import { CreditsBanner } from './credits-banner'
 
-type NavKey = 'next' | 'apps' | 'board' | 'add' | 'docs' | 'analytics' | 'tools' | 'settings'
+type NavKey = 'next' | 'apps' | 'add' | 'docs' | 'analytics' | 'settings'
 
 function currentKey(path: string): NavKey | null {
   if (path === '/dashboard') return 'next'
   if (path.startsWith('/dashboard/applications/new')) return 'add'
-  if (path.startsWith('/dashboard/board')) return 'board'
   if (path.startsWith('/dashboard/applications') || path.startsWith('/dashboard/jobs')) return 'apps'
   if (path.startsWith('/dashboard/documents')) return 'docs'
   if (path.startsWith('/dashboard/analytics')) return 'analytics'
-  if (path.startsWith('/dashboard/tools')) return 'tools'
   if (path.startsWith('/dashboard/settings')) return 'settings'
   return null
 }
@@ -29,10 +27,8 @@ function currentKey(path: string): NavKey | null {
 const WORK: [string, NavKey, string, LucideIcon][] = [
   ['Next steps', 'next', '/dashboard', ListTodo],
   ['Applications', 'apps', '/dashboard/applications', Briefcase],
-  ['Board', 'board', '/dashboard/board', Columns3],
   ['Documents', 'docs', '/dashboard/documents', FileText],
   ['Analytics', 'analytics', '/dashboard/analytics', BarChart3],
-  ['Free tools', 'tools', '/dashboard/tools', Wrench],
 ]
 const TABS: [string, NavKey, string, LucideIcon][] = [
   ['Next steps', 'next', '/dashboard', ListTodo],

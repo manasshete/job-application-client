@@ -6,21 +6,19 @@ import { useRouter } from 'next/navigation'
 import type { Job, JobStatus } from '@/lib/types'
 import { useApp } from '@/components/pz/app-context'
 import { EmptyState, ErrorBlock } from '@/components/pz/ui'
-import { ArrowRight, Columns3, List, PenLine, Plus, Search } from 'lucide-react'
+import { ArrowRight, PenLine, Plus, Search } from 'lucide-react'
 import { JOB_STATUSES, JOB_STATUS_LABEL, fd } from '@/lib/pz/format'
 import { nextStep } from '@/lib/pz/next-steps'
 
 type Sort = 'recent' | 'company' | 'status'
 
-/** The Applications screen, shown as a table at /dashboard/applications and as a board at /dashboard/board. */
-export function ApplicationsView({ view }: { view: 'table' | 'board' }) {
-  const { jobs, today, loadError, newJobId, nudge, setNudge, setStatus } = useApp()
+/** The Applications screen at /dashboard/applications. */
+export function ApplicationsView() {
+  const { jobs, today, loadError, newJobId, nudge, setNudge } = useApp()
   const router = useRouter()
   const [q, setQ] = useState('')
   const [fStatus, setFStatus] = useState<'all' | JobStatus>('all')
   const [sort, setSort] = useState<Sort>('recent')
-  const [dragId, setDragId] = useState<string | null>(null)
-  const [overCol, setOverCol] = useState<JobStatus | null>(null)
 
   const list = useMemo(() => {
     const needle = q.trim().toLowerCase()
@@ -39,7 +37,7 @@ export function ApplicationsView({ view }: { view: 'table' | 'board' }) {
     <div className="pg fade">
       <div className="hd">
         <div>
-          <h1 className="h1">{view === 'board' ? 'Board' : 'Applications'}</h1>
+          <h1 className="h1">Applications</h1>
           <div className="muted tnum" style={{ marginTop: 6, fontSize: 'var(--text-sm)' }}>
             {jobs.length === 0 ? 'Nothing tracked yet' : `${jobs.length} application${jobs.length === 1 ? '' : 's'}`}
             {list.length !== jobs.length ? ` · ${list.length} shown` : ''}
@@ -72,7 +70,7 @@ export function ApplicationsView({ view }: { view: 'table' | 'board' }) {
             </>
           }
         >
-          Paste a job link and Pursuitz fills in the details for you to check. Every job you save shows up here as a table or a board.
+          Paste a job link and Pursuitz fills in the details for you to check. Every job you save shows up here.
         </EmptyState>
       )}
 
@@ -94,10 +92,6 @@ export function ApplicationsView({ view }: { view: 'table' | 'board' }) {
               <option value="company">Company A–Z</option>
               <option value="status">Status</option>
             </select>
-            <span className="segs" role="group" aria-label="View">
-              <Link href="/dashboard/applications" className={`seg${view === 'table' ? ' seg-on' : ''}`} aria-current={view === 'table' ? 'page' : undefined} style={{ minHeight: 40, display: 'inline-flex', alignItems: 'center' }} title="Table view"><List aria-hidden="true" style={{ width: 16, height: 16, marginRight: 6 }} />Table</Link>
-              <Link href="/dashboard/board" className={`seg${view === 'board' ? ' seg-on' : ''}`} aria-current={view === 'board' ? 'page' : undefined} style={{ minHeight: 40, display: 'inline-flex', alignItems: 'center' }} title="Board view"><Columns3 aria-hidden="true" style={{ width: 16, height: 16, marginRight: 6 }} />Board</Link>
-            </span>
           </div>
 
           {list.length === 0 && (
@@ -107,7 +101,7 @@ export function ApplicationsView({ view }: { view: 'table' | 'board' }) {
             </div>
           )}
 
-          {view === 'table' && list.length > 0 && (
+          {list.length > 0 && (
             <>
               <div className="only-desk list" style={{ marginTop: 20 }}>
                 <div className="th lbl list-hd" style={{ margin: 0, display: 'grid' }}><span>Company</span><span>Role</span><span>Status</span><span>Applied</span><span>Next step</span></div>
@@ -136,58 +130,6 @@ export function ApplicationsView({ view }: { view: 'table' | 'board' }) {
             </>
           )}
 
-          {view === 'board' && list.length > 0 && (
-            <>
-              <div className="board" role="list" aria-label="Board by status">
-                {JOB_STATUSES.map((st) => {
-                  const cards = list.filter((j) => j.status === st)
-                  return (
-                    <div
-                      key={st}
-                      className={`col${overCol === st ? ' col-over' : ''}`}
-                      role="listitem"
-                      onDragOver={(e) => { e.preventDefault(); if (overCol !== st) setOverCol(st) }}
-                      onDrop={(e) => {
-                        e.preventDefault()
-                        const id = dragId
-                        setOverCol(null)
-                        setDragId(null)
-                        if (id) void setStatus(id, st)
-                      }}
-                    >
-                      <div className="col-hd">
-                        <span className="lbl">{JOB_STATUS_LABEL[st]}</span>
-                        <span className="tnum muted" style={{ fontSize: 'var(--text-xs)' }}>{cards.length}</span>
-                      </div>
-                      {cards.map((j) => (
-                        <div
-                          key={j.id}
-                          className={`card fade${dragId === j.id ? ' dragging' : ''}`}
-                          draggable
-                          onDragStart={(e) => { e.dataTransfer.setData('text/plain', j.id); e.dataTransfer.effectAllowed = 'move'; setDragId(j.id) }}
-                          onDragEnd={() => { setDragId(null); setOverCol(null) }}
-                        >
-                          <Link href={href(j)} className="card-t">{j.position}</Link>
-                          <div className="card-m ell">{j.company}{j.location ? ` · ${j.location}` : ''}</div>
-                          <div className="card-f">
-                            <span className={`st-${j.status}`}><span className="dot" />{JOB_STATUS_LABEL[j.status]}</span>
-                            <span className="tnum" style={{ color: 'var(--text-faint)' }}>{fd(j.dateApplied)}</span>
-                          </div>
-                          <div style={{ fontSize: 'var(--text-xs)', marginTop: 8, color: 'var(--text-muted)' }}>{step(j)}</div>
-                          <select className="inp cardmove" aria-label="Move to status" value={j.status} onChange={(e) => void setStatus(j.id, e.target.value as JobStatus)} style={{ minHeight: 36, fontSize: 12.5, width: '100%' }}>
-                            {JOB_STATUSES.map((s) => (
-                              <option key={s} value={s}>Move to {JOB_STATUS_LABEL[s]}</option>
-                            ))}
-                          </select>
-                        </div>
-                      ))}
-                    </div>
-                  )
-                })}
-              </div>
-              <p className="muted" style={{ fontSize: 'var(--text-xs)', margin: '8px 0 0' }}>Drag a card to another column to change its status, or use the menu on a card.</p>
-            </>
-          )}
         </>
       )}
     </div>

@@ -9,7 +9,6 @@ import { useApp } from './app-context'
 const PAGES: [string, string][] = [
   ['Next steps', '/dashboard'],
   ['Applications', '/dashboard/applications'],
-  ['Board', '/dashboard/board'],
   ['Documents', '/dashboard/documents'],
   ['Analytics', '/dashboard/analytics'],
   ['Settings', '/dashboard/settings'],
