@@ -2,7 +2,7 @@ import { getCurrentUser } from '@/lib/auth/server'
 import { writingModel } from '@/lib/ai'
 import { generateChecked } from '@/lib/prompts/generate-checked'
 import { TAILOR_CV_SYSTEM, tailorCvUserMessage, tailoredCvSchema, renderTailoredCv } from '@/lib/prompts/tailor-cv'
-import { checkCurrency, checkSpelling, checkFacts, checkSkills } from '@/lib/prompts/verify'
+import { checkCurrency, checkSpelling, checkFacts, checkRoles, checkSkills } from '@/lib/prompts/verify'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
 import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
       }),
       check: ({ cv }) => {
         const text = renderTailoredCv(cv)
-        return [...checkFacts(text, source), ...checkCurrency(text, source), ...checkSpelling(text, jobDescription, resumeText, location), ...checkSkills(cv.skills.flatMap((s) => s.items), source)]
+        return [...checkFacts(text, source), ...checkCurrency(text, source), ...checkSpelling(text, jobDescription, resumeText, location), ...checkSkills(cv.skills.flatMap((s) => s.items), source), ...checkRoles(cv.headline, cv.experience, source)]
       },
     })
 

@@ -62,6 +62,28 @@ export function checkSkills(items: string[], source: string): CheckFlag[] {
     .map((item) => ({ severity: 'medium', type: 'check', message: `The skill "${item}" is not worded this way on your CV. Keep it only if it means the same as something you list.`, cv_reference: item }))
 }
 
+/** Letters and digits only, so "London UK" matches "London, UK" and "&" matches "and" loosely. */
+const loose = (s: string) => norm(s).replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim()
+
+/** Headline, job titles and employers must appear on the CV: they are facts, not wording. */
+export function checkRoles(
+  headline: string,
+  roles: { employer: string; title: string }[],
+  source: string
+): CheckFlag[] {
+  const src = loose(source)
+  const missing = (s: string) => !!loose(s) && !src.includes(loose(s))
+  const flags: CheckFlag[] = []
+  if (missing(headline)) {
+    flags.push({ severity: 'medium', type: 'check', message: `The headline "${headline}" is not a job title on your CV. Use your real profession as written.`, cv_reference: headline })
+  }
+  for (const r of roles) {
+    if (missing(r.title)) flags.push({ severity: 'medium', type: 'check', message: `The job title "${r.title}" does not match your CV. Job titles must stay as written.`, cv_reference: `${r.title}, ${r.employer}` })
+    if (missing(r.employer)) flags.push({ severity: 'medium', type: 'check', message: `The employer "${r.employer}" does not match your CV.`, cv_reference: `${r.title}, ${r.employer}` })
+  }
+  return flags
+}
+
 /** Claims whose supporting quote is not copied exactly from the CV or notes. */
 export function checkQuotes(claims: { sentence: string; evidence: string }[], source: string): CheckFlag[] {
   const src = norm(source)

@@ -82,9 +82,9 @@ export async function POST(req: Request) {
       ? String(applicantName).replace(/<[^>]*>/g, '').slice(0, 100)
       : undefined
 
-    const notes = [safeApplicantName ? `Sign the letter as: ${safeApplicantName}` : '', candidateNotes ?? '']
-      .filter(Boolean)
-      .join('\n\n')
+    // The prompt signs with the name on the CV. The account name is only a fallback,
+    // since it is often a nickname or placeholder.
+    const notes = candidateNotes ?? ''
 
     // Reserve the token atomically before the AI call so parallel requests can't
     // all pass the balance check above. Refunded in the catch below if the call fails.
@@ -123,6 +123,7 @@ export async function POST(req: Request) {
     })
 
     const { letter, ...analysis } = output
+    if (!letter.sign_off_name.trim() && safeApplicantName) letter.sign_off_name = safeApplicantName
     analysis.flags = [...analysis.flags, ...checks] as typeof analysis.flags
     return Response.json({ coverLetter: renderCoverLetter(letter), analysis })
   } catch (err: unknown) {

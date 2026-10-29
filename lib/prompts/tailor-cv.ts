@@ -72,7 +72,12 @@ STEP 4: WRITE
   bullets for recent relevant roles, 1 to 3 for less relevant ones.
 - Roles: keep every role from the last ~10 years with employer, title and
   dates. Older or minor roles that are irrelevant may be reduced to one
-  line or omitted. Flag every omitted role.
+  line or omitted. Flag every omitted role. Copy each role's employer,
+  title, location and dates exactly as the CV gives them for that role.
+  Leave location empty when the CV gives none for that role; never copy
+  the candidate's home address into a role.
+- Never add lines the CV does not contain, such as "Portfolio available
+  upon request" or "References available on request".
 - Skills: only skills the CV names, ordered by relevance to the job. Each
   item must appear in the CV, or be an exact synonym of a CV item. Never
   list a skill because the posting asks for it, and never turn a duty
