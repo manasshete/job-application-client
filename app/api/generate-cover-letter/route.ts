@@ -1,6 +1,8 @@
 import { getCurrentUser } from '@/lib/auth/server'
 import { writingModel } from '@/lib/ai'
-import { generateText } from 'ai'
+import { generateChecked } from '@/lib/prompts/generate-checked'
+import { COVER_LETTER_SYSTEM, coverLetterUserMessage, coverLetterSchema, renderCoverLetter } from '@/lib/prompts/cover-letter'
+import { checkCurrency, checkSpelling, checkFacts, checkQuotes, checkUnlisted } from '@/lib/prompts/verify'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
 import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
@@ -46,9 +48,9 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 })
     }
 
-    const { mode, userInput, jobTitle, jobDescription, company, applicantName } = await req.json()
+    // userInput is the candidate's CV. Drafts and key points arrive in candidateNotes.
+    const { userInput, jobTitle, jobDescription, company, location, applicantName, tailoredCv, candidateNotes } = await req.json()
 
-    // mode: 'refine' (user wrote a draft) | 'generate' (user provided key points)
     if (!userInput || !jobDescription) {
       return Response.json({ error: 'User input and job description are required.' }, { status: 400 })
     }
@@ -66,102 +68,23 @@ export async function POST(req: Request) {
     if (company && (typeof company !== 'string' || company.length > 200)) {
       return Response.json({ error: 'Company name is too long.' }, { status: 400 })
     }
+    if (location && (typeof location !== 'string' || location.length > 200)) {
+      return Response.json({ error: 'Location is too long.' }, { status: 400 })
+    }
+    if (tailoredCv && (typeof tailoredCv !== 'string' || tailoredCv.length > 15000)) {
+      return Response.json({ error: 'Tailored CV is too long. Maximum 15,000 characters.' }, { status: 400 })
+    }
+    if (candidateNotes && (typeof candidateNotes !== 'string' || candidateNotes.length > 8000)) {
+      return Response.json({ error: 'Notes are too long. Maximum 8,000 characters.' }, { status: 400 })
+    }
     // Strip any HTML/control characters from applicantName to prevent prompt injection.
     const safeApplicantName = applicantName
       ? String(applicantName).replace(/<[^>]*>/g, '').slice(0, 100)
       : undefined
 
-    const isRefine = mode === 'refine'
-
-    const applicantFullName = safeApplicantName || null
-
-    const systemPrompt = isRefine
-      ? `You are an elite executive cover letter writer with expertise in ATS optimization, recruitment, and hiring. Your task is to write a tailored cover letter using ONLY information explicitly supported by the provided Tailored CV.
-
-Your goal is to demonstrate why the candidate is a credible match for the role by mapping real evidence to the core needs of the position.
-
-STRICT GUARDRAILS
-- Never invent companies, projects, tools, achievements, certifications, responsibilities, or metrics.
-- Never exaggerate experience or imply expertise that cannot be supported by the CV.
-- If the CV lacks a requested skill, focus entirely on adjacent structural strengths present in the document.
-- Mirror the core technical terms and job function keywords used in the job description to ensure contextual alignment, but do not copy full sentences.
-- Prefer evidence over claims. Do not state skills without linking them directly to a CV context.
-- If multiple experiences satisfy the same requirement, choose the strongest single piece of evidence rather than mentioning every relevant experience.
-
-OUTPUT AND FORMATTING RULES
-- Plain text only. Zero markdown. No asterisks, no stars, no hashes, no underscores, no bullet symbols.
-- No letterhead, date, address, or bracketed text.
-- Start exactly with the words: Dear Hiring Manager,
-- End exactly with the word: Sincerely, followed immediately by a line break and the Applicant Name provided below.
-- Target length: Strictly between 300–400 words.
-- Never sacrifice readability for keyword density.
-
-STRUCTURE
-- Paragraph 1: Introduce the role and company. State one specific reason the candidate is well suited based on the CV.
-- Paragraph 2: Discuss the strongest directly relevant experience. Use actual companies, tools, projects, and achievements from the CV.
-- Paragraph 3: Address one additional requirement from the job description that was not covered in Paragraph 2 using only evidence from the CV. This prevents thematic repetition.
-- Paragraph 4: Close confidently by expressing interest in contributing to the company's business outcomes.
-
-QUALITY CHECK AND FINAL VALIDATION
-Silently verify that every company, tool, and achievement mentioned exists in the CV, no unsupported claims are introduced, and no markdown elements remain.
-Apply this final validation check: "If the hiring manager asks the candidate about the context behind this letter tomorrow, can the candidate back up every claim using the exact details of their CV?" If no, adjust the text.
-
-OUTPUT RESTRICTION:
-Your response must consist ONLY of the final cover letter text. Do not include any introductory text, notes, or analysis. The response must start immediately with "Dear Hiring Manager," and end exactly with the applicant's name.`
-      : `You are an elite executive cover letter writer with expertise in ATS optimization, recruitment, and hiring. Your task is to write a tailored cover letter using ONLY information explicitly supported by the provided Tailored CV.
-
-Your goal is to demonstrate why the candidate is a credible match for the role by mapping real evidence to the core needs of the position.
-
-STRICT GUARDRAILS
-- Never invent companies, projects, tools, achievements, certifications, responsibilities, or metrics.
-- Never exaggerate experience or imply expertise that cannot be supported by the CV.
-- If the CV lacks a requested skill, focus entirely on adjacent structural strengths present in the document.
-- Mirror the core technical terms and job function keywords used in the job description to ensure contextual alignment, but do not copy full sentences.
-- Prefer evidence over claims. Do not state skills without linking them directly to a CV context.
-- If multiple experiences satisfy the same requirement, choose the strongest single piece of evidence rather than mentioning every relevant experience.
-
-OUTPUT AND FORMATTING RULES
-- Plain text only. Zero markdown. No asterisks, no stars, no hashes, no underscores, no bullet symbols.
-- No letterhead, date, address, or bracketed text.
-- Start exactly with the words: Dear Hiring Manager,
-- End exactly with the word: Sincerely, followed immediately by a line break and the Applicant Name provided below.
-- Target length: Strictly between 300–400 words.
-- Never sacrifice readability for keyword density.
-
-STRUCTURE
-- Paragraph 1: Introduce the role and company. State one specific reason the candidate is well suited based on the CV.
-- Paragraph 2: Discuss the strongest directly relevant experience. Use actual companies, tools, projects, and achievements from the CV.
-- Paragraph 3: Address one additional requirement from the job description that was not covered in Paragraph 2 using only evidence from the CV. This prevents thematic repetition.
-- Paragraph 4: Close confidently by expressing interest in contributing to the company's business outcomes.
-
-QUALITY CHECK AND FINAL VALIDATION
-Silently verify that every company, tool, and achievement mentioned exists in the CV, no unsupported claims are introduced, and no markdown elements remain.
-Apply this final validation check: "If the hiring manager asks the candidate about the context behind this letter tomorrow, can the candidate back up every claim using the exact details of their CV?" If no, adjust the text.
-
-OUTPUT RESTRICTION:
-Your response must consist ONLY of the final cover letter text. Do not include any introductory text, notes, or analysis. The response must start immediately with "Dear Hiring Manager," and end exactly with the applicant's name.`
-
-    const userMessage = isRefine
-      ? `APPLICANT NAME: ${applicantFullName ?? 'use the name from the CV'}
-ROLE: ${jobTitle?.slice(0, 200) ?? 'the position'}
-EMPLOYER COMPANY: ${company?.slice(0, 200) ?? 'the company'}
-
-JOB POSTING:
-${jobDescription.slice(0, 3000)}
-
-CV (use ONLY companies, tools, and facts from here — do not invent):
-${userInput.slice(0, 10000)}
-
-Rewrite the above draft substantially. Replace all vague phrases with specific CV facts. Do not return the draft unchanged.`
-      : `APPLICANT NAME: ${applicantFullName ?? 'use the full name from the CV'}
-ROLE: ${jobTitle?.slice(0, 200) ?? 'the position'}
-EMPLOYER COMPANY: ${company?.slice(0, 200) ?? 'the company'}
-
-JOB POSTING:
-${jobDescription.slice(0, 3000)}
-
-CV (use ONLY companies, tools, and facts from here — do not invent anything):
-${userInput.slice(0, 15000)}`
+    const notes = [safeApplicantName ? `Sign the letter as: ${safeApplicantName}` : '', candidateNotes ?? '']
+      .filter(Boolean)
+      .join('\n\n')
 
     // Reserve the token atomically before the AI call so parallel requests can't
     // all pass the balance check above. Refunded in the catch below if the call fails.
@@ -173,18 +96,35 @@ ${userInput.slice(0, 15000)}`
     }
     reservedFor = user.id
 
-    const { text } = await generateText({
+    const source = [userInput, notes].join('\n')
+    const { output, checks } = await generateChecked({
       model: writingModel,
-      messages: [
-        {
-          role: 'user',
-          content: userMessage,
-        },
-      ],
-      system: systemPrompt,
+      system: COVER_LETTER_SYSTEM,
+      schema: coverLetterSchema,
+      prompt: coverLetterUserMessage({
+        jobTitle,
+        company,
+        location,
+        jobDescription: jobDescription.slice(0, 5000),
+        cv: userInput,
+        tailoredCv,
+        candidateNotes: notes,
+      }),
+      check: ({ letter, claims }) => {
+        const text = renderCoverLetter(letter)
+        return [
+          ...checkFacts(text, source),
+          ...checkCurrency(text, source),
+          ...checkSpelling(text, jobDescription, userInput, location),
+          ...checkQuotes(claims, source),
+          ...checkUnlisted(letter.paragraphs, claims),
+        ]
+      },
     })
 
-    return Response.json({ coverLetter: text })
+    const { letter, ...analysis } = output
+    analysis.flags = [...analysis.flags, ...checks] as typeof analysis.flags
+    return Response.json({ coverLetter: renderCoverLetter(letter), analysis })
   } catch (err: unknown) {
     if (reservedFor) await refundToken(reservedFor, 'document_generation')
     const message = err instanceof Error ? err.message : String(err)

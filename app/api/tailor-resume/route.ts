@@ -1,6 +1,8 @@
 import { getCurrentUser } from '@/lib/auth/server'
 import { writingModel } from '@/lib/ai'
-import { generateText } from 'ai'
+import { generateChecked } from '@/lib/prompts/generate-checked'
+import { TAILOR_CV_SYSTEM, tailorCvUserMessage, tailoredCvSchema, renderTailoredCv } from '@/lib/prompts/tailor-cv'
+import { checkCurrency, checkSpelling, checkFacts, checkSkills } from '@/lib/prompts/verify'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
 import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 })
     }
 
-    const { resumeText, jobTitle, jobDescription, company } = await req.json()
+    const { resumeText, jobTitle, jobDescription, company, location, candidateNotes } = await req.json()
 
     if (!resumeText || !jobDescription) {
       return Response.json({ error: 'Resume and job description are required.' }, { status: 400 })
@@ -65,6 +67,12 @@ export async function POST(req: Request) {
     if (company && (typeof company !== 'string' || company.length > 200)) {
       return Response.json({ error: 'Company name is too long.' }, { status: 400 })
     }
+    if (location && (typeof location !== 'string' || location.length > 200)) {
+      return Response.json({ error: 'Location is too long.' }, { status: 400 })
+    }
+    if (candidateNotes && (typeof candidateNotes !== 'string' || candidateNotes.length > 3000)) {
+      return Response.json({ error: 'Notes are too long. Maximum 3,000 characters.' }, { status: 400 })
+    }
 
     // Reserve the token atomically before the AI call so parallel requests can't
     // all pass the balance check above. Refunded in the catch below if the call fails.
@@ -76,59 +84,28 @@ export async function POST(req: Request) {
     }
     reservedFor = user.id
 
-    const { text } = await generateText({
+    const source = [resumeText, candidateNotes ?? ''].join('\n')
+    const { output, checks } = await generateChecked({
       model: writingModel,
-      system: `You are an expert ATS Resume Writer, Technical Recruiter, and Career Coach. Your task is to tailor the provided CV to the provided Job Description while remaining 100% truthful.
-
-PRIMARY OBJECTIVE
-Maximize ATS compatibility and recruiter appeal WITHOUT inventing, exaggerating, or implying experience that is not explicitly supported by the CV.
-
-STRICT GUARDRAILS
-- Never fabricate skills, tools, achievements, certifications, projects, responsibilities, or metrics.
-- Never imply the candidate has experience with a technology simply because it appears in the job description.
-- Never replace existing achievements with generic keywords.
-- Never remove measurable achievements unless absolutely necessary for space.
-- Never downgrade strong evidence just to include more keywords.
-- Never strengthen responsibilities beyond what the original CV supports. Rewrite for clarity, not seniority. Do not elevate titles or scale of work.
-- If a job requirement is unsupported by the CV, do not add it.
-- If experience is partially related, emphasize the relevant parts without exaggerating.
-
-CHRONOLOGY AND SELECTION RULES
-- Preserve employment chronology exactly. Do not reorder jobs unless the original CV already uses a functional resume format. Only reorder bullet points within each individual position to prioritize relevance.
-- If multiple experiences satisfy the same requirement, choose the strongest evidence rather than mentioning every relevant experience. Avoid clutter.
-- Prefer evidence over claims. Prioritize specific actions and results over vague introductory skill claims.
-
-TAILORING AND FORMATTING RULES
-- Naturally incorporate relevant keywords from the job description only where they truthfully describe existing experience. Prefer existing CV wording whenever it is equally effective to avoid unnecessary rewriting.
-- Never sacrifice readability for keyword density. The document must read naturally for a human recruiter, not look like a stuffed keyword list.
-- Do not use asterisks, stars, or markdown bold symbols anywhere in the output text.
-- Use simple hyphens (-) for bullet points.
-- Use plain capitalized text for section headers if emphasis is needed.
-
-QUALITY CHECK AND FINAL VALIDATION
-Before producing the final CV, silently verify that every skill and tool exists in the original CV, metrics are unchanged, and no unsupported claims were introduced.
-Apply this final validation check: "If I were the hiring manager interviewing this candidate tomorrow, could they confidently explain every sentence in this CV?" If the answer is no, rewrite that sentence.
-
-OUTPUT RESTRICTION:
-Return ONLY the tailored CV text. Do not include any introductory remarks, concluding remarks, notes, or explanations. The very first character of your response must be the start of the CV document.`,
-      messages: [
-        {
-          role: 'user',
-          content: `ROLE: ${String(jobTitle ?? '').slice(0, 200)}
-COMPANY: ${String(company ?? '').slice(0, 200)}
-
-JOB DESCRIPTION:
-${jobDescription.slice(0, 5000)}
-
-ORIGINAL CV:
-${resumeText}
-
-Tailor this CV for the ${String(jobTitle ?? 'role')} at ${String(company ?? 'this company')}.`,
-        },
-      ],
+      system: TAILOR_CV_SYSTEM,
+      schema: tailoredCvSchema,
+      prompt: tailorCvUserMessage({
+        jobTitle,
+        company,
+        location,
+        jobDescription: jobDescription.slice(0, 5000),
+        cv: resumeText,
+        candidateNotes,
+      }),
+      check: ({ cv }) => {
+        const text = renderTailoredCv(cv)
+        return [...checkFacts(text, source), ...checkCurrency(text, source), ...checkSpelling(text, jobDescription, resumeText, location), ...checkSkills(cv.skills.flatMap((s) => s.items), source)]
+      },
     })
 
-    return Response.json({ tailoredResume: text })
+    const { cv, ...analysis } = output
+    analysis.flags = [...analysis.flags, ...checks] as typeof analysis.flags
+    return Response.json({ tailoredResume: renderTailoredCv(cv), analysis })
   } catch (err) {
     if (reservedFor) await refundToken(reservedFor, 'document_generation')
     console.error('[v0] tailor-resume error:', err)

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useApp } from '@/components/pz/app-context'
-import { DOC_NOTE, Note } from '@/components/pz/ui'
+import { DOC_NOTE, Note, ReviewNotes, type ReviewFlag } from '@/components/pz/ui'
 import { diffCv, initialFlagState, plainText, renderLines, type CvDiff, type FlagState } from '@/lib/pz/cv-diff'
 import { downloadTextAsPdf } from '@/lib/pz/export'
 import { jobContext } from '@/lib/pz/job-text'
@@ -22,6 +22,7 @@ export default function CvReviewPage() {
   const [error, setError] = useState('')
   const [diff, setDiff] = useState<CvDiff | null>(null)
   const [flags, setFlags] = useState<FlagState>({})
+  const [notes, setNotes] = useState<ReviewFlag[]>([])
   const [view, setView] = useState<'red' | 'side'>('red')
   const [edit, setEdit] = useState(false)
   const [text, setText] = useState<string | null>(null)
@@ -41,7 +42,7 @@ export default function CvReviewPage() {
         const res = await fetch('/api/tailor-resume', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ resumeText: master.slice(0, 15000), jobTitle: job.position, company: job.company, jobDescription: jobContext(job) }),
+          body: JSON.stringify({ resumeText: master.slice(0, 15000), jobTitle: job.position, company: job.company, location: job.location, jobDescription: jobContext(job) }),
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok || !data.tailoredResume) {
@@ -56,6 +57,7 @@ export default function CvReviewPage() {
         const d = diffCv(master, data.tailoredResume)
         setDiff(d)
         setFlags(initialFlagState(d))
+        setNotes(data.analysis?.flags ?? [])
         setPhase('review')
       } catch {
         setError('We could not tailor your CV. Please try again.')
@@ -138,6 +140,8 @@ export default function CvReviewPage() {
       {phase === 'review' && diff && (
         <>
           <Note style={{ marginTop: 24 }}>{DOC_NOTE}</Note>
+
+          <ReviewNotes flags={notes} style={{ marginTop: 32 }} />
 
           {total > 0 && (
             <section style={{ marginTop: 32 }}>

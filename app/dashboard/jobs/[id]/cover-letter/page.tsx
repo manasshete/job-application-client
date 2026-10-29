@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useApp } from '@/components/pz/app-context'
-import { DOC_NOTE, Note } from '@/components/pz/ui'
+import { DOC_NOTE, Note, ReviewNotes, type ReviewFlag } from '@/components/pz/ui'
 import { downloadTextAsPdf } from '@/lib/pz/export'
 import { jobContext } from '@/lib/pz/job-text'
 import { planOf, upgradeTarget } from '@/lib/pz/plans'
@@ -24,6 +24,7 @@ export default function CoverLetterPage() {
   const [draftErr, setDraftErr] = useState(false)
   const [error, setError] = useState('')
   const [text, setText] = useState('')
+  const [notes, setNotes] = useState<ReviewFlag[]>([])
   const [edit, setEdit] = useState(false)
   const [approved, setApproved] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -48,13 +49,15 @@ export default function CoverLetterPage() {
     if (!master) return setError('Tailoring starts from your master CV. Add one in Settings, then come back.')
     setPhase('gen')
 
-    const extras = [mode === 'refine' ? `DRAFT TO IMPROVE:\n${draft.trim()}` : '', points.trim() ? `KEY POINTS TO INCLUDE:\n${points.trim()}` : ''].filter(Boolean).join('\n\n')
-    const userInput = (extras ? `${master.slice(0, Math.max(2000, 9500 - extras.length))}\n\n${extras}` : master).slice(0, 10000)
+    const candidateNotes = [
+      mode === 'refine' ? `The candidate's own draft letter. Keep its points and voice where the CV supports them:\n${draft.trim()}` : '',
+      points.trim() ? `Points the candidate wants included:\n${points.trim()}` : '',
+    ].filter(Boolean).join('\n\n').slice(0, 8000)
     try {
       const res = await fetch('/api/generate-cover-letter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, userInput, jobTitle: job.position, company: job.company, jobDescription: jobContext(job), applicantName: app.account.name }),
+        body: JSON.stringify({ userInput: master.slice(0, 10000), candidateNotes, jobTitle: job.position, company: job.company, location: job.location, jobDescription: jobContext(job), applicantName: app.account.name }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data.coverLetter) {
@@ -65,6 +68,7 @@ export default function CoverLetterPage() {
       }
       app.noteTokenUsed('documents')
       setText(data.coverLetter.trim())
+      setNotes(data.analysis?.flags ?? [])
       setPhase('review')
     } catch {
       setError('We could not write the letter. Please try again.')
@@ -140,6 +144,7 @@ export default function CoverLetterPage() {
       {phase === 'review' && (
         <>
           <Note style={{ marginTop: 24 }}>{DOC_NOTE}</Note>
+          <ReviewNotes flags={notes} style={{ marginTop: 28 }} />
           {!approved && (
             <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '20px 0 12px' }}>
               <button className="btn btn-q" onClick={() => setEdit(!edit)}>{edit ? 'Done editing' : 'Edit text'}</button>

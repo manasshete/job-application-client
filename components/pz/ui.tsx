@@ -152,3 +152,44 @@ export function Segmented<T extends string>({ label, value, options, onChange }:
     </span>
   )
 }
+
+export interface ReviewFlag {
+  severity: 'high' | 'medium' | 'low'
+  type: string
+  message: string
+  cv_reference?: string
+}
+
+const SEVERITY_RANK = { high: 0, medium: 1, low: 2 } as const
+const FLAG_LABEL: Record<string, string> = {
+  gap: 'Not on your CV',
+  omitted: 'Left out',
+  reframed: 'Reworded',
+  terminology: 'Term swapped',
+  data_quality: 'Check your CV',
+  description: 'Job description',
+  notes: 'Your notes',
+  check: 'Check this',
+}
+
+/** The writer's own notes on a generated document, most important first. */
+export function ReviewNotes({ flags, style }: { flags?: ReviewFlag[]; style?: React.CSSProperties }) {
+  if (!flags?.length) return null
+  const sorted = [...flags].sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity])
+  return (
+    <section style={style}>
+      <h2 className="lbl" style={{ margin: 0, paddingBottom: 8 }}>Notes from the writer</h2>
+      {sorted.map((f, i) => (
+        <div key={i} style={{ padding: '12px 0', borderTop: '1px solid var(--border)' }}>
+          <span className="lbl" style={{ display: 'block', marginBottom: 2 }}>
+            {FLAG_LABEL[f.type] ?? f.type}
+            {f.severity === 'high' ? ' · important' : ''}
+          </span>
+          <span style={{ display: 'block' }}>{f.message}</span>
+          {f.cv_reference && <span className="muted" style={{ display: 'block', fontSize: 'var(--text-sm)', marginTop: 2 }}>{f.cv_reference}</span>}
+        </div>
+      ))}
+      <div style={{ borderTop: '1px solid var(--border)' }} />
+    </section>
+  )
+}
