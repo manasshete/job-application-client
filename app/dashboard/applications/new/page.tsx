@@ -145,7 +145,7 @@ function AddJob() {
       return
     }
     app.toast(`Saved. ${job.company} is in Applications${job.deadline ? ' and Next steps.' : '.'}`)
-    router.push('/dashboard/applications')
+    router.push(`/dashboard/jobs/${job.id}`)
   }
 
   const title = step === 'reading' ? 'Reading the posting…' : step === 'review' ? 'Check the details' : step === 'form' ? 'Add a job by hand' : 'Add a job'

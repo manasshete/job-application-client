@@ -6,6 +6,7 @@ import { siteConfig } from '@/lib/site-config'
 
 import './globals.css'
 import '../styles/pursuitz.css'
+import '../styles/landing.css'
 import { themeInitScript } from '@/components/pz/theme-script'
 
 const instrumentSans = Instrument_Sans({

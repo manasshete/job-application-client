@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { siteConfig } from '@/lib/site-config'
 import { FREE_TOOLS } from '@/lib/tools'
 import { PLANS } from '@/lib/pz/plans'
-import { AnimateIn } from '@/components/landing/animate-in'
-import { CountUp, HeroScene, ScrollProgress, TiltCard } from '@/components/landing/fx'
+import { Link2, Plus } from 'lucide-react'
+import { Brand } from '@/components/pz/brand'
 
 const FAQS = [
   { q: 'Will Pursuitz make things up on my CV?', a: 'Tailoring rewords and reorders what is already on your master CV. Changes to dates, job titles, qualifications and skills are flagged, and you approve the result before you can download it. AI can still make mistakes, so always proofread.' },
@@ -18,10 +18,10 @@ const SHOT = {
   title: '3 things need you this week',
   summary: [{ v: '6', l: 'Active applications' }, { v: '2', l: 'Interviews this week' }, { v: '64%', l: 'Response rate' }],
   groups: [
-    { label: 'Today', items: [{ gut: '3:00 PM', title: 'Round 2 · System design', sub: 'Northwind — Frontend Engineer II', kind: 'Interview' }] },
+    { label: 'Today', items: [{ gut: '3:00 PM', title: 'Round 2, System design', sub: 'Northwind, Frontend Engineer II', kind: 'Interview' }] },
     { label: 'This week', items: [
-      { gut: 'Fri 11:00 AM', title: 'Portfolio review', sub: 'Beacon Labs — Senior Frontend Engineer', kind: 'Interview' },
-      { gut: 'Due Sat', title: 'Submit take-home exercise', sub: 'Beacon Labs — Senior Frontend Engineer · In progress', kind: 'Task' },
+      { gut: 'Fri 11:00 AM', title: 'Portfolio review', sub: 'Beacon Labs, Senior Frontend Engineer', kind: 'Interview' },
+      { gut: 'Due Sat', title: 'Submit take-home exercise', sub: 'Beacon Labs, Senior Frontend Engineer. In progress', kind: 'Task' },
     ] },
   ],
 }
@@ -53,135 +53,194 @@ function StructuredData() {
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 }
 
-const HERO_TITLE = 'Keep track of where you applied, and what to do next.'
-
-const h2: React.CSSProperties = { margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-.015em' }
-
 export default function LandingPage() {
   return (
-    <div className="pub-in">
+    <div className="lp">
       <StructuredData />
 
-      <ScrollProgress />
-
-      <section className="hero-grid" style={{ padding: '72px 0 56px' }}>
-        <div>
-        <h1 className="hero-title" aria-label={HERO_TITLE}>
-          {HERO_TITLE.split(' ').map((w, i) => (
-            <span key={i} aria-hidden>
-              <span className={i >= 7 ? 'fx-word fx-grad' : 'fx-word'} style={{ '--i': i } as React.CSSProperties}>{w}</span>{' '}
-            </span>
-          ))}
-        </h1>
-        <p className="muted fx-up" style={{ margin: '24px 0 0', fontSize: 18, lineHeight: 1.55, maxWidth: '34em', '--delay': '700ms' } as React.CSSProperties}>
-          Pursuitz keeps every application, interview round, task and deadline in one place, and tells you what needs doing today.
-        </p>
-        <div className="fx-up" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 16px', alignItems: 'center', marginTop: 32, '--delay': '850ms' } as React.CSSProperties}>
-          <Link href="/auth/sign-up" className="btn btn-p fx-btn" style={{ minHeight: 48, padding: '0 24px' }}>Create a free account</Link>
-          <Link href="/auth/login" className="btn btn-t">Log in</Link>
-        </div>
-        <p className="muted" style={{ margin: '16px 0 0', fontSize: 'var(--text-sm)' }}>Free for up to 10 applications.</p>
-        </div>
-        <HeroScene />
-      </section>
-
-      <AnimateIn as="figure" variant="reveal-scale" className="" >
-      <TiltCard max={3} glare className="fx-shot" style={{ borderRadius: 8, margin: '0 0 24px' }}>
-        <div role="img" aria-label="Screenshot of the Pursuitz Next steps screen" style={{ border: '1px solid var(--border-strong)', borderRadius: 8, overflow: 'hidden', display: 'flex', background: 'var(--bg)', pointerEvents: 'none', userSelect: 'none' }}>
-          <div className="desk-only" style={{ width: 176, flex: 'none', borderRight: '1px solid var(--border)', padding: '20px 10px', display: 'flex', flexDirection: 'column', gap: 20, fontSize: 'var(--text-sm)' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '0 8px' }}>
-              <span style={{ width: 22, height: 22, borderRadius: 6, background: 'var(--accent)', display: 'grid', placeItems: 'center' }}><span style={{ width: 8, height: 8, borderRadius: 1, background: 'var(--on-accent)', transform: 'rotate(45deg)' }} /></span>
-              <span style={{ fontWeight: 600, letterSpacing: '-.02em' }}>Pursuitz</span>
-            </span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {NAV.map((n, i) => (
-                <span key={n} className={i ? 'muted' : undefined} style={{ padding: 8, borderRadius: 4, ...(i ? {} : { background: 'var(--surface-2)', fontWeight: 500 }) }}>{n}</span>
-              ))}
+      <section className="lp-hero">
+        <div className="lp-wrap">
+          <h1>Keep track of where you applied,<br className="lp-br" /> and what to do next.</h1>
+          <div className="lp-hero-foot">
+            <p className="lp-lead">Pursuitz keeps every application, interview round, task and deadline in one place, and tells you what needs doing today.</p>
+            <div className="lp-hero-act">
+              <Link href="/auth/sign-up" className="btn btn-p">Create a free account</Link>
+              <p className="lp-terms">Free for up to 10 applications.</p>
+              <Link href="/auth/login" className="btn btn-t">Log in</Link>
             </div>
           </div>
-          <div style={{ flex: 1, minWidth: 0, padding: 'clamp(16px, 4vw, 32px)', paddingTop: 28 }}>
-            <h2 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-.02em' }}>{SHOT.title}</h2>
-            <div className="sum" style={{ marginTop: 20 }}>
-              {SHOT.summary.map((m) => (
-                <div key={m.l}><div className="tnum" style={{ fontSize: 19, fontWeight: 500, lineHeight: 1.1 }}><CountUp value={m.v} /></div><div className="muted" style={{ fontSize: 12, marginTop: 4 }}>{m.l}</div></div>
+          <figure className="lp-fig">
+            <div className="lp-shot" data-slot="next-steps" data-kind="product" data-alt="The Next steps screen with sample applications" role="img" aria-label="Screenshot of the Pursuitz Next steps screen">
+              <div className="lp-next">
+                <div className="lp-next-side">
+                  <span className="lp-next-brand"><Brand small /></span>
+                  <div className="lp-next-nav">
+                    {NAV.map((n, i) => (<span key={n} className={i ? undefined : 'is-on'}>{n}</span>))}
+                  </div>
+                </div>
+                <div className="lp-next-main">
+                  <div className="lp-next-head">
+                    <h2>{SHOT.title}</h2>
+                    <div className="lp-next-stats">
+                      {SHOT.summary.map((m) => (
+                        <div key={m.l}><div className="lp-next-fig">{m.v}</div><div className="lp-next-cap">{m.l}</div></div>
+                      ))}
+                    </div>
+                  </div>
+                  {SHOT.groups.map((g) => (
+                    <div key={g.label} className="lp-next-grp">
+                      <div className="lp-next-lbl">{g.label}</div>
+                      {g.items.map((it) => (
+                        <div key={it.title} className="lp-next-row">
+                          <span className="lp-next-when">{it.gut}</span>
+                          <span className="lp-next-what"><span className="lp-next-t">{it.title}</span><span className="lp-next-s">{it.sub}</span></span>
+                          <span className="lp-next-kind">{it.kind}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <figcaption>The Next steps screen. Company names and dates are sample data.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section className="lp-sec lp-sec-l">
+        <div className="lp-wrap lp-split lp-5-7">
+          <div className="lp-text">
+            <h2>Track</h2>
+            <p>Paste a job link and Pursuitz reads the posting. You check the details, then save. Applications sit in one table, and each job has its own page for interview rounds, tasks, notes and documents.</p>
+          </div>
+          <figure className="lp-fig lp-proof">
+            <div className="lp-shot lp-pad" data-slot="track" data-kind="product" data-alt="Adding a job from a link, then the applications table" role="img" aria-label="A job link read into company and job title fields, above the applications table">
+              <div className="lp-link"><Link2 aria-hidden="true" /><span className="lp-url-t">https://company.com/careers/job-id</span><span className="btn btn-p lp-mini">Analyze job</span></div>
+              <dl className="lp-fields">
+                <div><dt>Company</dt><dd>Northwind</dd></div>
+                <div><dt>Job title</dt><dd>Frontend Engineer II</dd></div>
+              </dl>
+              <div className="lp-table">
+                <div className="lp-table-h"><span>Company</span><span>Job title</span><span>Status</span></div>
+                <div className="lp-table-r"><span>Northwind</span><span>Frontend Engineer II</span><span className="st-interview">Interview</span></div>
+                <div className="lp-table-r"><span>Beacon Labs</span><span>Senior Frontend Engineer</span><span className="st-interview">Interview</span></div>
+              </div>
+            </div>
+            <figcaption>Company names are sample data.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section className="lp-sec">
+        <div className="lp-wrap lp-split lp-4-8">
+          <div className="lp-text">
+            <h2>Prepare</h2>
+            <p className="lp-sub">AI with your approval</p>
+            <p>Tailor your CV or write a cover letter for one job. Changes appear as a redline, anything touching dates, job titles, qualifications or skills is flagged for you to keep or revert, and nothing downloads until you approve it.</p>
+          </div>
+          <figure className="lp-fig lp-proof">
+            <div className="lp-shot lp-pad" data-slot="prepare" data-kind="product" data-alt="A tailored CV as a redline with one flagged change" role="img" aria-label="A tailored CV shown as a redline, with a job title change flagged to keep or revert">
+              <p className="lp-doc-name">Tailored CV, Northwind</p>
+              <div className="cvl lp-doc">
+                <p className="cv-role"><span className="del">Frontend Engineer</span> <span className="ins">Senior Frontend Engineer</span><span className="mk">1</span></p>
+                <p className="cv-p"><span className="del">Worked on</span> <span className="ins">Rebuilt</span> the checkout flow in React and <span className="del">helped with</span> <span className="ins">led</span> the move to a shared design system.</p>
+              </div>
+              <div className="lp-flag">
+                <span className="mk">1</span>
+                <span className="lp-flag-t"><span className="lp-next-t">Job title</span><span className="lp-next-s">Frontend Engineer changed to Senior Frontend Engineer</span></span>
+                <span className="lp-flag-a"><span className="btn btn-q lp-mini">Keep</span><span className="btn btn-q lp-mini">Revert</span></span>
+              </div>
+              <div className="lp-approve">
+                <span className="lp-next-s">Check 1 more change to approve. Approve changes before downloading.</span>
+                <span className="lp-flag-a"><span className="btn lp-mini lp-off">Approve</span><span className="btn lp-mini lp-off">Download PDF</span></span>
+              </div>
+            </div>
+            <figcaption>The CV text is sample data.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section className="lp-sec lp-sec-s">
+        <div className="lp-wrap lp-split lp-6-6">
+          <div className="lp-text">
+            <h2>Follow up</h2>
+            <p>Analytics show your response rate and which sources reply.</p>
+          </div>
+          <div className="lp-proof">
+            <p className="lp-list-lbl" id="lp-next-lists">Next steps lists</p>
+            <ul className="lp-list" aria-labelledby="lp-next-lists">
+              <li>Upcoming interviews</li>
+              <li>Tasks</li>
+              <li>Response deadlines</li>
+              <li>Applications with no reply after 7 days</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="tools" className="lp-sec lp-sec-l">
+        <div className="lp-wrap lp-split lp-4-8">
+          <div className="lp-text">
+            <h2>Free tools</h2>
+          </div>
+          <div className="lp-proof">
+            <div className="lp-tools">
+              {FREE_TOOLS.map((t) => (
+                <div key={t.slug} className="lp-tool">
+                  <h3>{t.title}</h3>
+                  <p>{t.description}</p>
+                  <Link href={`/tools/${t.slug}`} className="btn btn-q">Open</Link>
+                </div>
               ))}
             </div>
-            {SHOT.groups.map((g) => (
-              <div key={g.label} style={{ marginTop: 24, borderBottom: '1px solid var(--border)' }}>
-                <div className="lbl" style={{ marginBottom: 6 }}>{g.label}</div>
-                {g.items.map((it) => (
-                  <div key={it.title} className="rl ng" style={{ padding: '12px 0', margin: 0 }}>
-                    <span className="tnum muted" style={{ fontSize: 12.5 }}>{it.gut}</span>
-                    <span style={{ minWidth: 0 }}><span style={{ display: 'block', fontWeight: 500, fontSize: 'var(--text-sm)' }}>{it.title}</span><span className="muted" style={{ display: 'block', fontSize: 12.5 }}>{it.sub}</span></span>
-                    <span className="kind muted" style={{ fontSize: 12 }}>{it.kind}</span>
+            <p className="lp-fine">Take-home salary calculator: estimates only, based on simplified tax assumptions. Not tax or financial advice.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" className="lp-sec">
+        <div className="lp-wrap lp-split lp-3-9">
+          <div className="lp-text">
+            <h2>Pricing</h2>
+          </div>
+          <div className="lp-proof">
+            <div className="lp-plans">
+              {PLANS.map((p) => (
+                <div key={p.tier} className="lp-plan">
+                  <h3>{p.name}</h3>
+                  <div className="lp-price"><span className="lp-price-v">{p.price}</span> <span className="lp-price-p">{p.per}</span></div>
+                  <ul>
+                    {p.lines.map((l) => (<li key={l}>{l}</li>))}
+                  </ul>
+                  <div className="lp-plan-act">
+                    {p.tier === 'free' ? (
+                      <Link href="/auth/sign-up" className="btn btn-q">Start free</Link>
+                    ) : (
+                      // Payments are not live yet, so paid plans can't be bought.
+                      <button type="button" className="btn btn-q" disabled aria-disabled="true">Coming soon</button>
+                    )}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+            </div>
+            <p className="lp-fine">Paid plans are coming soon. Everything on the free plan works today.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" className="lp-sec lp-sec-s lp-last">
+        <div className="lp-wrap lp-split lp-5-7">
+          <div className="lp-text">
+            <h2>Questions</h2>
+          </div>
+          <div className="lp-proof faq lp-faq">
+            {FAQS.map((f) => (
+              <details key={f.q}>
+                <summary>{f.q}<Plus aria-hidden="true" /></summary>
+                <p>{f.a}</p>
+              </details>
             ))}
           </div>
-        </div>
-      </TiltCard>
-        <figcaption className="muted" style={{ marginTop: 12, fontSize: 'var(--text-xs)' }}>The Next steps screen. Company names and dates are sample data.</figcaption>
-      </AnimateIn>
-
-      <section style={{ padding: '72px 0 0' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '40px 48px', paddingTop: 32, borderTop: '1px solid var(--border)' }}>
-          <AnimateIn delay="reveal-delay-1"><h2 style={h2}>Track</h2><p className="muted" style={{ margin: '12px 0 0', lineHeight: 1.65 }}>Paste a job link and Pursuitz reads the posting. You check the details, then save. Applications sit in one table, and each job has its own page for interview rounds, tasks, notes and documents.</p></AnimateIn>
-          <AnimateIn delay="reveal-delay-3"><h2 style={h2}>Prepare</h2><p className="lbl" style={{ margin: '2px 0 0' }}>AI with your approval</p><p className="muted" style={{ margin: '10px 0 0', lineHeight: 1.65 }}>Tailor your CV or write a cover letter for one job. Changes appear as a redline, anything touching dates, job titles, qualifications or skills is flagged for you to keep or revert, and nothing downloads until you approve it.</p></AnimateIn>
-          <AnimateIn delay="reveal-delay-5"><h2 style={h2}>Follow up</h2><p className="muted" style={{ margin: '12px 0 0', lineHeight: 1.65 }}>Next steps lists upcoming interviews, tasks, response deadlines and applications with no reply after 7 days. Analytics show your response rate and which sources reply.</p></AnimateIn>
-        </div>
-      </section>
-
-      <section id="tools" style={{ padding: '88px 0 0', scrollMarginTop: 72 }}>
-        <h2 style={h2}>Free tools</h2>
-        <div style={{ marginTop: 20, borderBottom: '1px solid var(--border)' }}>
-          {FREE_TOOLS.map((t, i) => (
-            <AnimateIn key={t.slug} delay={`reveal-delay-${Math.min(i + 1, 5)}`}>
-            <div className="fx-row" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '8px 16px', padding: '16px 0', borderTop: '1px solid var(--border)' }}>
-              <span style={{ minWidth: 0 }}><span style={{ display: 'block', fontWeight: 500 }}>{t.title}</span><span className="muted" style={{ fontSize: 'var(--text-sm)' }}>{t.description}</span></span>
-              <Link href={`/tools/${t.slug}`} className="btn btn-q">Open</Link>
-            </div>
-            </AnimateIn>
-          ))}
-        </div>
-        <p className="muted" style={{ margin: '12px 0 0', fontSize: 'var(--text-xs)' }}>Take-home salary calculator: estimates only, based on simplified tax assumptions. Not tax or financial advice.</p>
-      </section>
-
-      <section id="pricing" style={{ padding: '88px 0 0', scrollMarginTop: 72 }}>
-        <h2 style={h2}>Pricing</h2>
-        <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 32 }}>
-          {PLANS.map((p, i) => (
-            <AnimateIn key={p.tier} delay={`reveal-delay-${Math.min(i + 1, 5)}`}>
-            <TiltCard max={5} className="fx-plan" style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 20, background: 'var(--surface)', height: '100%', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div style={{ fontWeight: 500 }}>{p.name}</div>
-              <div className="tnum"><span style={{ fontSize: 28, fontWeight: 500, letterSpacing: '-.02em' }}>{p.price}</span> <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>{p.per}</span></div>
-              <ul style={{ padding: 0, listStyle: 'none', fontSize: 'var(--text-sm)', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {p.lines.map((l) => (<li key={l}>{l}</li>))}
-              </ul>
-              <div style={{ marginTop: 'auto', paddingTop: 8 }}>
-                {p.tier === 'free' ? (
-                  <Link href="/auth/sign-up" className="btn btn-q">Start free</Link>
-                ) : (
-                  // Payments are not live yet, so paid plans can't be bought.
-                  <button type="button" className="btn btn-q" disabled aria-disabled="true">Coming soon</button>
-                )}
-              </div>
-            </TiltCard>
-            </AnimateIn>
-          ))}
-        </div>
-        <p className="muted" style={{ margin: '20px 0 0', fontSize: 'var(--text-xs)' }}>Paid plans are coming soon. Everything on the free plan works today.</p>
-      </section>
-
-      <section id="faq" style={{ padding: '88px 0 0', maxWidth: 760, scrollMarginTop: 72 }}>
-        <h2 style={{ ...h2, marginBottom: 20 }}>Questions</h2>
-        <div className="faq" style={{ borderBottom: '1px solid var(--border)' }}>
-          {FAQS.map((f) => (
-            <details key={f.q} style={{ borderTop: '1px solid var(--border)' }}>
-              <summary>{f.q}</summary>
-              <p className="muted" style={{ margin: '0 0 18px', lineHeight: 1.65 }}>{f.a}</p>
-            </details>
-          ))}
         </div>
       </section>
     </div>
