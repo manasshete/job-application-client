@@ -6,6 +6,8 @@ const MAX_BYTES = 3 * 1024 * 1024
 const TIMEOUT_MS = 10000
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+// 999 is LinkedIn's own "request denied" status.
+const BLOCKED_STATUSES = new Set([401, 403, 429, 999])
 
 export class JobPageError extends Error {}
 
@@ -34,17 +36,21 @@ export async function fetchJobPage(url: string): Promise<string> {
 
       if (response.status >= 300 && response.status < 400) {
         const location = response.headers.get('location')
-        if (!location) throw new JobPageError('Failed to fetch job posting')
+        if (!location) throw new JobPageError('Failed to fetch job posting.')
         current = new URL(location, current).toString()
         continue
       }
-      if (!response.ok) throw new JobPageError('Failed to fetch job posting')
+      // Bot protection (Indeed's Cloudflare check, for example) rejects server requests, so a retry won't help.
+      if (BLOCKED_STATUSES.has(response.status) || response.headers.has('cf-mitigated')) {
+        throw new JobPageError(`${new URL(current).hostname} blocks automatic reading.`)
+      }
+      if (!response.ok) throw new JobPageError('Failed to fetch job posting.')
       return await readCapped(response)
     }
     throw new JobPageError('This link redirects too many times.')
   } catch (error) {
     if (error instanceof JobPageError) throw error
-    throw new JobPageError(controller.signal.aborted ? 'The job page took too long to load.' : 'Failed to fetch job posting')
+    throw new JobPageError(controller.signal.aborted ? 'The job page took too long to load.' : 'Failed to fetch job posting.')
   } finally {
     clearTimeout(timeoutId)
   }

@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useApp } from '@/components/pz/app-context'
 import { AI_NOTE, Note } from '@/components/pz/ui'
 import { checkJobLink } from '@/components/pz/job-link-form'
-import { AlertCircle, ArrowLeft, ArrowRight, Link2, PenLine } from 'lucide-react'
+import { AlertCircle, ArrowLeft, ArrowRight, ClipboardPaste, Link2, PenLine } from 'lucide-react'
 import { hostOf } from '@/lib/pz/format'
 import { FREE_JOB_LIMIT, upgradeTarget, planOf } from '@/lib/pz/plans'
 
@@ -55,6 +55,9 @@ function AddJob() {
   const [f, setF] = useState<Form>(() => blank(today))
   const [touched, setTouched] = useState(false)
   const [readError, setReadError] = useState('')
+  const [pasteOpen, setPasteOpen] = useState(false)
+  const [pasted, setPasted] = useState('')
+  const [readingPasted, setReadingPasted] = useState(false)
   const [saving, setSaving] = useState(false)
   const abort = useRef<AbortController | null>(null)
   const started = useRef(false)
@@ -67,25 +70,27 @@ function AddJob() {
   const up = upgradeTarget(account.tier)
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement>) => setF((cur) => ({ ...cur, [k]: e.target.value }))
 
-  const readIt = async () => {
+  const readIt = async (text?: string) => {
     const checked = checkJobLink(url)
-    if (!checked.url) {
+    if (!text && !checked.url) {
       setReadError(checked.error ?? '')
       return
     }
-    const u = checked.url
-    setUrl(u)
+    const u = checked.url ?? ''
+    if (u) setUrl(u)
     setReadError('')
+    setReadingPasted(!!text)
     setStep('reading')
     abort.current = new AbortController()
     try {
-      const res = await fetch('/api/extract-job', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: u }), signal: abort.current.signal })
+      const res = await fetch('/api/extract-job', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(text ? { text } : { url: u }), signal: abort.current.signal })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         // The server is the source of truth: if it says the tokens are gone, refresh the counter so the
         // "out of extraction tokens" view takes over instead of a generic error.
         if (res.status === 403) void app.refreshTokens()
         setReadError(data.error || 'We couldn’t read that posting. Some sites block automatic reading.')
+        setPasteOpen(true)
         setStep('paste')
         return
       }
@@ -197,7 +202,7 @@ function AddJob() {
           {readError ? (
             <p id="job-url-msg" className="field-msg field-err" role="alert">
               <AlertCircle aria-hidden="true" />
-              <span>{readError} You can try again, or <button type="button" className="btn-t" style={{ color: 'inherit', textDecoration: 'underline' }} onClick={() => { setF((cur) => ({ ...cur, link: checkJobLink(url).url ?? '' })); setStep('form') }}>enter it by hand</button> and keep the link.</span>
+              <span>{readError} {pasteOpen ? 'Paste the job text below, or' : 'You can try again, or'} <button type="button" className="btn-t" style={{ color: 'inherit', textDecoration: 'underline' }} onClick={() => { setF((cur) => ({ ...cur, link: checkJobLink(url).url ?? '' })); setStep('form') }}>enter it by hand</button> and keep the link.</span>
             </p>
           ) : (
             <p id="job-url-msg" className="muted tnum" style={{ margin: '10px 0 0', fontSize: 'var(--text-xs)' }}>
@@ -205,13 +210,24 @@ function AddJob() {
               {tokens.extractions <= 3 ? ', which is running low.' : '.'}
             </p>
           )}
-          <button type="button" className="btn btn-q" style={{ marginTop: 24 }} onClick={() => { setUrl(''); setStep('form') }}><PenLine aria-hidden="true" />Enter manually instead</button>
+          {pasteOpen && (
+            <div style={{ marginTop: 24 }}>
+              <label htmlFor="job-text" className="fl" style={{ display: 'block', marginBottom: 8 }}>Job posting text</label>
+              <textarea id="job-text" className="inp" rows={10} placeholder="Open the posting, select all the text, then copy and paste it here." value={pasted} onChange={(e) => setPasted(e.target.value)} />
+              <p className="muted tnum" style={{ margin: '10px 0 16px', fontSize: 'var(--text-xs)' }}>Reading the text uses 1 extraction. You have {tokens.extractions}.</p>
+              <button type="button" className="btn btn-p" disabled={!pasted.trim()} onClick={() => void readIt(pasted)}><ArrowRight aria-hidden="true" />Analyze text</button>
+            </div>
+          )}
+          <div className="row-actions" style={{ marginTop: 24 }}>
+            {!pasteOpen && <button type="button" className="btn btn-q" onClick={() => setPasteOpen(true)}><ClipboardPaste aria-hidden="true" />Paste job text instead</button>}
+            <button type="button" className="btn btn-q" onClick={() => { setUrl(''); setStep('form') }}><PenLine aria-hidden="true" />Enter manually instead</button>
+          </div>
         </form>
       )}
 
       {!limit && step === 'reading' && (
         <div aria-busy="true" className="panel" style={{ marginTop: 28 }}>
-          <p style={{ margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}><span className="spin" aria-hidden="true" style={{ color: 'var(--accent-text)' }} />Reading {hostOf(url) || 'the posting'} and pulling out the role, company and requirements. This usually takes a few seconds.</p>
+          <p style={{ margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 10 }}><span className="spin" aria-hidden="true" style={{ color: 'var(--accent-text)' }} />Reading {readingPasted ? 'the job text' : hostOf(url) || 'the posting'} and pulling out the role, company and requirements. This usually takes a few seconds.</p>
           <div className="sk" style={{ width: '46%' }} />
           <div className="sk" style={{ width: '62%', marginTop: 14 }} />
           <div className="sk" style={{ width: '38%', marginTop: 14 }} />
@@ -237,7 +253,7 @@ function AddJob() {
           {step === 'review' && <Note style={{ marginTop: 28 }}>{AI_NOTE}</Note>}
           <div className="row-actions" style={{ marginTop: 24 }}>
             <button className="btn btn-p" disabled={!f.company.trim() || !f.role.trim() || saving} aria-busy={saving || undefined} onClick={save}>{saving && <span className="spin" aria-hidden="true" />}{saving ? 'Saving…' : 'Save job'}</button>
-            <button className="btn btn-q" onClick={() => { setF(blank(today)); setTouched(false); setStep('paste') }}>Start over</button>
+            <button className="btn btn-q" onClick={() => { setF(blank(today)); setTouched(false); setPasted(''); setPasteOpen(false); setStep('paste') }}>Start over</button>
           </div>
         </div>
       )}

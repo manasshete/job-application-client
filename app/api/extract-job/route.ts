@@ -19,6 +19,8 @@ const jobDetailsSchema = z.object({
   requirements: z.array(z.string()).nullable(),
 })
 
+const MAX_PASTED_CHARS = 20000
+
 export async function POST(req: Request) {
   try {
     // Authentication check
@@ -59,51 +61,62 @@ export async function POST(req: Request) {
       )
     }
 
-    const { url } = await req.json()
+    const { url, text } = await req.json()
 
-    if (!url || typeof url !== 'string') {
-      return Response.json({ error: 'URL is required' }, { status: 400 })
-    }
-
-    // Validate URL length
-    if (url.length > MAX_LENGTHS.URL) {
-      return Response.json({ error: 'URL too long' }, { status: 400 })
-    }
-
-    // Validate URL format and protocol
-    if (!isValidUrl(url)) {
-      return Response.json(
-        { error: 'Invalid URL. Only HTTP and HTTPS URLs are allowed.' },
-        { status: 400 }
-      )
-    }
-
-    // Prevent SSRF attacks by blocking internal/private URLs
-    if (!(await isSafePublicUrl(url))) {
-      return Response.json(
-        { error: 'Cannot access internal or private network URLs.' },
-        { status: 400 }
-      )
-    }
-
-    // Fetch the job posting (redirects are followed with an SSRF check on every hop)
     let pageText: string
-    try {
-      pageText = jobPageToText(await fetchJobPage(url))
-    } catch (error) {
-      if (error instanceof JobPageError) {
-        return Response.json({ error: error.message }, { status: 400 })
+    if (typeof text === 'string' && text.trim()) {
+      // Text copied from the posting, for sites that block automatic reading.
+      pageText = text.trim().slice(0, MAX_PASTED_CHARS)
+      if (pageText.length < 200) {
+        return Response.json(
+          { error: 'That\'s too short to be a full posting. Copy the whole job description and try again.' },
+          { status: 422 }
+        )
       }
-      throw error
-    }
+    } else {
+      if (!url || typeof url !== 'string') {
+        return Response.json({ error: 'URL is required' }, { status: 400 })
+      }
 
-    // Pages rendered entirely by JavaScript have no job text in their HTML.
-    // Checked before reserving a token so the user isn't charged.
-    if (pageText.length < 200) {
-      return Response.json(
-        { error: 'Could not read job details from this page. Try the job board\'s own link (e.g. Greenhouse, Lever, LinkedIn) or fill in the details manually.' },
-        { status: 422 }
-      )
+      // Validate URL length
+      if (url.length > MAX_LENGTHS.URL) {
+        return Response.json({ error: 'URL too long' }, { status: 400 })
+      }
+
+      // Validate URL format and protocol
+      if (!isValidUrl(url)) {
+        return Response.json(
+          { error: 'Invalid URL. Only HTTP and HTTPS URLs are allowed.' },
+          { status: 400 }
+        )
+      }
+
+      // Prevent SSRF attacks by blocking internal/private URLs
+      if (!(await isSafePublicUrl(url))) {
+        return Response.json(
+          { error: 'Cannot access internal or private network URLs.' },
+          { status: 400 }
+        )
+      }
+
+      // Fetch the job posting (redirects are followed with an SSRF check on every hop)
+      try {
+        pageText = jobPageToText(await fetchJobPage(url))
+      } catch (error) {
+        if (error instanceof JobPageError) {
+          return Response.json({ error: error.message }, { status: 400 })
+        }
+        throw error
+      }
+
+      // Pages rendered entirely by JavaScript have no job text in their HTML.
+      // Checked before reserving a token so the user isn't charged.
+      if (pageText.length < 200) {
+        return Response.json(
+          { error: 'Could not read job details from this page. Try the job board\'s own link (e.g. Greenhouse, Lever, LinkedIn) or fill in the details manually.' },
+          { status: 422 }
+        )
+      }
     }
 
     // Use AI to extract job details
@@ -125,7 +138,7 @@ export async function POST(req: Request) {
         messages: [
           {
             role: 'user',
-            content: `Extract job details from this job posting page. Return the company name, job position/title, location, salary range (if mentioned), a brief description, and up to 10 key requirements (short skill or qualification names such as "React" or "3+ years experience", not sentences). Return null for any field that cannot be found.\n\n${pageText}`,
+            content: `Extract job details from this job posting. Return the company name, job position/title, location, salary range (if mentioned), a brief description, and up to 10 key requirements (short skill or qualification names such as "React" or "3+ years experience", not sentences). Return null for any field that cannot be found.\n\n${pageText}`,
           },
         ],
       })
