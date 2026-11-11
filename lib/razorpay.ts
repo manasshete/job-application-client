@@ -1,23 +1,17 @@
 import crypto from 'crypto'
 import Razorpay from 'razorpay'
 
-let razorpayInstance: Razorpay | null = null
-
 function getRazorpay(): Razorpay {
-  if (!razorpayInstance) {
-    const key_id = process.env.RAZORPAY_KEY_ID
-    const key_secret = process.env.RAZORPAY_KEY_SECRET
+  const key_id = process.env.RAZORPAY_KEY_ID
+  const key_secret = process.env.RAZORPAY_KEY_SECRET
 
-    if (!key_id || !key_secret) {
-      throw new Error(
-        'Razorpay is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.'
-      )
-    }
-
-    razorpayInstance = new Razorpay({ key_id, key_secret })
+  if (!key_id || !key_secret) {
+    throw new Error(
+      'Razorpay is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.'
+    )
   }
 
-  return razorpayInstance
+  return new Razorpay({ key_id, key_secret })
 }
 
 export interface RazorpayOrder {

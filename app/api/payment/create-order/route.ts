@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     const order = await createOrder({
       amount,
       currency: 'INR',
-      receipt: `pursuitz_${user.id}_${Date.now()}`,
+      receipt: `pz_${user.id.slice(-8)}_${Date.now().toString(36)}`,
       // notes are returned to us (signed) by Razorpay on verification, so we
       // use them as the source of truth for which tier was actually paid for.
       notes: {
