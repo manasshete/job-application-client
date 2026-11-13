@@ -21,11 +21,6 @@ export function Note({ children, style, role }: { children: ReactNode; style?: R
   )
 }
 
-export const AI_NOTE = (
-  <>
-    <b>AI-powered features.</b> Job details are extracted by AI and may not always be 100% accurate. Please review the extracted information before saving, and check important details against the original job posting.
-  </>
-)
 
 export const DOC_NOTE = (
   <>

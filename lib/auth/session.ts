@@ -17,6 +17,7 @@ export const SESSION_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 export interface SessionUser {
   id: string
   email: string
+  emailVerified: boolean
 }
 
 /** Claims verified from the JWT alone; `tokenVersion` is checked against the DB. */
@@ -31,7 +32,7 @@ function getSecret(): Uint8Array {
 }
 
 export async function signSession(user: SessionUser, tokenVersion: number): Promise<string> {
-  return new SignJWT({ email: user.email, role: 'authenticated', tv: tokenVersion })
+  return new SignJWT({ email: user.email, role: 'authenticated', tv: tokenVersion, ev: user.emailVerified })
     .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
     .setSubject(user.id)
     .setAudience('authenticated')
@@ -50,7 +51,7 @@ export async function verifySession(token: string | undefined): Promise<SessionC
     if (typeof payload.sub !== 'string' || typeof payload.email !== 'string') return null
     // Tokens without `tv` (e.g. issued by Supabase Auth directly) are not ours
     if (typeof payload.tv !== 'number') return null
-    return { id: payload.sub, email: payload.email, tokenVersion: payload.tv }
+    return { id: payload.sub, email: payload.email, tokenVersion: payload.tv, emailVerified: payload.ev === true }
   } catch {
     return null
   }

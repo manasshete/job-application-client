@@ -4,7 +4,7 @@ import { generateText, Output } from 'ai'
 import { z } from 'zod'
 import { isValidUrl, MAX_LENGTHS } from '@/lib/validation'
 import { isSafePublicUrl } from '@/lib/ssrf'
-import { fetchJobPage, jobPageToText, JobPageError } from '@/lib/job-page'
+import { fetchJobPage, jobPageToText, JobPageError, needsBrowser } from '@/lib/job-page'
 import { rateLimit } from '@/lib/rate-limit'
 import { createClient } from '@/lib/supabase/server'
 import { getProfile } from '@/lib/data/profiles'
@@ -101,7 +101,26 @@ export async function POST(req: Request) {
 
       // Fetch the job posting (redirects are followed with an SSRF check on every hop)
       try {
-        pageText = jobPageToText(await fetchJobPage(url))
+        let html = await fetchJobPage(url)
+
+        // Pages built by JavaScript have no job text in their HTML, so load them in a browser.
+        // Tighter limit than above: this runs before a token is charged and costs far more than a fetch.
+        if (needsBrowser(html)) {
+          const browserLimit = rateLimit(`extract-job-browser:${user.id}`, 3, 60000)
+          if (!browserLimit.success) {
+            return Response.json(
+              { error: 'Too many requests. Please try again in a minute.' },
+              {
+                status: 429,
+                headers: { 'Retry-After': Math.ceil((browserLimit.resetTime - Date.now()) / 1000).toString() },
+              }
+            )
+          }
+          const { renderJobPage } = await import('@/lib/job-page-browser')
+          html = await renderJobPage(url, req.signal)
+        }
+
+        pageText = jobPageToText(html)
       } catch (error) {
         if (error instanceof JobPageError) {
           return Response.json({ error: error.message }, { status: 400 })
@@ -109,7 +128,6 @@ export async function POST(req: Request) {
         throw error
       }
 
-      // Pages rendered entirely by JavaScript have no job text in their HTML.
       // Checked before reserving a token so the user isn't charged.
       if (pageText.length < 200) {
         return Response.json(
@@ -132,6 +150,8 @@ export async function POST(req: Request) {
     try {
       const { output } = await generateText({
         model: extractionModel,
+        // Stops the AI call when the user cancels, so the catch below refunds their token.
+        abortSignal: req.signal,
         output: Output.object({
           schema: jobDetailsSchema,
         }),

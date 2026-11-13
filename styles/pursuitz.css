@@ -212,8 +212,9 @@
 .pz .rl { display: grid; align-items: baseline; gap: 16px; padding: 16px 8px; margin: 0 -8px; border-top: 1px solid var(--border); transition: background-color var(--dur) var(--ease); }
 .pz .rl:hover { background: var(--surface-2); color: inherit; }
 .pz .ng { grid-template-columns: 112px minmax(0, 1fr) auto; }
-.pz .tr { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr) 112px 88px minmax(0, 1.7fr); align-items: center; padding: 12px 8px; min-height: 56px; }
-.pz .th { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr) 112px 88px minmax(0, 1.7fr); gap: 16px; padding: 0 8px 10px; margin: 0 -8px; }
+.pz .tr { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr) 130px 88px 40px; align-items: center; padding: 12px 8px; min-height: 56px; }
+.pz .th { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr) 130px 88px 40px; gap: 16px; padding: 0 8px 10px; margin: 0 -8px; }
+
 .pz .row-new { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent-text); }
 .pz .row-new:hover { background: var(--accent-soft); }
 .pz .sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-top: 28px; }
@@ -528,6 +529,8 @@
   .pz .urlbar > svg { display: none; }
   .pz .urlbar .btn { width: 100%; }
   .pz .h1 { font-size: 24px; }
+  /* iOS zooms the page when a focused field's text is under 16px. */
+  .pz .inp, .pz .inl, .pz .urlbar-stack input { font-size: 16px; }
   .pz .topbar { display: flex; }
   .pz .tabbar { display: grid; }
   .pz .pg { padding: 20px 20px 40px; }

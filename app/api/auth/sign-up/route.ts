@@ -4,6 +4,8 @@ import { isDisposableEmail } from '@/lib/disposable-domains'
 import { SESSION_COOKIE, sessionCookieOptions, signSession } from '@/lib/auth/session'
 import { hashPassword, MIN_PASSWORD_LENGTH } from '@/lib/auth/password'
 import { getClientIp, isSameOrigin, normalizeEmail, readAuthBody } from '@/lib/auth/request'
+import { sendEmailVerificationEmail } from '@/lib/email/resend'
+import crypto from 'crypto'
 
 /**
  * POST /api/auth/sign-up
@@ -83,7 +85,31 @@ export async function POST(request: NextRequest) {
       if (logError) console.warn('[v0] Failed to log signup IP:', logError.message)
     }
 
-    const token = await signSession({ id: user.id, email: user.email }, user.token_version)
+    // Generate a 32-byte hex verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex')
+    const { error: tokenError } = await admin
+      .from('app_users')
+      .update({
+        email_verification_token: verificationToken,
+        verification_sent_at: new Date().toISOString(),
+      })
+      .eq('id', user.id)
+
+    if (tokenError) {
+      console.warn('[v0] Failed to store verification token:', tokenError.message)
+    } else {
+      // Fire and forget — don't block signup if email fails
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+      const verifyUrl = `${siteUrl}/api/auth/verify-email?token=${verificationToken}`
+      sendEmailVerificationEmail(user.email, verifyUrl).catch((err) =>
+        console.error('[v0] Failed to send verification email:', err)
+      )
+    }
+
+    const token = await signSession(
+      { id: user.id, email: user.email, emailVerified: false },
+      user.token_version,
+    )
     const response = NextResponse.json({ success: true })
     response.cookies.set(SESSION_COOKIE, token, sessionCookieOptions)
     return response

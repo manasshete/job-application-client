@@ -76,6 +76,63 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
   }
 }
 
+export async function sendEmailVerificationEmail(email: string, verifyUrl: string) {
+  // Local testing without Resend: print the link to the console
+  if (!process.env.RESEND_API_KEY && process.env.NODE_ENV !== 'production') {
+    console.log(`[dev] Email verification link for ${email}: ${verifyUrl}`)
+    return
+  }
+
+  try {
+    await getResend().emails.send({
+      from: 'Pursuitz <noreply@pursuitz.co>',
+      to: email,
+      subject: 'Verify your Pursuitz email address',
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #333; margin: 0; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              .header { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
+              .header h1 { margin: 0; font-size: 24px; }
+              .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
+              .button { display: inline-block; background: #7c3aed; color: white !important; padding: 14px 32px; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: 600; font-size: 15px; }
+              .link-box { background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 6px; padding: 12px 16px; margin-top: 12px; word-break: break-all; font-size: 13px; color: #5b21b6; }
+              .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #999; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>✉️ Verify your email</h1>
+              </div>
+              <div class="content">
+                <p>Hi there,</p>
+                <p>Thanks for signing up for Pursuitz! Click the button below to confirm your email address and unlock all features.</p>
+                <div style="text-align: center;">
+                  <a href="${esc(verifyUrl)}" class="button">Verify Email Address</a>
+                </div>
+                <p style="color: #666; font-size: 14px; margin-top: 20px;">Or copy and paste this link in your browser:</p>
+                <div class="link-box">${esc(verifyUrl)}</div>
+                <p style="color: #666; font-size: 13px; margin-top: 20px;">This link expires in <strong>24 hours</strong>. If you didn't create a Pursuitz account, you can safely ignore this email.</p>
+              </div>
+              <div class="footer">
+                <p>© 2026 Pursuitz. All rights reserved.</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `,
+    })
+  } catch (error) {
+    console.error('Failed to send email verification email:', error)
+    throw error
+  }
+}
+
+
 export async function sendInterviewReminder(email: string, jobTitle: string, company: string, interviewDate: string) {
   try {
     await getResend().emails.send({

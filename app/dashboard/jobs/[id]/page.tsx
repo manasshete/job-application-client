@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, ExternalLink, PenLine, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -93,7 +93,15 @@ export default function JobPage() {
         </div>
         <label className="fld" style={{ minWidth: 160 }}>
           <span className="fl">Status</span>
-          <select className={`inp st-${job.status}`} style={{ fontWeight: 500 }} aria-label="Status" value={job.status} onChange={(e) => void app.setStatus(job.id, e.target.value as JobStatus)}>
+          <select className={`inp st-${job.status}`} style={{ fontWeight: 500 }} aria-label="Status" value={job.status} onChange={(e) => {
+            const newStatus = e.target.value as JobStatus
+            void app.setStatus(job.id, newStatus).then(() => {
+              if (newStatus === 'accepted') {
+                const canvas = document.getElementById('confetti-detail') as HTMLCanvasElement | null
+                if (canvas) fireDetailConfetti(canvas)
+              }
+            })
+          }}>
             {JOB_STATUSES.map((s) => (
               <option key={s} value={s}>{JOB_STATUS_LABEL[s]}</option>
             ))}
@@ -229,6 +237,103 @@ export default function JobPage() {
       <div style={{ marginTop: 40, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
         <button className="btn btn-d" onClick={() => app.openModal({ type: 'delApp', id: job.id })}>Delete application</button>
       </div>
+
+      {/* Confetti canvas */}
+      <canvas id="confetti-detail" style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 9999 }} />
     </div>
   )
+}
+
+/* ── Confetti helper ──────────────────────────────── */
+
+interface Particle {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  w: number
+  h: number
+  color: string
+  rot: number
+  rotSpeed: number
+  gravity: number
+  opacity: number
+  decay: number
+}
+
+function fireDetailConfetti(canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight
+
+  const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9', '#82E0AA']
+  const particles: Particle[] = []
+
+  const burstPoints = [
+    { x: canvas.width * 0.3, y: canvas.height * 0.5 },
+    { x: canvas.width * 0.5, y: canvas.height * 0.4 },
+    { x: canvas.width * 0.7, y: canvas.height * 0.5 },
+  ]
+
+  for (const bp of burstPoints) {
+    for (let i = 0; i < 60; i++) {
+      const angle = Math.random() * Math.PI * 2
+      const speed = 4 + Math.random() * 12
+      particles.push({
+        x: bp.x,
+        y: bp.y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 8,
+        w: 6 + Math.random() * 8,
+        h: 4 + Math.random() * 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.3,
+        gravity: 0.15 + Math.random() * 0.1,
+        opacity: 1,
+        decay: 0.006 + Math.random() * 0.006,
+      })
+    }
+  }
+
+  let animFrame: number
+  const animate = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    let alive = false
+
+    for (const p of particles) {
+      if (p.opacity <= 0) continue
+      alive = true
+
+      p.x += p.vx
+      p.y += p.vy
+      p.vy += p.gravity
+      p.vx *= 0.99
+      p.rot += p.rotSpeed
+      p.opacity -= p.decay
+
+      ctx.save()
+      ctx.globalAlpha = Math.max(0, p.opacity)
+      ctx.translate(p.x, p.y)
+      ctx.rotate(p.rot)
+      ctx.fillStyle = p.color
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h)
+      ctx.restore()
+    }
+
+    if (alive) {
+      animFrame = requestAnimationFrame(animate)
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+    }
+  }
+
+  animFrame = requestAnimationFrame(animate)
+
+  setTimeout(() => {
+    cancelAnimationFrame(animFrame)
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+  }, 4000)
 }

@@ -44,6 +44,11 @@ const securityHeaders = [
 
 const nextConfig = {
   poweredByHeader: false,
+  // Loaded from node_modules at runtime: the browser binary can't be bundled.
+  serverExternalPackages: ['@sparticuz/chromium', 'playwright-core'],
+  outputFileTracingIncludes: {
+    '/api/extract-job': ['./node_modules/.pnpm/@sparticuz+chromium@*/node_modules/@sparticuz/chromium/bin/**'],
+  },
   images: {
     unoptimized: true,
   },

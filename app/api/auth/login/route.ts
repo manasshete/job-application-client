@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     const admin = createAdminClient()
     const { data: user, error } = await admin
       .from('app_users')
-      .select('id, email, password_hash, token_version')
+      .select('id, email, password_hash, token_version, email_verified')
       .eq('email', email)
       .maybeSingle()
 
@@ -54,7 +54,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 
-    const token = await signSession({ id: user.id, email: user.email }, user.token_version)
+    const token = await signSession(
+      { id: user.id, email: user.email, emailVerified: user.email_verified ?? false },
+      user.token_version,
+    )
     const response = NextResponse.json({ success: true })
     response.cookies.set(SESSION_COOKIE, token, sessionCookieOptions)
     return response

@@ -2,12 +2,12 @@ import { isValidUrl } from '@/lib/validation'
 import { isSafePublicUrl } from '@/lib/ssrf'
 
 const MAX_REDIRECTS = 5
-const MAX_BYTES = 3 * 1024 * 1024
+export const MAX_BYTES = 3 * 1024 * 1024
 const TIMEOUT_MS = 10000
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
 // 999 is LinkedIn's own "request denied" status.
-const BLOCKED_STATUSES = new Set([401, 403, 429, 999])
+export const BLOCKED_STATUSES = new Set([401, 403, 429, 999])
 
 export class JobPageError extends Error {}
 
@@ -101,6 +101,15 @@ function htmlToText(html: string): string {
     .replace(/[ \t\f\v\r]+/g, ' ')
     .replace(/ *\n[\n ]*/g, '\n')
     .trim()
+}
+
+/**
+ * True when the HTML has no job content of its own, as with pages built by
+ * JavaScript. Title and meta tags don't count: an app shell can have those.
+ */
+export function needsBrowser(html: string): boolean {
+  const hasJobData = /<script\b[^>]*application\/ld\+json[^>]*>[^<]*JobPosting/i.test(html)
+  return !hasJobData && htmlToText(html).length < 500
 }
 
 /**

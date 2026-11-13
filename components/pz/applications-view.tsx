@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { Job, JobStatus } from '@/lib/types'
@@ -8,7 +8,6 @@ import { useApp } from '@/components/pz/app-context'
 import { EmptyState, ErrorBlock } from '@/components/pz/ui'
 import { ArrowRight, PenLine, Plus, Search } from 'lucide-react'
 import { JOB_STATUSES, JOB_STATUS_LABEL, fd } from '@/lib/pz/format'
-import { nextStep } from '@/lib/pz/next-steps'
 
 type Sort = 'recent' | 'company' | 'status'
 
@@ -30,7 +29,7 @@ export function ApplicationsView() {
   }, [jobs, q, fStatus, sort])
 
   const newJob = jobs.find((j) => j.id === newJobId)
-  const step = (j: Job) => nextStep(j, today, nudge && newJobId === j.id)
+  const confettiRef = useRef<HTMLCanvasElement>(null)
   const href = (j: Job) => `/dashboard/jobs/${j.id}`
 
   return (
@@ -104,14 +103,14 @@ export function ApplicationsView() {
           {list.length > 0 && (
             <>
               <div className="only-desk list" style={{ marginTop: 20 }}>
-                <div className="th lbl list-hd" style={{ margin: 0, display: 'grid' }}><span>Company</span><span>Role</span><span>Status</span><span>Applied</span><span>Next step</span></div>
+                <div className="th lbl list-hd" style={{ margin: 0, display: 'grid' }}><span>Company</span><span>Role</span><span>Status</span><span>Applied</span><span></span></div>
                 {list.map((j) => (
                   <Link key={j.id} href={href(j)} className={`rl tr${newJobId === j.id ? ' row-new' : ''}`}>
                     <span className="ell" style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 10 }}><span className="avatar" aria-hidden="true" style={{ width: 26, height: 26, fontSize: 12, borderRadius: 6 }}>{j.company.trim().charAt(0)}</span><span className="ell">{j.company}</span></span>
                     <span className="ell muted">{j.position}</span>
-                    <span className={`st-${j.status}`} style={{ fontSize: 'var(--text-sm)' }}><span className="dot" />{JOB_STATUS_LABEL[j.status]}</span>
+                    <StatusDropdown job={j} />
                     <span className="tnum muted" style={{ fontSize: 'var(--text-sm)' }}>{fd(j.dateApplied)}</span>
-                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, minWidth: 0 }}><span className="ell" style={{ fontSize: 'var(--text-sm)' }}>{step(j)}</span><ArrowRight className="row-go" aria-hidden="true" style={{ width: 16, height: 16, flex: 'none' }} /></span>
+                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'end', gap: 8, minWidth: 0 }}><ArrowRight className="row-go" aria-hidden="true" style={{ width: 16, height: 16, flex: 'none' }} /></span>
                   </Link>
                 ))}
               </div>
@@ -120,10 +119,9 @@ export function ApplicationsView() {
                   <Link key={j.id} href={href(j)} className={`rl${newJobId === j.id ? ' row-new' : ''}`} style={{ display: 'block' }}>
                     <span style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
                       <span style={{ fontWeight: 500 }}>{j.company}</span>
-                      <span className={`st-${j.status}`} style={{ fontSize: 'var(--text-xs)' }}><span className="dot" />{JOB_STATUS_LABEL[j.status]}</span>
+                      <StatusDropdown job={j} compact />
                     </span>
                     <span className="muted" style={{ display: 'block', fontSize: 'var(--text-sm)' }}>{j.position}</span>
-                    <span style={{ display: 'block', fontSize: 'var(--text-xs)', marginTop: 6 }}>{step(j)}</span>
                   </Link>
                 ))}
               </div>
@@ -132,6 +130,162 @@ export function ApplicationsView() {
 
         </>
       )}
+
+      {/* Confetti canvas */}
+      <canvas ref={confettiRef} id="confetti-canvas" style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 9999 }} />
     </div>
+  )
+}
+
+/* ── Confetti helper ──────────────────────────────── */
+
+interface Particle {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  w: number
+  h: number
+  color: string
+  rot: number
+  rotSpeed: number
+  gravity: number
+  opacity: number
+  decay: number
+}
+
+function fireConfetti(canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight
+
+  const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9', '#82E0AA']
+  const particles: Particle[] = []
+
+  // Create particles from multiple burst points
+  const burstPoints = [
+    { x: canvas.width * 0.3, y: canvas.height * 0.5 },
+    { x: canvas.width * 0.5, y: canvas.height * 0.4 },
+    { x: canvas.width * 0.7, y: canvas.height * 0.5 },
+  ]
+
+  for (const bp of burstPoints) {
+    for (let i = 0; i < 60; i++) {
+      const angle = (Math.random() * Math.PI * 2)
+      const speed = 4 + Math.random() * 12
+      particles.push({
+        x: bp.x,
+        y: bp.y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 8,
+        w: 6 + Math.random() * 8,
+        h: 4 + Math.random() * 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.3,
+        gravity: 0.15 + Math.random() * 0.1,
+        opacity: 1,
+        decay: 0.006 + Math.random() * 0.006,
+      })
+    }
+  }
+
+  let animFrame: number
+  const animate = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    let alive = false
+
+    for (const p of particles) {
+      if (p.opacity <= 0) continue
+      alive = true
+
+      p.x += p.vx
+      p.y += p.vy
+      p.vy += p.gravity
+      p.vx *= 0.99
+      p.rot += p.rotSpeed
+      p.opacity -= p.decay
+
+      ctx.save()
+      ctx.globalAlpha = Math.max(0, p.opacity)
+      ctx.translate(p.x, p.y)
+      ctx.rotate(p.rot)
+      ctx.fillStyle = p.color
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h)
+      ctx.restore()
+    }
+
+    if (alive) {
+      animFrame = requestAnimationFrame(animate)
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+    }
+  }
+
+  animFrame = requestAnimationFrame(animate)
+
+  // Auto-cleanup after 4s
+  setTimeout(() => {
+    cancelAnimationFrame(animFrame)
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+  }, 4000)
+}
+
+/* ── Status dropdown (inline in the table) ───────── */
+
+function StatusDropdown({ job, compact }: { job: Job; compact?: boolean }) {
+  const app = useApp()
+
+  const handleChange = useCallback(
+    (e: React.MouseEvent<HTMLSelectElement>) => {
+      // Prevent navigating to the job page when clicking the dropdown
+      e.preventDefault()
+      e.stopPropagation()
+    },
+    [],
+  )
+
+  const handleStatusChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      e.preventDefault()
+      e.stopPropagation()
+      const newStatus = e.target.value as JobStatus
+      if (newStatus === job.status) return
+
+      void app.setStatus(job.id, newStatus).then(() => {
+        if (newStatus === 'accepted') {
+          const canvas = document.getElementById('confetti-canvas') as HTMLCanvasElement | null
+          if (canvas) fireConfetti(canvas)
+        }
+      })
+    },
+    [app, job.id, job.status],
+  )
+
+  return (
+    <select
+      className={`inp st-${job.status}`}
+      style={{
+        fontWeight: 500,
+        fontSize: compact ? 'var(--text-xs)' : 'var(--text-sm)',
+        minHeight: compact ? 28 : 34,
+        padding: compact ? '2px 6px' : '4px 8px',
+        width: 'auto',
+        background: 'transparent',
+        borderColor: 'transparent',
+        cursor: 'pointer',
+      }}
+      aria-label={`Status for ${job.company}`}
+      value={job.status}
+      onClick={handleChange}
+      onMouseDown={handleChange}
+      onChange={handleStatusChange}
+    >
+      {JOB_STATUSES.map((s) => (
+        <option key={s} value={s}>{JOB_STATUS_LABEL[s]}</option>
+      ))}
+    </select>
   )
 }
