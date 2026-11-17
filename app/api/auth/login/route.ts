@@ -39,14 +39,33 @@ export async function POST(request: NextRequest) {
     }
 
     const admin = createAdminClient()
-    const { data: user, error } = await admin
+
+    // Try with email_verified first; fall back if the column hasn't been added yet (migration 015)
+    let user: { id: string; email: string; password_hash: string; token_version: number; email_verified?: boolean } | null = null
+    let lookupError: { message: string } | null = null
+
+    const full = await admin
       .from('app_users')
       .select('id, email, password_hash, token_version, email_verified')
       .eq('email', email)
       .maybeSingle()
 
-    if (error) {
-      console.error('[v0] Login lookup failed:', error.message)
+    if (full.error && full.error.message.includes('email_verified')) {
+      // Column doesn't exist yet — query without it
+      const fallback = await admin
+        .from('app_users')
+        .select('id, email, password_hash, token_version')
+        .eq('email', email)
+        .maybeSingle()
+      user = fallback.data
+      lookupError = fallback.error
+    } else {
+      user = full.data
+      lookupError = full.error
+    }
+
+    if (lookupError) {
+      console.error('[v0] Login lookup failed:', lookupError.message)
       return NextResponse.json({ error: 'An error occurred' }, { status: 500 })
     }
 

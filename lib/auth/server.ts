@@ -22,7 +22,7 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
     .maybeSingle()
 
   if (error || !data || data.token_version !== claims.tokenVersion) return null
-  return { id: claims.id, email: claims.email }
+  return { id: claims.id, email: claims.email, emailVerified: claims.emailVerified }
 })
 
 /** The raw session JWT, used as the Supabase access token. */

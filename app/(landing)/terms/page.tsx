@@ -77,7 +77,7 @@ const SECTIONS: LegalSection[] = [
     id: 'tokens',
     heading: 'Tokens, Billing & Validity',
     blocks: [
-      'Paid plans and any add-ons are delivered as tokens for AI extractions and document generation. Tokens are valid for 60 days from the date they are added to your account, whether they are obtained through a new purchase, an upgrade, or a downgrade. Unused tokens roll over and remain usable on top of newly added tokens until their individual 60-day validity period expires, after which they are forfeited. Tokens are consumed oldest-expiring first. Tokens have no cash value, are non-transferable, and are non-refundable once added to your account.',
+      'Paid plans and any add-ons are delivered as tokens for AI extractions and document generation. Tokens are valid for 60 days from the date they are added to your account, whether they are obtained through a new purchase, an upgrade, or a downgrade. Unused tokens roll over and remain usable on top of newly added tokens until their individual 60-day validity period expires, after which they are forfeited. Tokens are consumed oldest-expiring first. Tokens have no cash value and are non-transferable. Cancellations and refunds are governed by our Refund and Cancellation Policy (/refund).',
     ],
   },
   {
@@ -97,10 +97,10 @@ const SECTIONS: LegalSection[] = [
   {
     id: 'contact',
     heading: 'Contact',
-    blocks: ['If you have any questions about these Terms of Service, please contact us at terms@pursuitz.com'],
+    blocks: ['If you have any questions about these Terms of Service, please contact us at info@pursuitz.co'],
   },
 ]
 
 export default function TermsPage() {
-  return <LegalPage title="Terms of Service" updated="January 2024" sections={SECTIONS} />
+  return <LegalPage title="Terms of Service" updated="November 2026" sections={SECTIONS} />
 }

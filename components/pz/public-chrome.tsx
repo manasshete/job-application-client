@@ -37,6 +37,9 @@ export function PublicFooter() {
         <div className="pub-foot-links">
           <Link href="/privacy" className="muted">Privacy Policy</Link>
           <Link href="/terms" className="muted">Terms</Link>
+          <Link href="/refund" className="muted">Refund Policy</Link>
+          <Link href="/cookies" className="muted">Cookie Policy</Link>
+          <Link href="/data-deletion" className="muted">Data Deletion</Link>
           <span className="muted">info@pursuitz.co</span>
         </div>
         <p className="pub-foot-legal">

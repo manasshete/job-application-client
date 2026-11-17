@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       if (logError) console.warn('[v0] Failed to log signup IP:', logError.message)
     }
 
-    // Generate a 32-byte hex verification token
+    // Generate a 32-byte hex verification token (only if migration 015 has been applied)
     const verificationToken = crypto.randomBytes(32).toString('hex')
     const { error: tokenError } = await admin
       .from('app_users')
@@ -96,7 +96,10 @@ export async function POST(request: NextRequest) {
       .eq('id', user.id)
 
     if (tokenError) {
-      console.warn('[v0] Failed to store verification token:', tokenError.message)
+      // If the columns don't exist yet, just skip — login still works without verification
+      if (!tokenError.message.includes('does not exist')) {
+        console.warn('[v0] Failed to store verification token:', tokenError.message)
+      }
     } else {
       // Fire and forget — don't block signup if email fails
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'

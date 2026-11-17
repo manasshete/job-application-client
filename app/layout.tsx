@@ -8,6 +8,7 @@ import './globals.css'
 import '../styles/pursuitz.css'
 import '../styles/landing.css'
 import { themeInitScript } from '@/components/pz/theme-script'
+import { CookieConsentBanner } from '@/components/pz/cookie-consent'
 
 const instrumentSans = Instrument_Sans({
   subsets: ['latin'],
@@ -113,6 +114,7 @@ export default function RootLayout({
       <body className="font-sans antialiased" suppressHydrationWarning>
         {children}
         <Analytics />
+        <CookieConsentBanner />
       </body>
     </html>
   )

@@ -51,25 +51,33 @@ const SECTIONS: LegalSection[] = [
   },
   {
     id: 'rights',
-    heading: 'Your Rights',
+    heading: 'Your Rights & Data Deletion',
     blocks: [
       'You have the right to:',
-      ['Access your personal data', 'Request correction or deletion of your data', 'Opt-out of data collection (if applicable)', 'Export your data'],
-      'To exercise these rights, contact us at privacy@pursuitz.com',
+      [
+        'Access and obtain a copy of your personal data',
+        'Request correction of inaccurate data',
+        'Request permanent deletion of your account and personal data (Right to Erasure / GDPR Article 17)',
+        'Opt-out of non-essential data collection',
+        'Export your stored applications and documents',
+      ],
+      'To request complete data deletion, you can delete your account directly via Settings (/dashboard/settings) or visit our dedicated Data Deletion page (/data-deletion). You can also email us directly at info@pursuitz.co.',
     ],
   },
   {
     id: 'cookies',
-    heading: 'Cookies',
-    blocks: ['Pursuitz uses cookies to maintain your session and preferences. You can control cookie settings in your browser.'],
+    heading: 'Cookies & Tracking',
+    blocks: [
+      'Pursuitz uses strictly necessary cookies to maintain secure sessions and prevent CSRF attacks, as well as preference cookies for appearance settings. For a comprehensive breakdown and to manage your preferences, please see our dedicated Cookie Policy (/cookies).',
+    ],
   },
   {
     id: 'contact',
     heading: 'Contact Us',
-    blocks: ['If you have questions about this privacy policy, please contact us at privacy@pursuitz.com'],
+    blocks: ['If you have questions about this privacy policy, please contact us at info@pursuitz.co'],
   },
 ]
 
 export default function PrivacyPage() {
-  return <LegalPage title="Privacy Policy" updated="January 2024" sections={SECTIONS} />
+  return <LegalPage title="Privacy Policy" updated="November 2026" sections={SECTIONS} />
 }
