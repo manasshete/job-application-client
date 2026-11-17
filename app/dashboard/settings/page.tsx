@@ -213,7 +213,33 @@ function Settings() {
             <p className="muted" style={{ margin: '16px 0 0', fontSize: 'var(--text-xs)' }}>Upgrading opens Razorpay checkout. Downgrading takes effect straight away, after you confirm.</p>
             {up && out && <p style={{ margin: '12px 0 0', fontSize: 'var(--text-sm)' }}>Need more? <button className="btn-t" onClick={() => app.startCheckout(up)}>Upgrade to {planOf(up).name}</button></p>}
 
-            {account.tier !== 'free' && (
+            {account.tier === 'free' ? (
+              <div
+                className="panel"
+                style={{
+                  marginTop: 28,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 16,
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 500, fontSize: 'var(--text-base)' }}>
+                    Subscription status: <span className="muted">Free plan (No active paid subscription)</span>
+                  </div>
+                  <p className="muted" style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)', maxWidth: 540 }}>
+                    You are currently on the Free plan. There are no recurring subscription charges to cancel. Upgrading to Pro or Premium unlocks higher token allowances.
+                  </p>
+                </div>
+                <div>
+                  <button type="button" className="btn btn-p" onClick={() => app.startCheckout('pro')}>
+                    Upgrade to Pro
+                  </button>
+                </div>
+              </div>
+            ) : (
               <div
                 className="panel"
                 style={{
@@ -296,19 +322,25 @@ function Settings() {
 
       {tab === 'account' && (
         <section style={{ marginTop: 32, maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 28 }}>
-          {account.tier !== 'free' && (
-            <div>
-              <div className="lbl" style={{ marginBottom: 8 }}>Subscription</div>
+          <div>
+            <div className="lbl" style={{ marginBottom: 8 }}>Subscription</div>
+            {account.tier === 'free' ? (
               <p className="muted" style={{ margin: '0 0 12px', fontSize: 'var(--text-sm)' }}>
-                You have a {planOf(account.tier).name} subscription ({isCanceled ? 'Cancelled — will not renew' : 'Active'}).
+                You are currently on the Free plan. There are no recurring subscription charges to cancel.
               </p>
-              {!isCanceled && (
-                <button type="button" className="btn btn-d" onClick={() => app.openModal({ type: 'cancelSubscription' })}>
-                  Cancel subscription
-                </button>
-              )}
-            </div>
-          )}
+            ) : (
+              <>
+                <p className="muted" style={{ margin: '0 0 12px', fontSize: 'var(--text-sm)' }}>
+                  You have a {planOf(account.tier).name} subscription ({isCanceled ? 'Cancelled — will not renew' : 'Active'}).
+                </p>
+                {!isCanceled && (
+                  <button type="button" className="btn btn-d" onClick={() => app.openModal({ type: 'cancelSubscription' })}>
+                    Cancel subscription
+                  </button>
+                )}
+              </>
+            )}
+          </div>
           <div>
             <div className="lbl" style={{ marginBottom: 8 }}>Delete account</div>
             <p className="muted" style={{ margin: '0 0 8px', fontSize: 'var(--text-sm)' }}>This removes your account and everything in it. You’ll be asked to type your email to confirm.</p>
