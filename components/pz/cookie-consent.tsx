@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { Cookie, X } from 'lucide-react'
 
-export const CONSENT_KEY = 'pz_cookie_consent'
+export const CONSENT_KEY = 'pz_cookie_consent_v1'
 
 /** Open or reopen the cookie consent banner from anywhere in the app */
 export function openCookieConsent() {
@@ -13,7 +14,7 @@ export function openCookieConsent() {
 }
 
 export function ManageCookiesButton({
-  className = 'btn btn-q',
+  className,
   style,
   label = 'Manage Cookie Preferences',
 }: {
@@ -25,7 +26,7 @@ export function ManageCookiesButton({
     <button
       type="button"
       onClick={openCookieConsent}
-      className={className}
+      className={className ?? 'btn btn-q'}
       style={style}
     >
       {label}
@@ -43,7 +44,7 @@ export function CookieConsentBanner() {
         setVisible(true)
       }
     } catch {
-      // Ignore storage errors (e.g. private browsing storage restrictions)
+      setVisible(true)
     }
 
     const handleOpen = () => setVisible(true)
@@ -54,8 +55,10 @@ export function CookieConsentBanner() {
   function handleChoice(choice: 'all' | 'essential') {
     try {
       localStorage.setItem(CONSENT_KEY, choice)
+      localStorage.setItem('pz_cookie_consent', choice)
+      document.cookie = `pz_cookie_consent=${choice}; path=/; max-age=31536000; SameSite=Lax`
     } catch {
-      // Ignore
+      // Ignore storage errors
     }
     setVisible(false)
   }
@@ -63,79 +66,115 @@ export function CookieConsentBanner() {
   if (!visible) return null
 
   return (
-    <div className="pz">
-      <div
-        role="region"
-        aria-label="Cookie consent banner"
-        className="fade"
-        style={{
-          position: 'fixed',
-          bottom: 24,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'calc(100% - 32px)',
-          maxWidth: 620,
-          zIndex: 99999,
-          background: 'var(--surface)',
-          border: '1px solid var(--border-strong)',
-          borderRadius: 'var(--radius-lg, 16px)',
-          padding: '20px 24px',
-          boxShadow: '0 20px 48px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.05)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <p style={{ margin: 0, fontSize: 'var(--text-base, 16px)', fontWeight: 600, color: 'var(--text)' }}>
-              We value your privacy
-            </p>
-            <p style={{ margin: 0, fontSize: 'var(--text-sm, 14px)', lineHeight: 1.5, color: 'var(--text-muted)' }}>
-              We use strictly necessary cookies to keep you signed in and secure. We also use privacy-friendly analytics to improve Pursuitz. Read our{' '}
-              <Link href="/cookies" style={{ textDecoration: 'underline', color: 'var(--accent-text)' }}>
-                Cookie Policy
-              </Link>{' '}
-              to learn more.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => handleChoice('essential')}
-            aria-label="Dismiss cookie notice"
+    <div
+      role="region"
+      aria-label="Cookie consent banner"
+      style={{
+        position: 'fixed',
+        bottom: 20,
+        left: 16,
+        right: 16,
+        margin: '0 auto',
+        maxWidth: 620,
+        zIndex: 2147483647,
+        background: 'var(--surface, #18191d)',
+        color: 'var(--text, #f8fafc)',
+        border: '1px solid var(--border-strong, #373b44)',
+        borderRadius: 16,
+        padding: '18px 22px',
+        boxShadow: '0 20px 48px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+        fontFamily: 'var(--font-sans, system-ui, -apple-system, sans-serif)',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 14 }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+          <div
             style={{
+              padding: 8,
+              borderRadius: 10,
+              background: 'var(--surface-2, rgba(255, 255, 255, 0.06))',
+              color: 'var(--accent, #6366f1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexShrink: 0,
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 6,
-              color: 'var(--text-muted)',
-              fontSize: 18,
-              lineHeight: 1,
-              borderRadius: 6,
             }}
           >
-            ✕
-          </button>
+            <Cookie style={{ width: 22, height: 22 }} aria-hidden="true" />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: 'var(--text, #f8fafc)' }}>
+              We value your privacy
+            </p>
+            <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: 'var(--text-muted, #94a3b8)' }}>
+              We use strictly necessary cookies to keep you signed in and secure, and privacy-friendly analytics to improve Pursuitz. You can manage your preferences or read our{' '}
+              <Link href="/cookies" style={{ textDecoration: 'underline', color: 'var(--accent-text, #818cf8)' }}>
+                Cookie Policy
+              </Link>.
+            </p>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="btn btn-q"
-            style={{ minHeight: 36, padding: '0 16px', fontSize: 13 }}
-            onClick={() => handleChoice('essential')}
-          >
-            Essential only
-          </button>
-          <button
-            type="button"
-            className="btn btn-p"
-            style={{ minHeight: 36, padding: '0 18px', fontSize: 13 }}
-            onClick={() => handleChoice('all')}
-          >
-            Accept all
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => handleChoice('essential')}
+          aria-label="Dismiss cookie notice"
+          style={{
+            flexShrink: 0,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 4,
+            color: 'var(--text-muted, #94a3b8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 6,
+          }}
+        >
+          <X style={{ width: 18, height: 18 }} />
+        </button>
+      </div>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          onClick={() => handleChoice('essential')}
+          style={{
+            minHeight: 36,
+            padding: '0 16px',
+            fontSize: 13,
+            fontWeight: 500,
+            borderRadius: 8,
+            cursor: 'pointer',
+            background: 'var(--surface-2, #262930)',
+            color: 'var(--text, #f8fafc)',
+            border: '1px solid var(--border-strong, #373b44)',
+            transition: 'background-color 150ms ease',
+          }}
+        >
+          Essential only
+        </button>
+        <button
+          type="button"
+          onClick={() => handleChoice('all')}
+          style={{
+            minHeight: 36,
+            padding: '0 18px',
+            fontSize: 13,
+            fontWeight: 500,
+            borderRadius: 8,
+            cursor: 'pointer',
+            background: 'var(--accent, #163a66)',
+            color: 'var(--on-accent, #ffffff)',
+            border: 'none',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+            transition: 'opacity 150ms ease',
+          }}
+        >
+          Accept all
+        </button>
       </div>
     </div>
   )
