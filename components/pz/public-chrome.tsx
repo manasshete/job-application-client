@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { Brand } from './brand'
 import { ThemeCycle } from './theme'
+import { openCookieConsent } from './cookie-consent'
 
 const LINKS: [string, string][] = [['Free tools', '/#tools'], ['Pricing', '/#pricing'], ['FAQ', '/#faq']]
 
@@ -39,6 +40,14 @@ export function PublicFooter() {
           <Link href="/terms" className="muted">Terms</Link>
           <Link href="/refund" className="muted">Refund Policy</Link>
           <Link href="/cookies" className="muted">Cookie Policy</Link>
+          <button
+            type="button"
+            onClick={openCookieConsent}
+            className="muted"
+            style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer', textAlign: 'left' }}
+          >
+            Cookie Settings
+          </button>
           <Link href="/data-deletion" className="muted">Data Deletion</Link>
           <span className="muted">info@pursuitz.co</span>
         </div>

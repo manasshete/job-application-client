@@ -13,6 +13,7 @@ export type ModalState =
   | { type: 'delDoc'; id: string }
   | { type: 'checkout'; tier: 'pro' | 'premium'; step: 'confirm' | 'handoff' }
   | { type: 'downgrade'; tier: SubscriptionTier }
+  | { type: 'cancelSubscription' }
   | { type: 'delAcct'; step: 'type' | 'support' }
 
 const Actions = ({ children }: { children: ReactNode }) => <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap' }}>{children}</div>
@@ -194,6 +195,39 @@ export function Modals() {
         <Actions>
           <button className="btn btn-q" onClick={closeModal}>Keep my plan</button>
           <button className="btn btn-d" disabled={busy} onClick={() => { setBusy(true); void app.confirmDowngrade(modal.tier) }}>Downgrade now</button>
+        </Actions>
+      </>
+    )
+  }
+
+  if (modal.type === 'cancelSubscription') {
+    const p = planOf(app.account.tier)
+    body = (
+      <>
+        <h2 className="h2">Cancel {p.name} subscription?</h2>
+        <p className="muted" style={{ margin: '8px 0 16px' }}>
+          Are you sure you want to cancel your {p.name} subscription?
+        </p>
+        <div style={{ background: 'var(--surface-2)', padding: '14px 18px', borderRadius: 'var(--radius)', fontSize: 'var(--text-sm)', marginBottom: 20 }}>
+          <p style={{ margin: '0 0 8px', fontWeight: 500 }}>What to know:</p>
+          <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6, color: 'var(--text-muted)' }}>
+            <li>You will not be charged again for future billing cycles.</li>
+            <li>Your existing tokens remain in your account until their expiry date.</li>
+            <li>You can reactivate your subscription anytime from Settings.</li>
+          </ul>
+        </div>
+        <Actions>
+          <button className="btn btn-q" onClick={closeModal}>Keep subscription</button>
+          <button
+            className="btn btn-d"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true)
+              await app.cancelSubscription()
+            }}
+          >
+            {busy ? 'Cancelling…' : 'Cancel subscription'}
+          </button>
         </Actions>
       </>
     )

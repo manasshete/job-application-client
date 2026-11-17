@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { LegalPage, type LegalSection } from '@/components/pz/legal'
+import { ManageCookiesButton } from '@/components/pz/cookie-consent'
 
 export const metadata: Metadata = { title: 'Cookie Policy' }
 
@@ -79,5 +80,15 @@ const SECTIONS: LegalSection[] = [
 ]
 
 export default function CookiePolicyPage() {
-  return <LegalPage title="Cookie Policy" updated="November 2026" sections={SECTIONS} />
+  return (
+    <LegalPage title="Cookie Policy" updated="November 2026" sections={SECTIONS}>
+      <div style={{ marginTop: 24, marginBottom: 16, padding: '16px 20px', background: 'var(--surface-2)', borderRadius: 12, border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <p style={{ margin: 0, fontWeight: 500, fontSize: 'var(--text-sm)' }}>Manage your cookie preferences</p>
+          <p style={{ margin: '2px 0 0', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>You can change your consent choice at any time on this device.</p>
+        </div>
+        <ManageCookiesButton />
+      </div>
+    </LegalPage>
+  )
 }

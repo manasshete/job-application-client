@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useApp } from '@/components/pz/app-context'
 import { ThemeToggle } from '@/components/pz/theme'
 import { Note, StatTile } from '@/components/pz/ui'
+import { openCookieConsent } from '@/components/pz/cookie-consent'
 import { jobsToCsv, saveBlob } from '@/lib/pz/export'
 import { dayOf, fd, fdw } from '@/lib/pz/format'
 import { PLANS, planOf, upgradeTarget } from '@/lib/pz/plans'
@@ -123,6 +124,7 @@ function Settings() {
       : `You are running low: ${tokens.extractions} extraction${tokens.extractions === 1 ? '' : 's'} and ${tokens.documents} document${tokens.documents === 1 ? '' : 's'} left.`
   const curIdx = PLANS.findIndex((p) => p.tier === account.tier)
   const up = upgradeTarget(account.tier)
+  const isCanceled = account.status === 'canceled' || account.status === 'cancelled'
 
   return (
     <div className="pg fade" style={{ maxWidth: 1040 }}>
@@ -174,7 +176,34 @@ function Settings() {
                     {p.lines.map((l) => (<li key={l}>{l}</li>))}
                   </ul>
                   <div style={{ marginTop: 'auto', paddingTop: 8 }}>
-                    {i === curIdx && <span className="badge badge-accent" style={{ minHeight: 28, padding: '0 12px' }}>Your current plan</span>}
+                    {i === curIdx && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
+                        <span className={`badge ${isCanceled ? 'badge-flag' : 'badge-accent'}`} style={{ minHeight: 28, padding: '0 12px' }}>
+                          {isCanceled ? 'Subscription cancelled' : 'Your current plan'}
+                        </span>
+                        {p.tier !== 'free' && (
+                          isCanceled ? (
+                            <button
+                              type="button"
+                              className="btn btn-q"
+                              style={{ minHeight: 32, fontSize: 'var(--text-xs)', padding: '0 12px' }}
+                              onClick={() => void app.reactivateSubscription()}
+                            >
+                              Reactivate subscription
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn-t"
+                              style={{ fontSize: 'var(--text-xs)', color: 'var(--st-rejected)', padding: 0 }}
+                              onClick={() => app.openModal({ type: 'cancelSubscription' })}
+                            >
+                              Cancel subscription
+                            </button>
+                          )
+                        )}
+                      </div>
+                    )}
                     {i > curIdx && p.tier !== 'free' && <button className="btn btn-p" onClick={() => app.startCheckout(p.tier as 'pro' | 'premium')}>Upgrade to {p.name}</button>}
                     {i < curIdx && <button className="btn btn-q" onClick={() => app.openModal({ type: 'downgrade', tier: p.tier })}>Downgrade to {p.name}</button>}
                   </div>
@@ -183,6 +212,46 @@ function Settings() {
             </div>
             <p className="muted" style={{ margin: '16px 0 0', fontSize: 'var(--text-xs)' }}>Upgrading opens Razorpay checkout. Downgrading takes effect straight away, after you confirm.</p>
             {up && out && <p style={{ margin: '12px 0 0', fontSize: 'var(--text-sm)' }}>Need more? <button className="btn-t" onClick={() => app.startCheckout(up)}>Upgrade to {planOf(up).name}</button></p>}
+
+            {account.tier !== 'free' && (
+              <div
+                className="panel"
+                style={{
+                  marginTop: 28,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 16,
+                  borderColor: isCanceled ? 'var(--flag-ink)' : undefined,
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 500, fontSize: 'var(--text-base)' }}>
+                    Subscription status:{' '}
+                    <span style={{ color: isCanceled ? 'var(--flag-ink, #d97706)' : 'var(--st-offer, #10b981)', textTransform: 'capitalize' }}>
+                      {isCanceled ? 'Cancelled' : 'Active'}
+                    </span>
+                  </div>
+                  <p className="muted" style={{ margin: '6px 0 0', fontSize: 'var(--text-sm)', maxWidth: 540 }}>
+                    {isCanceled
+                      ? 'Your subscription is cancelled and will not renew. Your unused tokens remain active until their expiry date. You can reactivate anytime.'
+                      : `You have an active ${planOf(account.tier).name} subscription. You can cancel at any time to prevent future automatic billing.`}
+                  </p>
+                </div>
+                <div>
+                  {isCanceled ? (
+                    <button type="button" className="btn btn-p" onClick={() => void app.reactivateSubscription()}>
+                      Reactivate subscription
+                    </button>
+                  ) : (
+                    <button type="button" className="btn btn-d" onClick={() => app.openModal({ type: 'cancelSubscription' })}>
+                      Cancel subscription
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </section>
         </>
       )}
@@ -209,11 +278,16 @@ function Settings() {
       )}
 
       {tab === 'data' && (
-        <section style={{ marginTop: 32, maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <section style={{ marginTop: 32, maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div>
             <div className="lbl" style={{ marginBottom: 8 }}>Export</div>
             <p className="muted" style={{ margin: '0 0 12px', fontSize: 'var(--text-sm)' }}>Download every application as a CSV file.</p>
             <button className="btn btn-q" onClick={() => { saveBlob(new Blob([jobsToCsv(app.jobs)], { type: 'text/csv' }), 'pursuitz-applications.csv'); app.toast(`Exported ${app.jobs.length} applications to CSV.`) }}>Export applications as CSV</button>
+          </div>
+          <div>
+            <div className="lbl" style={{ marginBottom: 8 }}>Cookie preferences</div>
+            <p className="muted" style={{ margin: '0 0 12px', fontSize: 'var(--text-sm)' }}>Review or update your cookie consent choices for this device.</p>
+            <button className="btn btn-q" onClick={openCookieConsent}>Open cookie preferences</button>
           </div>
           <Note><b>Data responsibility.</b> Pursuitz stores your job search data for your personal use. Keep your own copies of anything important (you can export a CSV at any time). We use strong security measures, but no system is 100% secure.</Note>
           <Note>{PRIVACY}</Note>
@@ -221,11 +295,26 @@ function Settings() {
       )}
 
       {tab === 'account' && (
-        <section style={{ marginTop: 32, maxWidth: 560 }}>
-          <div className="lbl" style={{ marginBottom: 8 }}>Delete account</div>
-          <p className="muted" style={{ margin: '0 0 8px', fontSize: 'var(--text-sm)' }}>This removes your account and everything in it. You’ll be asked to type your email to confirm.</p>
-          <p className="muted" style={{ margin: '0 0 16px', fontSize: 'var(--text-sm)' }}>Accounts with payment history are closed by our support team at info@pursuitz.co.</p>
-          <button className="btn btn-d" onClick={() => app.openModal({ type: 'delAcct', step: 'type' })}>Delete account…</button>
+        <section style={{ marginTop: 32, maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 28 }}>
+          {account.tier !== 'free' && (
+            <div>
+              <div className="lbl" style={{ marginBottom: 8 }}>Subscription</div>
+              <p className="muted" style={{ margin: '0 0 12px', fontSize: 'var(--text-sm)' }}>
+                You have a {planOf(account.tier).name} subscription ({isCanceled ? 'Cancelled — will not renew' : 'Active'}).
+              </p>
+              {!isCanceled && (
+                <button type="button" className="btn btn-d" onClick={() => app.openModal({ type: 'cancelSubscription' })}>
+                  Cancel subscription
+                </button>
+              )}
+            </div>
+          )}
+          <div>
+            <div className="lbl" style={{ marginBottom: 8 }}>Delete account</div>
+            <p className="muted" style={{ margin: '0 0 8px', fontSize: 'var(--text-sm)' }}>This removes your account and everything in it. You’ll be asked to type your email to confirm.</p>
+            <p className="muted" style={{ margin: '0 0 16px', fontSize: 'var(--text-sm)' }}>Accounts with payment history are closed by our support team at info@pursuitz.co.</p>
+            <button className="btn btn-d" onClick={() => app.openModal({ type: 'delAcct', step: 'type' })}>Delete account…</button>
+          </div>
         </section>
       )}
     </div>

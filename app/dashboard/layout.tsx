@@ -43,6 +43,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           name: profile?.full_name?.trim() || user.email.split('@')[0],
           email: user.email,
           tier: profile?.subscription_tier ?? 'free',
+          status: profile?.subscription_status ?? (profile?.subscription_tier === 'free' ? null : 'active'),
         }}
         initialTokens={{ extractions: summary.aiExtractionBalance, documents: summary.documentGenerationBalance, nextExpiry: summary.nextExpiry, batches }}
         initialDocs={docs}

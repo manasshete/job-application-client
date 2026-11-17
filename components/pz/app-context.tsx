@@ -14,6 +14,7 @@ export interface Account {
   name: string
   email: string
   tier: SubscriptionTier
+  status?: string | null
 }
 
 export interface Tokens {
@@ -86,6 +87,8 @@ interface Ctx {
   startCheckout: (tier: 'pro' | 'premium') => void
   continueToRazorpay: (tier: 'pro' | 'premium') => Promise<void>
   confirmDowngrade: (tier: SubscriptionTier) => Promise<void>
+  cancelSubscription: () => Promise<boolean>
+  reactivateSubscription: () => Promise<boolean>
   saveName: (name: string) => Promise<boolean>
   deleteAccount: (email: string) => Promise<'deleted' | 'support' | 'error'>
   logout: () => Promise<void>
@@ -423,6 +426,32 @@ export function AppProvider({
     [refreshTokens, router, toast],
   )
 
+  const cancelSubscription: Ctx['cancelSubscription'] = useCallback(async () => {
+    const r = await api('/api/subscription', json('POST', { action: 'cancel' }))
+    setModal(null)
+    if (!r.ok) {
+      toast(r.data.error || 'We could not cancel your subscription. Please try again.')
+      return false
+    }
+    setAccount((a) => ({ ...a, status: 'canceled' }))
+    toast('Subscription cancelled. You will not be billed again.')
+    router.refresh()
+    return true
+  }, [router, toast])
+
+  const reactivateSubscription: Ctx['reactivateSubscription'] = useCallback(async () => {
+    const r = await api('/api/subscription', json('POST', { action: 'reactivate' }))
+    setModal(null)
+    if (!r.ok) {
+      toast(r.data.error || 'We could not reactivate your subscription. Please try again.')
+      return false
+    }
+    setAccount((a) => ({ ...a, status: 'active' }))
+    toast('Your subscription has been reactivated!')
+    router.refresh()
+    return true
+  }, [router, toast])
+
   const saveName: Ctx['saveName'] = useCallback(
     async (name) => {
       const r = await api('/api/profile', json('PATCH', { full_name: name }))
@@ -456,7 +485,7 @@ export function AppProvider({
     getJob, addJob, patchJob, setStatus, removeJob,
     addRound, patchRound, addTask, patchTask,
     saveDoc, removeDoc, fetchDocText, masterCv, masterCvText, masterCl, masterClText,
-    refreshTokens, noteTokenUsed, startCheckout, continueToRazorpay, confirmDowngrade, saveName, deleteAccount, logout,
+    refreshTokens, noteTokenUsed, startCheckout, continueToRazorpay, confirmDowngrade, cancelSubscription, reactivateSubscription, saveName, deleteAccount, logout,
   }
 
   return (

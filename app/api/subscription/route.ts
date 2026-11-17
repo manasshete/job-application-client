@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const newStatus = action === 'cancel' ? 'cancelled' : 'active'
+    const newStatus = action === 'cancel' ? 'canceled' : 'active'
 
     // Use the service-role client for the write so it is never blocked by
     // RLS edge cases. The user's identity has already been verified above —
