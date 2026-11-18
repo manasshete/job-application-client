@@ -486,6 +486,8 @@ html {
   border-color: rgba(255,255,255,.09) !important;
 }
 
+/* Dark-theme input overrides — only for non-.pz tool content (e.g. ATS scanner dark shell).
+   The .pz sections (light-themed tool panels) use their own pursuitz.css rules instead. */
 .claude-tool-content :is(input, textarea, select) {
   background-color: rgba(255,255,255,.035) !important;
   color: #f4f5f7 !important;
@@ -494,6 +496,19 @@ html {
 
 .claude-tool-content :is(input, textarea)::placeholder {
   color: #59606d !important;
+}
+
+/* Re-assert correct light styles for inputs inside .pz panels (beats the rules above) */
+.pz .inp, .pz input, .pz select,
+.pz textarea {
+  background-color: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--control-border) !important;
+}
+.pz input::placeholder,
+.pz textarea::placeholder {
+  color: var(--text-faint) !important;
+  opacity: 1 !important;
 }
 
 .claude-tool-content .bg-blue-600 {
