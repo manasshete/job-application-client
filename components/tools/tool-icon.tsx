@@ -1,9 +1,8 @@
-import { FileSearch, Calculator, FileText, Mail, type LucideIcon } from 'lucide-react'
+import { FileSearch, FileText, Mail, type LucideIcon } from 'lucide-react'
 import type { FreeTool } from '@/lib/tools'
 
 const ICONS: Record<FreeTool['icon'], LucideIcon> = {
   FileSearch,
-  Calculator,
   FileText,
   Mail,
 }

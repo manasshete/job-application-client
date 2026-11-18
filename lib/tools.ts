@@ -20,7 +20,7 @@ export interface FreeTool {
   /** Longer description for the tool page hero + SEO */
   longDescription: string
   /** lucide-react icon name (resolved in components) */
-  icon: 'FileSearch' | 'Calculator' | 'FileText' | 'Mail'
+  icon: 'FileSearch' | 'FileText' | 'Mail'
   /** SEO page title */
   metaTitle: string
   /** SEO meta description */
@@ -38,17 +38,6 @@ export const FREE_TOOLS: FreeTool[] = [
     metaTitle: 'Free ATS Resume Scanner — Match Your Resume to Any Job',
     metaDescription:
       'Free ATS resume checker. Paste your resume and a job description to see your keyword match score and missing keywords. No sign-up, runs in your browser.',
-  },
-  {
-    slug: 'salary-take-home-calculator',
-    title: 'Salary Take-Home Calculator',
-    description: 'Estimate your net pay after income tax.',
-    longDescription:
-      'Enter a gross salary and country to estimate your take-home pay after income tax, with a clear monthly and annual breakdown. Great for comparing job offers.',
-    icon: 'Calculator',
-    metaTitle: 'Free Salary Take-Home Pay Calculator (India, US, UK)',
-    metaDescription:
-      'Estimate your net take-home salary after income tax for India, the US, and the UK. Free, instant, and private — all calculations run in your browser.',
   },
   {
     slug: 'resume-word-counter',

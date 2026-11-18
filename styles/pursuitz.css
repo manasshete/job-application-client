@@ -594,3 +594,17 @@
   .pz .tl-3 { grid-template-columns: minmax(0, 1fr); }
   .pz .tl-score { flex-direction: column; align-items: flex-start; }
 }
+
+/* ─── Override dark-theme claude-tool-content rules that bleed into .pz ─── */
+.pz .inp,
+.pz input,
+.pz textarea,
+.pz select {
+  background-color: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--control-border) !important;
+}
+.pz input::placeholder,
+.pz textarea::placeholder {
+  color: var(--text-faint) !important;
+}
