@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 
 export default function CoverLetterGeneratorPage() {
   return (
-    <>
+    <div className="fade">
       <ToolHero icon={Mail} title={tool.title} description={tool.longDescription} />
-      <div className="pz" style={{ background: "var(--bg)" }}><div className="tl-pub"><CoverLetterBuilder /></div></div>
+      <div className="tl-pub"><CoverLetterBuilder /></div>
       <SignupCTA />
-    </>
+    </div>
   )
 }

@@ -8,55 +8,50 @@ import { SignupCTA } from '@/components/tools/tools-chrome'
 export const metadata: Metadata = {
   title: 'Free Job Search Tools — Pursuitz',
   description:
-    'Free tools for your job search: ATS resume scanner, salary take-home calculator, resume readability checker, and cover letter generator. No sign-up required.',
+    'Free tools for your job search: ATS resume scanner, resume readability checker, and cover letter generator. No sign-up required.',
   alternates: { canonical: '/tools' },
 }
 
 export default function ToolsIndexPage() {
   return (
-    <>
-      <section className="relative overflow-hidden border-b border-white/[0.07] py-16 sm:py-20">
-        <div className="claude-grid absolute inset-0 opacity-40" aria-hidden="true" />
-        <div className="relative mx-auto max-w-3xl px-6 text-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[#9da3af]">
-            <Check className="size-3.5 text-[#7894f8]" aria-hidden="true" />
-            100% free · No account needed
-          </p>
-          <h1 className="mx-auto mt-6 max-w-2xl text-balance text-4xl font-semibold tracking-[-0.035em] text-[#f4f5f7] sm:text-5xl">
-            Free tools for your job search
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed text-[#8b919e]">
-            Quick, private tools that run entirely in your browser. Use them anytime — no sign-up,
-            no limits, no catch.
-          </p>
-        </div>
-      </section>
+    <div className="fade pub-in" style={{ paddingTop: 48, paddingBottom: 80 }}>
+      <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto' }}>
+        <span className="badge badge-accent" style={{ padding: '4px 12px', fontSize: 12 }}>
+          <Check style={{ width: 14, height: 14 }} aria-hidden="true" />
+          <span>100% free · No account needed</span>
+        </span>
+        <h1 className="h1" style={{ fontSize: 'clamp(32px, 4.5vw, 48px)', marginTop: 16 }}>
+          Free tools for your job search
+        </h1>
+        <p className="muted" style={{ marginTop: 14, fontSize: 'var(--text-lead)', lineHeight: 1.6 }}>
+          Quick, private tools that run entirely in your browser. Use them anytime — no sign-up, no limits, no catch.
+        </p>
+      </div>
 
-      <section className="mx-auto max-w-5xl px-6 py-14">
-        <div className="grid gap-5 sm:grid-cols-2">
-          {FREE_TOOLS.map((tool) => (
-            <Link
-              key={tool.slug}
-              href={`/tools/${tool.slug}`}
-              className="group flex flex-col rounded-2xl border border-white/[0.09] bg-[#101217] p-6 transition-colors hover:border-[#7894f8]/40 hover:bg-[#13161c]"
-            >
-              <span className="flex size-12 items-center justify-center rounded-xl border border-[#7894f8]/30 bg-[#7894f8]/10 text-[#9aafff] transition-colors group-hover:bg-[#7894f8] group-hover:text-[#08090c]">
-                <ToolIcon name={tool.icon} className="size-6" />
-              </span>
-              <h2 className="mt-5 text-lg font-semibold text-[#f4f5f7]">{tool.title}</h2>
-              <p className="mt-2 flex-1 text-pretty text-sm leading-relaxed text-[#8b919e]">
-                {tool.description}
-              </p>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[#9aafff]">
-                Open tool
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 20, maxWidth: 960, margin: '48px auto 0' }}>
+        {FREE_TOOLS.map((tool) => (
+          <Link
+            key={tool.slug}
+            href={`/tools/${tool.slug}`}
+            className="panel"
+            style={{ display: 'flex', flexDirection: 'column', padding: 24, textDecoration: 'none' }}
+          >
+            <div style={{ width: 44, height: 44, borderRadius: 'var(--radius)', display: 'grid', placeItems: 'center', background: 'var(--accent-soft)', color: 'var(--accent-text)', marginBottom: 16 }}>
+              <ToolIcon name={tool.icon} className="size-5" />
+            </div>
+            <h2 className="h2" style={{ fontSize: 18, margin: 0 }}>{tool.title}</h2>
+            <p className="muted" style={{ margin: '8px 0 16px', fontSize: 'var(--text-sm)', lineHeight: 1.55, flex: 1 }}>
+              {tool.description}
+            </p>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--text-sm)', fontWeight: 500, color: 'var(--accent-text)' }}>
+              Open tool
+              <ArrowRight style={{ width: 16, height: 16 }} aria-hidden="true" />
+            </span>
+          </Link>
+        ))}
+      </div>
 
       <SignupCTA />
-    </>
+    </div>
   )
 }

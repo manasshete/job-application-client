@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 
 export default function ResumeWordCounterPage() {
   return (
-    <>
+    <div className="fade">
       <ToolHero icon={FileText} title={tool.title} description={tool.longDescription} />
-      <div className="pz" style={{ background: "var(--bg)" }}><div className="tl-pub"><ReadabilityChecker /></div></div>
+      <div className="tl-pub"><ReadabilityChecker /></div>
       <SignupCTA />
-    </>
+    </div>
   )
 }

@@ -193,7 +193,6 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <p className="lp-fine">Take-home salary calculator: estimates only, based on simplified tax assumptions. Not tax or financial advice.</p>
           </div>
         </div>
       </section>

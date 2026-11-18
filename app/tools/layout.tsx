@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react'
-import { ToolsNav, ToolsFooter } from '@/components/tools/tools-chrome'
+import { PublicShell } from '@/components/pz/public-chrome'
 
 export default function ToolsLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#08090c] text-[#f4f5f7]">
-      <ToolsNav />
-      <main>{children}</main>
-      <ToolsFooter />
+    <div className="pz">
+      <PublicShell>{children}</PublicShell>
     </div>
   )
 }

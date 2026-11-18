@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 
 export default function AtsResumeScannerPage() {
   return (
-    <>
+    <div className="fade">
       <ToolHero icon={FileSearch} title={tool.title} description={tool.longDescription} />
-      <div className="pz" style={{ background: "var(--bg)" }}><div className="tl-pub"><AtsScanner /></div></div>
+      <div className="tl-pub"><AtsScanner /></div>
       <SignupCTA />
-    </>
+    </div>
   )
 }
