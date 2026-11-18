@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Calculator, CalendarClock, Check, CircleCheck, Clock, FileSearch, FileText, Link2, ListTodo, Mail, MessageSquare, WandSparkles } from 'lucide-react'
+import { ArrowRight, CalendarClock, Check, CircleCheck, Clock, FileSearch, FileText, Link2, ListTodo, Mail, MessageSquare, WandSparkles } from 'lucide-react'
 import { FREE_TOOLS } from '@/lib/tools'
 import { libraryDocs } from '@/lib/pz/docs'
 import { useApp } from '@/components/pz/app-context'
@@ -23,7 +23,7 @@ const STEPS = [
   ['Track what happens next', 'Log interviews, tasks and deadlines. Next steps tells you what needs you, and when.'],
 ] as const
 
-const TOOL_ICONS = { FileSearch, Calculator, FileText, Mail }
+const TOOL_ICONS = { FileSearch, FileText, Mail }
 
 /** Illustration of what reading a posting produces. Clearly an example, never the user's data. */
 function PostingDemo() {
