@@ -299,7 +299,6 @@ function Settings() {
         <section style={{ marginTop: 32, maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 40 }}>
           <MasterDoc type="cv" />
           <MasterDoc type="cover_letter" />
-          <Note>{PRIVACY}</Note>
         </section>
       )}
 
@@ -315,8 +314,6 @@ function Settings() {
             <p className="muted" style={{ margin: '0 0 12px', fontSize: 'var(--text-sm)' }}>Review or update your cookie consent choices for this device.</p>
             <button className="btn btn-q" onClick={openCookieConsent}>Open cookie preferences</button>
           </div>
-          <Note><b>Data responsibility.</b> Pursuitz stores your job search data for your personal use. Keep your own copies of anything important (you can export a CSV at any time). We use strong security measures, but no system is 100% secure.</Note>
-          <Note>{PRIVACY}</Note>
         </section>
       )}
 

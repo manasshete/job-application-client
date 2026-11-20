@@ -241,7 +241,7 @@ function StatusDropdown({ job, compact }: { job: Job; compact?: boolean }) {
   const handleChange = useCallback(
     (e: React.MouseEvent<HTMLSelectElement>) => {
       // Prevent navigating to the job page when clicking the dropdown
-      e.preventDefault()
+      // Note: do NOT call e.preventDefault() here — it blocks the native <select> popup
       e.stopPropagation()
     },
     [],
